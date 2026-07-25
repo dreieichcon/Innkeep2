@@ -3,7 +3,7 @@ using Innkeep2.Models.Pretix.Core;
 
 namespace Innkeep2.Models.Pretix;
 
-public record PtEvent
+public record PretixEvent
 {
 	[JsonPropertyName("name")]
     public required MultiLanguageString Name { get; init; }

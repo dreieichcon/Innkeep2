@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Innkeep2.Models.Pretix;
 
-public record PtOrganizer
+public record PretixOrganizer
 {
 	[JsonPropertyName("name")]
 	public required string Name { get; init; }
