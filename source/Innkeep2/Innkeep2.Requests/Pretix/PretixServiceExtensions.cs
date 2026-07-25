@@ -10,33 +10,38 @@ namespace Innkeep2.Requests.Pretix;
 
 public static class PretixServiceCollectionExtensions
 {
-	public static IServiceCollection AddPretixSerializerOptions(this IServiceCollection services)
+	extension(IServiceCollection services)
 	{
-		services.AddSingleton(_ =>
+		public void AddPretixSerializerOptions()
 		{
-			var options = new JsonSerializerOptions
+			services.AddSingleton(_ =>
 			{
-				PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-			};
-			options.Converters.Add(new PretixDecimalConverter());
-			return options;
-		});
+				var options = new JsonSerializerOptions
+				{
+					PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+				};
+				options.Converters.Add(new PretixDecimalConverter());
+				return options;
+			});
+		}
 
-		return services;
+		public void AddPretixClients()
+		{
+			services.AddPretixSerializerOptions();
+			services.AddTransient<PretixAuthHandler>();
+
+			services.AddHttpClient<PretixOrganizerClient>(ConfigureClient())
+				.AddHttpMessageHandler<PretixAuthHandler>();
+		
+			services.AddHttpClient<PretixEventClient>(ConfigureClient())
+				.AddHttpMessageHandler<PretixAuthHandler>();
+		}
 	}
 
-	public static IServiceCollection AddPretixClients(this IServiceCollection services, IConfiguration configuration)
-	{
-		services.AddPretixSerializerOptions();
-		services.AddTransient<PretixAuthHandler>();
-
-		services.AddHttpClient<PretixOrganizerClient>((sp, client) =>
-			{
-				var credentials = sp.GetRequiredService<ActiveCredentialsProvider<PretixCredential>>();
-				client.BaseAddress = new Uri(credentials.GetActive().BaseUrl);
-			})
-			.AddHttpMessageHandler<PretixAuthHandler>();
-
-		return services;
-	}
+	private static Action<IServiceProvider,HttpClient> ConfigureClient()
+		=> (sp, client) =>
+		{
+			var credentials = sp.GetRequiredService<ActiveCredentialsProvider<PretixCredential>>();
+			client.BaseAddress = new Uri(credentials.GetActive().BaseUrl);
+		};
 }

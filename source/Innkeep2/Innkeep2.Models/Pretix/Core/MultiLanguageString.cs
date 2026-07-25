@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using JetBrains.Annotations;
 
 namespace Innkeep2.Models.Pretix.Core;
 
+[UsedImplicitly]
 public class MultiLanguageString : Dictionary<string, string>
 {
 

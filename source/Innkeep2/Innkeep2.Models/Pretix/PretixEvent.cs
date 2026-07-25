@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
 using Innkeep2.Models.Pretix.Core;
+using JetBrains.Annotations;
 
 namespace Innkeep2.Models.Pretix;
 
+[UsedImplicitly]
 public record PretixEvent
 {
 	[JsonPropertyName("name")]

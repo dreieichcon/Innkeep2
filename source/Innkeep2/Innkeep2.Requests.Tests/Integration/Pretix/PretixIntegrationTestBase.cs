@@ -21,7 +21,7 @@ public abstract class PretixIntegrationTestBase
 
 		var services = new ServiceCollection();
 		services.AddCredentialsConfiguration(configuration);
-		services.AddPretixClients(configuration);
+		services.AddPretixClients();
 
 		ServiceProvider = services.BuildServiceProvider();
 	}

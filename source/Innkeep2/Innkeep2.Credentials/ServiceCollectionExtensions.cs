@@ -7,12 +7,11 @@ namespace Innkeep2.Credentials;
 
 public static class ServiceCollectionExtensions
 {
-	public static IServiceCollection AddCredentialsConfiguration(this IServiceCollection services, IConfiguration config)
+	public static void AddCredentialsConfiguration(this IServiceCollection services, IConfiguration config)
 	{
 		services.Configure<CredentialsOptions<PretixCredential>>(config.GetSection("pretix"));
 		services.Configure<CredentialsOptions<FiskalyCredential>>(config.GetSection("fiskaly"));
 		services.AddSingleton<ActiveCredentialsProvider<PretixCredential>>();
 		services.AddSingleton<ActiveCredentialsProvider<FiskalyCredential>>();
-		return services;
 	}
 }
