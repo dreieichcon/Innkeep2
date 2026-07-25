@@ -10,32 +10,32 @@ namespace Innkeep2.Requests.Pretix;
 
 public static class PretixServiceCollectionExtensions
 {
-	extension(IServiceCollection services)
+	public static void AddPretixSerializerOptions(this IServiceCollection services)
 	{
-		public void AddPretixSerializerOptions()
+		services.AddSingleton(_ =>
 		{
-			services.AddSingleton(_ =>
+			var options = new JsonSerializerOptions
 			{
-				var options = new JsonSerializerOptions
-				{
-					PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-				};
-				options.Converters.Add(new PretixDecimalConverter());
-				return options;
-			});
-		}
+				PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+			};
+			options.Converters.Add(new PretixDecimalConverter());
+			return options;
+		});
+	}
 
-		public void AddPretixClients()
-		{
-			services.AddPretixSerializerOptions();
-			services.AddTransient<PretixAuthHandler>();
+	public static void AddPretixClients(this IServiceCollection services)
+	{
+		services.AddPretixSerializerOptions();
+		services.AddTransient<PretixAuthHandler>();
 
-			services.AddHttpClient<PretixOrganizerClient>(ConfigureClient())
-				.AddHttpMessageHandler<PretixAuthHandler>();
+		services.AddHttpClient<PretixOrganizerClient>(ConfigureClient())
+			.AddHttpMessageHandler<PretixAuthHandler>();
 		
-			services.AddHttpClient<PretixEventClient>(ConfigureClient())
-				.AddHttpMessageHandler<PretixAuthHandler>();
-		}
+		services.AddHttpClient<PretixEventClient>(ConfigureClient())
+			.AddHttpMessageHandler<PretixAuthHandler>();
+			
+		services.AddHttpClient<PretixSalesItemClient>(ConfigureClient())
+			.AddHttpMessageHandler<PretixAuthHandler>();
 	}
 
 	private static Action<IServiceProvider,HttpClient> ConfigureClient()

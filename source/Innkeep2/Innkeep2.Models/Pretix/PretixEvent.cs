@@ -11,7 +11,7 @@ public record PretixEvent
     public required MultiLanguageString Name { get; init; }
 
     [JsonPropertyName("slug")]
-    public string? Slug { get; init; }
+    public required string Slug { get; init; }
 
     [JsonPropertyName("live")]
     public bool Live { get; init; }
