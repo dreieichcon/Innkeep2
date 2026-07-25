@@ -6,7 +6,7 @@ using Innkeep2.Models.Pretix.Core;
 using Innkeep2.Requests.Pretix.Clients;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Inkeep2.Services.Cloud;
+namespace Innkeep2.Services.Cloud;
 
 public sealed class CachedPretixOrganizerProvider(PretixOrganizerClient client, IMemoryCache cache)
 	: AbstractItemProvider<PretixOrganizer, Organizer>(cache)
