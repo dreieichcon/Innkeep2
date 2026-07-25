@@ -11,3 +11,4 @@ riderModule.iml
 **/appsettings.development.json
 
 **/credentials/**
+credentials.json
