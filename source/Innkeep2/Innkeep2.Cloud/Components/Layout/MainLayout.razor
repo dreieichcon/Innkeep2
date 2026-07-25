@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="top-row px-4">
+        <AuthorizeView>
+            <Authorized>
+                <span class="px-2">@context.User.Identity?.Name</span>
+                <form action="/Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <button type="submit" class="btn btn-link">Log out</button>
+                </form>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+
+    <div class="content px-4">
+        @Body
+    </div>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
