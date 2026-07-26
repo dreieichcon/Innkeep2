@@ -1,0 +1,13 @@
+@using Microsoft.AspNetCore.Components.Authorization
+
+<AuthorizeView Roles="innkeep2-admin">
+    <MudNavMenu>
+        <MudNavGroup Title="Config" Expanded="true">
+            <MudNavLink Href="/Config/Pretix">Pretix Config</MudNavLink>
+        </MudNavGroup>
+    </MudNavMenu>
+</AuthorizeView>
+
+@code {
+
+}

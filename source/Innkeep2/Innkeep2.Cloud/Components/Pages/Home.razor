@@ -1,33 +1,13 @@
-﻿@inject CachedPretixOrganizerProvider Provider
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 
-@page "/"
-@using Innkeep2.Models.Internal
-@using Innkeep2.Services.Cloud
-
-@inherits Innkeep2.Cloud.Components.Core.AdminPageBase
-
-<PageTitle>Home</PageTitle>
-
-<h1>Hello, world!</h1>
-
-@foreach(var organizer in _organizers)
-{
-    <p>@organizer.Name</p>
-}
-
-Welcome to your new app.
-
-@code
-{
-    IReadOnlyList<Organizer> _organizers = Array.Empty<Organizer>();
-    
-    protected override async Task OnInitializedAsync()
-    {
-        var org = await Provider.GetCachedItemsAsync();
-        
-        if (org.IsSuccess)
-        {
-            _organizers = org.Value!;
-        }
-    }
-}
+<AuthorizeView Roles="innkeep2-admin">
+    <Authorized>
+        <MudText Typo="Typo.h4">Welcome to Innkeep2 Cloud!</MudText>
+        <MudText Typo="Typo.body1">You are logged in as an administrator.</MudText>
+    </Authorized>
+    <NotAuthorized>
+        <MudText Typo="Typo.h4">Welcome to Innkeep2 Cloud!</MudText>
+        <MudText Typo="Typo.body1">Please <MudLink Target="/Account/Login">log in</MudLink> with an admin account to continue.</MudText>
+    </NotAuthorized>
+</AuthorizeView>

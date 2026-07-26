@@ -1,0 +1,59 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<MudAppBar Elevation="1">
+    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerOpen = !DrawerOpen)"/>
+    <MudText Typo="Typo.h5" Class="ml-3">Innkeep2</MudText>
+    <MudSpacer/>
+    <AuthorizeView>
+        <Authorized>
+            <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                <MudStack Row="true" Spacing="0" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
+                    <MudText Typo="Typo.body1" Class="ml-3">
+                        @(
+                        context.User.FindFirst("preferred_username")
+                            ?.Value ?? context.User.Identity?.Name
+                        )
+                    </MudText>
+                </MudStack>
+                <form action="/Account/Logout" method="post">
+                    <AntiforgeryToken/>
+                    <MudButton ButtonType="ButtonType.Submit" Color="Color.Inherit"
+                               EndIcon="@Icons.Material.Filled.Logout">Logout
+                    </MudButton>
+                </form>
+            </MudStack>
+        </Authorized>
+        <NotAuthorized>
+            <MudButton Color="Color.Inherit" EndIcon="@Icons.Material.Filled.Login" @onclick="Login">Login</MudButton>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudAppBar>
+
+@code {
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = null!;
+
+    [Parameter]
+    public bool DrawerOpen
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+            
+            field = value;
+            DrawerOpenChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<bool> DrawerOpenChanged { get; set; }
+
+    private void Login()
+    {
+        NavigationManager.NavigateTo("Account/Login", forceLoad: true);
+    }
+
+}
