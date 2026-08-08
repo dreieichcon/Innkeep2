@@ -1,0 +1,13 @@
+﻿services:
+  innkeep2.cloud:
+    image: hub.bvb-dreieich.de/innkeep/innkeep2.cloud
+    container_name: innkeep2.cloud
+    restart: always
+    build:
+      context: ../../source/Innkeep2
+      dockerfile: Innkeep2.Cloud/Dockerfile
+    ports:
+      - "8087:8080"
+    volumes:
+      - "./db/:/app/db/"
+      - "./credentials/:/credentials/:ro"
