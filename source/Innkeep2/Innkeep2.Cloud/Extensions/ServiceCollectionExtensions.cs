@@ -64,7 +64,7 @@ public static class ServiceCollectionExtensions
 			options.ClientId = configuration["keycloak:clientid"];
 			options.ClientSecret = configuration["keycloak:clientsecret"];
 			options.ResponseType = "code";
-			options.SaveTokens = false;
+			options.SaveTokens = true;
 			options.GetClaimsFromUserInfoEndpoint = true;
 			options.Scope.Add("openid");
 			options.Scope.Add("profile");
