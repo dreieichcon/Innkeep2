@@ -12,3 +12,9 @@ riderModule.iml
 
 **/credentials/**
 credentials.json
+
+*.DotSettings.user
+
+*.db
+*.db-shm
+*.db-wal

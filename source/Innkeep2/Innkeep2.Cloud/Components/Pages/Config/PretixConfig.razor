@@ -1,8 +1,73 @@
 @page "/Config/Pretix"
-<h3>PretixConfig</h3>
+@using Innkeep2.Cloud.Database.Models
+@using Innkeep2.Cloud.Database.Repositories
+@using Innkeep2.Cloud.Services
+@using Innkeep2.Database.Model
+@using Innkeep2.Models.Internal
+@using Innkeep2.Models.Pretix
+@using Innkeep2.Services.Cloud
 
-@code {
+@inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractDatabasePage
 
-    
-
-}
+<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudGrid Class="w-50" Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudText Typo="Typo.h4">
+                    Pretix Einstellungen
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack>
+                    <MudText>
+                        Pretix-Veranstalter
+                    </MudText>
+                    <MudSelect @bind-Value="SelectedOrganizer" T="Organizer" Dense="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @if (Settings is not null)
+                        {
+                            @foreach (var organizer in Organizers)
+                            {
+                                <MudSelectItem Value="@organizer">@organizer.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    <MudDivider/>
+                    <MudText>
+                        Pretix-Veranstaltung
+                    </MudText>
+                    <MudSelect @bind-Value="SelectedEvent" T="Event" Dense="true" Margin="Margin.Dense"
+                               Variant="Variant.Outlined">
+                        @if (Settings is not null)
+                        {
+                            @foreach (var e in Events)
+                            {
+                                <MudSelectItem Value="@e">@e.Name</MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
+                    <MudDivider/>
+                    <MudCheckBox T="bool" @bind-Value="UseTestMode">
+                        Testmodus verwenden
+                    </MudCheckBox>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudText>@SalesItems.Length Sales Items geladen</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack Row="true" Justify="Justify.FlexEnd">
+                    <MudButton Disabled="@(!HasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
+                        Speichern
+                    </MudButton>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudStack>

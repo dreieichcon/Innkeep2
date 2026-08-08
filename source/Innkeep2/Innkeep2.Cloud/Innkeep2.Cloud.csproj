@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Innkeep2.Database\Innkeep2.Database.csproj" />
       <ProjectReference Include="..\Innkeep2.Services\Innkeep2.Services.csproj" />
       <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
       <ProjectReference Include="..\Innkeep2.Requests\Innkeep2.Requests.csproj" />
@@ -16,7 +17,17 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
       <PackageReference Include="MudBlazor" Version="9.7.0" />
+      <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Database\Migrations\" />
     </ItemGroup>
 
 </Project>
