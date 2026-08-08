@@ -1,0 +1,39 @@
+@using Innkeep2.Cloud.Services
+<MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
+    <MudStack Row="true" Class="w-100">
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary">
+                Veranstalter:
+            </MudText>
+            <MudText>
+                @(StatusBarService.OrganizerName ?? "n.A.")
+            </MudText>
+        </MudStack>
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary">
+                Veranstaltung:
+            </MudText>
+            <MudText>
+                @(StatusBarService.EventName ?? "n.A.")
+            </MudText>
+        </MudStack>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+    [Inject]
+    public StatusBarService StatusBarService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await StatusBarService.RefreshAsync();
+        StatusBarService.Changed += RefreshDisplay;
+    }
+
+    private void RefreshDisplay(object? sender, EventArgs eventArgs)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+}

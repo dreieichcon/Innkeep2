@@ -1,0 +1,21 @@
+:root{
+    --app-bar-height: 48px;
+}
+
+.innkeep-app-bar{
+    
+}
+
+.innkeep-status-bar{
+    top: var(--app-bar-height) !important;
+    color: var(--mud-palette-black) !important;
+    background-color: var(--mud-palette-background) !important;
+}
+
+.mud-main-content{
+    padding-top: calc(2* var(--app-bar-height)) !important;
+}
+
+.mud-drawer{
+    top: calc(2* var(--app-bar-height)) !important;
+}

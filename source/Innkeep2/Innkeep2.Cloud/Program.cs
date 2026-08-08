@@ -22,6 +22,8 @@ builder.Services.AddScoped<UiResultHandler>();
 builder.Services.RegisterCloudServices(builder.Configuration);
 builder.Services.RegisterDatabaseServices();
 
+builder.Services.AddSingleton<StatusBarService>();
+
 var app = builder.Build();
 
 await app.Services.MigrateDatabaseAsync();

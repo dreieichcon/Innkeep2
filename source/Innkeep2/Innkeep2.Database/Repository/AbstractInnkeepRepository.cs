@@ -51,6 +51,21 @@ public abstract class AbstractRepository<TEntity, TContext>(IDbContextFactory<TC
 
 		return ToResult(entity, id);
 	}
+	
+	public virtual async Task<Result<TEntity>> GetOrCreateAsync(
+		Func<TEntity> createDefault, CancellationToken ct = default)
+	{
+		await using var context = CreateContext();
+		var entity = await GetSet(context).FirstOrDefaultAsync(ct);
+
+		if (entity is not null)
+			return Result<TEntity>.Success(entity);
+
+		entity = createDefault();
+		GetSet(context).Add(entity);
+
+		return await TrySaveAsync(context, entity, ct);
+	}
 
 	public virtual Result<TEntity> Crud(TEntity entity) => entity.Operation switch
 	{

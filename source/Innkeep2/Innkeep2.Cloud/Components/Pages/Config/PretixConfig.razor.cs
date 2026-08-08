@@ -21,7 +21,7 @@ public partial class PretixConfig
 
 	[Inject]
 	private CachedEventProvider EventProvider { get; set; } = null!;
-	
+
 	[Inject]
 	private CachedSalesItemProvider SalesItemProvider { get; set; } = null!;
 
@@ -30,6 +30,9 @@ public partial class PretixConfig
 
 	[Inject]
 	private UiResultHandler Handler { get; set; } = null!;
+
+	[Inject]
+	private StatusBarService StatusBarService { get; set; } = null!;
 
 	# endregion
 
@@ -87,22 +90,22 @@ public partial class PretixConfig
 			Settings?.PretixEventSlug = SelectedEvent?.Slug;
 			Settings?.Operation = Operation.Update;
 		}
-		
+
 		await LoadSalesItems();
 	}
 
 	#endregion
 
 	private SalesItem[] SalesItems { get; set; } = [];
-	
+
 	public bool UseTestMode
 	{
 		get => Settings?.UseTestMode ?? false;
 		set => Settings?.UseTestMode = value;
 	}
-	
+
 	private bool HasChanges => Settings?.Operation == Operation.Update;
-	
+
 	protected override async Task OnInitializedAsync()
 	{
 		OrganizerChanged += async (_, _) => await OnOrganizerChanged();
@@ -145,13 +148,13 @@ public partial class PretixConfig
 			SalesItems = [];
 			return;
 		}
-		
+
 		var salesItems = await Handler.TryExecuteAsync(
 			() => SalesItemProvider.GetCachedItemsAsync(new SalesItemKey(SelectedOrganizer.Slug, SelectedEvent.Slug)),
 			errorPrefix: "Failed to load sales items"
 		);
-		
-		SalesItems =  salesItems?.ToArray() ?? [];
+
+		SalesItems = salesItems?.ToArray() ?? [];
 		await InvokeAsync(StateHasChanged);
 	}
 
@@ -188,11 +191,16 @@ public partial class PretixConfig
 
 	private async Task SaveSettings()
 	{
-		if (Settings != null)
-			await Handler.TryExecuteAsync(
-				() => SettingsRepository.UpdateAsync(Settings),
-				successMessage: "Settings saved successfully",
-				errorPrefix: "Failed to save settings"
-			);
+		if (Settings is null)
+			return;
+
+		var result = await Handler.TryExecuteAsync(
+			() => SettingsRepository.UpdateAsync(Settings),
+			successMessage: "Settings saved successfully",
+			errorPrefix: "Failed to save settings"
+		);
+		
+		if (result != null)
+			await StatusBarService.RefreshAsync();
 	}
 }
