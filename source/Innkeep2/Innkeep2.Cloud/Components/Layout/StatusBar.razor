@@ -1,23 +1,27 @@
 @using Innkeep2.Cloud.Services
+@using Microsoft.AspNetCore.Components.Authorization
+
 <MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
-    <MudStack Row="true" Class="w-100">
-        <MudStack Row="true" Spacing="1">
-            <MudText Color="Color.Primary">
-                Veranstalter:
-            </MudText>
-            <MudText>
-                @(StatusBarService.OrganizerName ?? "n.A.")
-            </MudText>
+    <AuthorizeView Roles="innkeep2-admin">
+        <MudStack Row="true" Class="w-100">
+            <MudStack Row="true" Spacing="1">
+                <MudText Color="Color.Primary">
+                    Veranstalter:
+                </MudText>
+                <MudText>
+                    @(StatusBarService.OrganizerName ?? "n.A.")
+                </MudText>
+            </MudStack>
+            <MudStack Row="true" Spacing="1">
+                <MudText Color="Color.Primary">
+                    Veranstaltung:
+                </MudText>
+                <MudText>
+                    @(StatusBarService.EventName ?? "n.A.")
+                </MudText>
+            </MudStack>
         </MudStack>
-        <MudStack Row="true" Spacing="1">
-            <MudText Color="Color.Primary">
-                Veranstaltung:
-            </MudText>
-            <MudText>
-                @(StatusBarService.EventName ?? "n.A.")
-            </MudText>
-        </MudStack>
-    </MudStack>
+    </AuthorizeView>
 </MudAppBar>
 
 @code {

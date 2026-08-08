@@ -5,12 +5,18 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", "credentials.json");
 builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
+
+builder.Services.AddDataProtection()
+	.PersistKeysToFileSystem(new DirectoryInfo("./dataprotection-keys"))
+	.SetApplicationName("Innkeep2.Cloud");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -26,7 +32,17 @@ builder.Services.AddSingleton<StatusBarService>();
 
 var app = builder.Build();
 
+var options = new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+options.KnownIPNetworks.Clear();
+options.KnownProxies.Clear();
+
+app.UseForwardedHeaders(options);
+
 await app.Services.MigrateDatabaseAsync();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -35,7 +51,9 @@ if (!app.Environment.IsDevelopment())
 	app.UseHsts();
 }
 
+# if Debug
 app.UseHttpsRedirection();
+#endif
 
 app.UseAuthentication();
 app.UseAuthorization();

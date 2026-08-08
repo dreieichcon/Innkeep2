@@ -28,6 +28,8 @@ COPY --from=publish /app/publish .
 
 USER root
 RUN mkdir -p /app/db && chown $APP_UID /app/db
+RUN mkdir -p /app/dataprotection-keys && chown $APP_UID /app/dataprotection-keys
+
 USER $APP_UID
 
 ENTRYPOINT ["dotnet", "Innkeep2.Cloud.dll"]
