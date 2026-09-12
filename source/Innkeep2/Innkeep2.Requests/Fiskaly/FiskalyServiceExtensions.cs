@@ -20,7 +20,12 @@ public static class FiskalyServiceCollectionExtensions
     public static void AddFiskalyClients(this IServiceCollection services)
     {
         services.AddFiskalySerializerOptions();
+        services.AddTransient<FiskalyAuthHandler>();
+        
         services.AddHttpClient<FiskalyAuthClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl));
         services.AddSingleton<FiskalyTokenProvider>();
+        
+        services.AddHttpClient<FiskalyTssClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
+            .AddHttpMessageHandler<FiskalyAuthHandler>();
     }
 }

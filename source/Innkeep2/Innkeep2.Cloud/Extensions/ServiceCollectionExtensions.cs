@@ -4,8 +4,8 @@ using Innkeep2.Credentials;
 using Innkeep2.Credentials.Transformers;
 using Innkeep2.Requests.Fiskaly;
 using Innkeep2.Requests.Pretix;
-using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
+using Innkeep2.Services.Cloud.Fiskaly;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
 		services.AddMemoryCache();
 		
 		services.AddPretixCaches();
+		services.AddFiskalyServices();
 	}
 
 	public static void RegisterDatabaseServices(this IServiceCollection services)
@@ -80,5 +81,10 @@ public static class ServiceCollectionExtensions
 		services.AddAuthorization();
 		
 		services.AddCascadingAuthenticationState();
+	}
+
+	private static void AddFiskalyServices(this IServiceCollection services)
+	{
+		services.AddSingleton<TssService>();
 	}
 }
