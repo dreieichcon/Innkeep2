@@ -3,7 +3,6 @@ using Innkeep2.Credentials;
 using Innkeep2.Credentials.Models;
 using Innkeep2.Requests.Pretix.Clients;
 using Innkeep2.Requests.Serialization.Pretix;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Innkeep2.Requests.Pretix;
@@ -12,12 +11,9 @@ public static class PretixServiceCollectionExtensions
 {
 	public static void AddPretixSerializerOptions(this IServiceCollection services)
 	{
-		services.AddSingleton(_ =>
+		services.AddKeyedSingleton("pretix", (_, _) =>
 		{
-			var options = new JsonSerializerOptions
-			{
-				PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-			};
+			var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
 			options.Converters.Add(new PretixDecimalConverter());
 			return options;
 		});
