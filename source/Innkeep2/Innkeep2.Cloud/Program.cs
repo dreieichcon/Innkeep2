@@ -1,6 +1,7 @@
 using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
+using Innkeep2.Services.Cloud;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -28,6 +29,7 @@ builder.Services.AddScoped<UiResultHandler>();
 builder.Services.RegisterCloudServices(builder.Configuration);
 builder.Services.RegisterDatabaseServices();
 
+builder.Services.AddSingleton<IActiveConfigurationService, ActiveConfigurationService>();
 builder.Services.AddSingleton<StatusBarService>();
 
 var app = builder.Build();

@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Innkeep2.Models.Fiskaly.Tss;
 
+[JsonConverter(typeof(JsonStringEnumConverter<TssState>))]
 public enum TssState
 {
     [JsonStringEnumMemberName("CREATED")]

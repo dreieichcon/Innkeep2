@@ -1,11 +1,5 @@
 @page "/Config/Pretix"
-@using Innkeep2.Cloud.Database.Models
-@using Innkeep2.Cloud.Database.Repositories
-@using Innkeep2.Cloud.Services
-@using Innkeep2.Database.Model
 @using Innkeep2.Models.Internal
-@using Innkeep2.Models.Pretix
-@using Innkeep2.Services.Cloud
 
 @inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractDatabasePage
 
@@ -26,12 +20,9 @@
                     </MudText>
                     <MudSelect @bind-Value="SelectedOrganizer" T="Organizer" Dense="true"
                                Variant="Variant.Outlined" Margin="Margin.Dense">
-                        @if (Settings is not null)
+                        @foreach (var organizer in Organizers)
                         {
-                            @foreach (var organizer in Organizers)
-                            {
-                                <MudSelectItem Value="@organizer">@organizer.Name</MudSelectItem>
-                            }
+                            <MudSelectItem Value="@organizer">@organizer.Name</MudSelectItem>
                         }
                     </MudSelect>
                     <MudDivider/>
@@ -40,12 +31,9 @@
                     </MudText>
                     <MudSelect @bind-Value="SelectedEvent" T="Event" Dense="true" Margin="Margin.Dense"
                                Variant="Variant.Outlined">
-                        @if (Settings is not null)
+                        @foreach (var e in Events)
                         {
-                            @foreach (var e in Events)
-                            {
-                                <MudSelectItem Value="@e">@e.Name</MudSelectItem>
-                            }
+                            <MudSelectItem Value="@e">@e.Name</MudSelectItem>
                         }
                     </MudSelect>
                     <MudDivider/>
@@ -63,7 +51,7 @@
         <MudItem xs="12">
             <MudPaper Class="p-2">
                 <MudStack Row="true" Justify="Justify.FlexEnd">
-                    <MudButton Disabled="@(!HasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
+                    <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
                         Speichern
                     </MudButton>
                 </MudStack>

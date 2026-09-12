@@ -1,0 +1,39 @@
+@page "/Config/Fiskaly"
+@using Innkeep2.Models.Fiskaly.Tss
+
+<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudGrid Class="w-50" Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudText Typo="Typo.h4">
+                    Pretix Einstellungen
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack>
+                    <MudText>
+                        Ausgewählte Tss
+                    </MudText>
+                    <MudSelect @bind-Value="SelectedTss" T="FiskalyTss" Dense="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense">
+                        @foreach (var tss in TssEntries)
+                        {
+                            <MudSelectItem Value="@tss">@tss.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack Row="true" Justify="Justify.FlexEnd">
+                    <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
+                        Speichern
+                    </MudButton>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudStack>

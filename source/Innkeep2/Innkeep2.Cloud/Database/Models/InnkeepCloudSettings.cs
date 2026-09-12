@@ -14,4 +14,6 @@ public class InnkeepCloudSettings : AbstractDbItem
 	public string? PretixEventSlug { get; set; }
 	
 	public bool UseTestMode { get; set; }
+	
+	public Guid? SelectedTssId { get; set; }
 }

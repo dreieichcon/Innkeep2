@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
@@ -20,6 +21,9 @@ public sealed record FiskalyTss
 
     [JsonPropertyName("certificate")]
     public required string Certificate { get; init; }
+    
+    [JsonPropertyName("description")]
+    public string? Description { get; init; }
 
     [JsonPropertyName("serial_number")]
     public required string SerialNumber { get; init; }
@@ -35,4 +39,7 @@ public sealed record FiskalyTss
 
     [JsonPropertyName("time_creation")]
     public required long TimeCreation { get; init; }
+
+    [JsonIgnore]
+    public string DisplayName => $"{Description} ({Id})";
 }

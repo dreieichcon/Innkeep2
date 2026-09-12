@@ -1,7 +1,4 @@
-using Innkeep2.Cloud.Database.Models;
-using Innkeep2.Cloud.Database.Repositories;
 using Innkeep2.Cloud.Services;
-using Innkeep2.Database.Model;
 using Innkeep2.Models.Internal;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
@@ -13,9 +10,6 @@ namespace Innkeep2.Cloud.Components.Pages.Config;
 public partial class PretixConfig
 {
 	# region Dependencies
-
-	[Inject]
-	private InnkeepCloudSettingsRepository SettingsRepository { get; set; } = null!;
 
 	[Inject]
 	private CachedOrganizerProvider OrganizerProvider { get; set; } = null!;
@@ -33,11 +27,9 @@ public partial class PretixConfig
 	private UiResultHandler Handler { get; set; } = null!;
 
 	[Inject]
-	private StatusBarService StatusBarService { get; set; } = null!;
+	private IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
 
 	# endregion
-
-	private InnkeepCloudSettings? Settings { get; set; }
 
 	# region Organizer Selection
 
@@ -50,21 +42,15 @@ public partial class PretixConfig
 		get;
 		set
 		{
+			if (ActiveConfiguration.Organizer != value)
+				_hasChanges = true;
+			
 			field = value;
 			OrganizerChanged?.Invoke(this, EventArgs.Empty);
 		}
 	}
 
-	private async Task OnOrganizerChanged()
-	{
-		if (Settings?.PretixOrganizerSlug != SelectedOrganizer?.Slug)
-		{
-			Settings?.PretixOrganizerSlug = SelectedOrganizer?.Slug;
-			Settings?.Operation = Operation.Update;
-		}
-
-		await LoadEvents();
-	}
+	private async Task OnOrganizerChanged() => await LoadEvents();
 
 	# endregion
 
@@ -79,21 +65,15 @@ public partial class PretixConfig
 		get;
 		set
 		{
+			if (ActiveConfiguration.Event != value)
+				_hasChanges = true;
+			
 			field = value;
 			EventChanged?.Invoke(this, EventArgs.Empty);
 		}
 	}
 
-	private async Task OnEventChanged()
-	{
-		if (Settings?.PretixEventSlug != SelectedEvent?.Slug)
-		{
-			Settings?.PretixEventSlug = SelectedEvent?.Slug;
-			Settings?.Operation = Operation.Update;
-		}
-
-		await LoadSalesItems();
-	}
+	private async Task OnEventChanged() => await LoadSalesItems();
 
 	#endregion
 
@@ -101,11 +81,17 @@ public partial class PretixConfig
 
 	public bool UseTestMode
 	{
-		get => Settings?.UseTestMode ?? false;
-		set => Settings?.UseTestMode = value;
+		get;
+		set
+		{
+			if (ActiveConfiguration.UseTestMode != value)
+				_hasChanges = true;
+			
+			field = value;
+		}
 	}
 
-	private bool HasChanges => Settings?.Operation == Operation.Update;
+	private bool _hasChanges;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -161,47 +147,23 @@ public partial class PretixConfig
 
 	private async Task LoadSettings()
 	{
-		Settings = await GetOrCreateSettings();
+		await ActiveConfiguration.RefreshAsync();
 
-		if (Settings.PretixOrganizerSlug is not null)
-		{
-			SelectedOrganizer = Organizers.FirstOrDefault(o => o.Slug == Settings.PretixOrganizerSlug);
-		}
-
-		if (Settings.PretixEventSlug is not null)
-		{
-			SelectedEvent = Events.FirstOrDefault(o => o.Slug == Settings.PretixEventSlug);
-		}
-	}
-
-	private async Task<InnkeepCloudSettings> GetOrCreateSettings()
-	{
-		var settings = (await SettingsRepository.GetAllAsync()).Value?.FirstOrDefault();
-
-		if (settings is not null)
-			return settings;
-
-		var result = await SettingsRepository.CreateAsync(new InnkeepCloudSettings());
-
-		if (result.IsSuccess)
-			return (await SettingsRepository.GetAllAsync()).Value!.FirstOrDefault()!;
-
-		Snackbar.Add($"Error in settings creation: {result.Error!.Message}", Severity.Error);
-		return result.Value!;
+		SelectedOrganizer = Organizers.FirstOrDefault(o => o.Slug == ActiveConfiguration.Organizer?.Slug);
+		SelectedEvent = Events.FirstOrDefault(e => e.Slug == ActiveConfiguration.Event?.Slug);
+		UseTestMode = ActiveConfiguration.UseTestMode;
 	}
 
 	private async Task SaveSettings()
 	{
-		if (Settings is null)
-			return;
-
-		var result = await Handler.TryExecuteAsync(
-			() => SettingsRepository.UpdateAsync(Settings),
-			successMessage: "Settings saved successfully",
+		await Handler.TryExecuteAsync(
+			() => ActiveConfiguration.SaveAsync(
+				SelectedOrganizer?.Slug,
+				SelectedEvent?.Slug,
+				ActiveConfiguration.Tss?.Id,
+				UseTestMode
+			),
 			errorPrefix: "Failed to save settings"
 		);
-		
-		if (result != null)
-			await StatusBarService.RefreshAsync();
 	}
 }

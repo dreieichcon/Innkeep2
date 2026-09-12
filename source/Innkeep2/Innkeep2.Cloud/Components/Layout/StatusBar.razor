@@ -1,4 +1,5 @@
 @using Innkeep2.Cloud.Services
+@using Innkeep2.Services.Cloud
 @using Microsoft.AspNetCore.Components.Authorization
 
 <MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
@@ -9,7 +10,7 @@
                     Veranstalter:
                 </MudText>
                 <MudText>
-                    @(StatusBarService.OrganizerName ?? "n.A.")
+                    @(ActiveConfiguration.Organizer?.Name ?? "n.A.")
                 </MudText>
             </MudStack>
             <MudStack Row="true" Spacing="1">
@@ -17,7 +18,15 @@
                     Veranstaltung:
                 </MudText>
                 <MudText>
-                    @(StatusBarService.EventName ?? "n.A.")
+                    @(ActiveConfiguration.Event?.Name ?? "n.A.")
+                </MudText>
+            </MudStack>
+            <MudStack Row="true" Spacing="1">
+                <MudText Color="Color.Primary">
+                    TSS:
+                </MudText>
+                <MudText>
+                    @(ActiveConfiguration.Tss?.SerialNumber ?? "n.A.")
                 </MudText>
             </MudStack>
         </MudStack>
@@ -27,12 +36,12 @@
 @code {
 
     [Inject]
-    public StatusBarService StatusBarService { get; set; } = null!;
+    public IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
-        await StatusBarService.RefreshAsync();
-        StatusBarService.Changed += RefreshDisplay;
+        await ActiveConfiguration.RefreshAsync();
+        ActiveConfiguration.Changed += RefreshDisplay;
     }
 
     private void RefreshDisplay(object? sender, EventArgs eventArgs)

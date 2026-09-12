@@ -14,7 +14,7 @@ public sealed class FiskalyTssClient(
     : CoreApiClient(httpClient, serializerOptions)
 {
     public Task<Result<FiskalyTss>> CreateAsync(Guid tssId, CancellationToken ct = default)
-        => PutAsync<FiskalyTss>($"tss/{tssId}", null, ct);
+        => PutAsync<FiskalyTss>($"tss/{tssId}", new {}, ct);
     
     public Task<Result<FiskalyListResponse<FiskalyTss>>> GetAllAsync(CancellationToken ct = default)
         => GetAsync<FiskalyListResponse<FiskalyTss>>("tss", ct);
