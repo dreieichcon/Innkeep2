@@ -36,6 +36,9 @@ public static class PretixServiceCollectionExtensions
 			
 		services.AddHttpClient<PretixSalesItemClient>(ConfigureClient())
 			.AddHttpMessageHandler<PretixAuthHandler>();
+		
+		services.AddHttpClient<PretixOrderClient>(ConfigureClient())
+			.AddHttpMessageHandler<PretixAuthHandler>();
 	}
 
 	private static Action<IServiceProvider,HttpClient> ConfigureClient()

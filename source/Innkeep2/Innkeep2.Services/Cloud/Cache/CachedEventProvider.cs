@@ -6,7 +6,7 @@ using Innkeep2.Requests.Pretix.Clients;
 using Innkeep2.Services.Core;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Innkeep2.Services.Cloud;
+namespace Innkeep2.Services.Cloud.Cache;
 
 public sealed record EventKey(string OrganizerSlug);
 
