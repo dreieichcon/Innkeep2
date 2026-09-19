@@ -2,6 +2,9 @@
 
 <AuthorizeView Roles="innkeep2-admin">
     <MudNavMenu>
+        <MudNavGroup Title="Bestellungen" Icon="@Icons.Material.Outlined.AttachMoney" Expanded="true">
+            <MudNavLink Href="/Dashboard">Dashboard</MudNavLink>
+        </MudNavGroup>
         <MudNavGroup Title="Config" Icon="@Icons.Material.Outlined.Settings" Expanded="true">
             <MudNavLink Href="/Config/Api">Api Config</MudNavLink>
             <MudNavLink Href="/Config/Pretix">Pretix Config</MudNavLink>
@@ -12,7 +15,6 @@
                 <MudNavLink Href="/Config/Tss/Edit">Aktive Tss Bearbeiten</MudNavLink>
                 <MudNavLink Href="/Config/Client">Clients Verwalten</MudNavLink>
             </MudNavGroup>
-
         </MudNavGroup>
     </MudNavMenu>
 </AuthorizeView>

@@ -16,6 +16,9 @@ public class AbstractUiPage : ComponentBase
 	[Inject]
 	public IDialogService DialogService { get; set; } = null!;
 
+	[Inject]
+	public ISnackbar Snackbar { get; set; } = null!;
+
 	protected override async Task OnInitializedAsync()
 	{
 		await ActiveConfiguration.RefreshAsync();

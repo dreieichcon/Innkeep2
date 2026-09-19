@@ -3,16 +3,19 @@ using System;
 using Innkeep2.Cloud.AppDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Innkeep2.Cloud.Database.Migrations
+namespace Innkeep2.Cloud.AppDb.Migrations
 {
     [DbContext(typeof(InnkeepCloudDbContext))]
-    partial class InnkeepCloudDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918075336_Spelling Fix")]
+    partial class SpellingFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");

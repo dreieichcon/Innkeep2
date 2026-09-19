@@ -1,0 +1,17 @@
+<MudItem xs="12">
+    <MudPaper Class="p-2">
+        <MudStack>
+            @ChildContent
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+
+    [Parameter]
+    public int Xs { get; set; } = 12;
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    
+}

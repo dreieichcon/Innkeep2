@@ -34,7 +34,9 @@ public partial class TssEdit
 
     private async Task StoreCredentials()
     {
-        TssService.UpsertCredentials(ActiveCredentialEntry!);
+       TssService.UpsertCredentials(ActiveCredentialEntry!);
+       Snackbar.Add("Credentials erfolgreich hinterlegt.");
+       await ActiveConfiguration.ChangedFromOutside();
         await InvokeAsync(StateHasChanged);
     }
 

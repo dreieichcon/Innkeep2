@@ -153,7 +153,8 @@ public partial class PretixConfig
 				SelectedEvent?.Slug,
 				ActiveConfiguration.Tss?.Id,
 				ActiveConfiguration.Client?.Id,
-				UseTestMode
+				UseTestMode,
+				ActiveConfiguration.OrderDatabasePath
 			),
 			errorPrefix: "Failed to save settings"
 		);

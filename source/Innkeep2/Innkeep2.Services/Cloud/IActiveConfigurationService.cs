@@ -23,6 +23,7 @@ public interface IActiveConfigurationService
         Guid? tssId,
         Guid? clientId,
         bool useTestMode,
+        string? databasePath,
         CancellationToken ct = default
     );
 
@@ -37,4 +38,6 @@ public interface IActiveConfigurationService
     public Task SetOrderDatabasePath(string? path);
     
     public Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default);
+
+    public Task ChangedFromOutside();
 }

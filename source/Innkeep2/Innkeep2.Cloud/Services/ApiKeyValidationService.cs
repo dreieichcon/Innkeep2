@@ -17,7 +17,7 @@ public class ApiKeyValidationService(InnkeepCloudApiKeyRepository repository)
         {
             Name = name,
             KeyHash = Hash(key),
-            CreatedAd = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Operation = Operation.Create,
         };
 

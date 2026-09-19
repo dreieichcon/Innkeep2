@@ -7,11 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Innkeep2.Requests.Fiskaly;
 
-public sealed class FiskalyClientClient(HttpClient httpClient, [FromKeyedServices("fiskaly")] JsonSerializerOptions serializerOptions)
+public sealed class FiskalyClientClient(
+    HttpClient httpClient,
+    [FromKeyedServices("fiskaly")] JsonSerializerOptions serializerOptions)
     : CoreApiClient(httpClient, serializerOptions)
 {
     public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllAsync(CancellationToken ct = default)
         => GetAsync<FiskalyListResponse<FiskalyClient>>("client", ct);
+
+    public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllForTssAsync(Guid tssId,
+        CancellationToken ct = default)
+        => GetAsync<FiskalyListResponse<FiskalyClient>>($"tss/{tssId}/client", ct);
 
     public Task<Result<FiskalyClient>> CreateAsync(
         Guid tssId,

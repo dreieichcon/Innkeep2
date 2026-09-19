@@ -16,10 +16,13 @@
                     </NoRecordsContent>
                     <Columns>
                         <PropertyColumn Property="x => x.Name"/>
-                        <PropertyColumn Property="x => x.CreatedAd"/>
+                        <PropertyColumn Property="x => x.CreatedAt"/>
+                        <PropertyColumn Property="x => x.Revoked"/>
                         <TemplateColumn Title="Aktionen">
                             <CellTemplate>
-                                <MudButton OnClick="() => DeactivateKey(context.Item)">Deaktivieren</MudButton>
+                                <MudButton Disabled="@(context.Item.Revoked)"
+                                           OnClick="() => DeactivateKey(context.Item)">Deaktivieren
+                                </MudButton>
                             </CellTemplate>
                         </TemplateColumn>
                     </Columns>
@@ -41,7 +44,7 @@
 
     [Inject]
     public InnkeepCloudApiKeyRepository ApiKeyRepository { get; set; } = null!;
-    
+
     [Inject]
     public ApiKeyValidationService ApiKeyValidationService { get; set; } = null!;
 
@@ -58,12 +61,12 @@
     {
         if (string.IsNullOrWhiteSpace(_keyName))
             return;
-        
-        var key = await Handler.TryExecuteAsync(() =>  ApiKeyValidationService.GenerateApiKey(_keyName), errorPrefix: "Fehler beim Erstellen eines Keys");
+
+        var key = await Handler.TryExecuteAsync(() => ApiKeyValidationService.GenerateApiKey(_keyName), errorPrefix: "Fehler beim Erstellen eines Keys");
 
         if (key == null)
             return;
-        
+
         await DialogService.ShowMessageBoxAsync("API Key Angelegt",
             $"Stellen Sie sicher, dass der folgende Key gespeichert ist. Er wird nur einmal angezeigt: {Environment.NewLine}{key}",
             options: new DialogOptions()
@@ -79,7 +82,16 @@
     private async Task DeactivateKey(InnkeepCloudApiKey key)
     {
         var result = await DialogService.ShowMessageBoxAsync("API Key Deaktivieren", "Dieser Schritt kann nicht Rückgängig gemacht werden. Wirklich fortfahren?", yesText: "Ja", noText: "Nein");
+
+        if (result is not true)
+            return;
         
+        key.Revoked = true;
+
+        await Handler.TryExecuteAsync(
+            () => ApiKeyRepository.UpdateAsync(key), 
+            errorPrefix: "Fehler beim Deaktivieren", 
+            successMessage: "Key erfolgreich deaktiviert");
     }
 
 }

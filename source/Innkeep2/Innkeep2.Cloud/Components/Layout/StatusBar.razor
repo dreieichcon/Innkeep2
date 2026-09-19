@@ -7,31 +7,63 @@
 
 <MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
     <AuthorizeView Roles="innkeep2-admin">
-        <MudStack Row="true" Class="w-100">
+        <MudStack Row="true" Class="w-100" Justify="Justify.SpaceEvenly">
             <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary">
+                <MudText Color="Color.Primary" Typo="Typo.body2">
                     Veranstalter:
                 </MudText>
-                <MudText>
+                <MudText Typo="Typo.body2">
                     @(ActiveConfiguration.Organizer?.Name ?? "n.A.")
                 </MudText>
             </MudStack>
+            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
             <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary">
+                <MudText Color="Color.Primary" Typo="Typo.body2">
                     Veranstaltung:
                 </MudText>
-                <MudText>
+                <MudText Typo="Typo.body2">
                     @(ActiveConfiguration.Event?.Name ?? "n.A.")
                 </MudText>
             </MudStack>
+            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
+            <MudStack Row="true" Spacing="2">
+                <MudStack Row="true" Spacing="1">
+                    <MudText Color="Color.Primary" Typo="Typo.body2">
+                        TSS:
+                    </MudText>
+                    <MudText Typo="Typo.body2">
+                        @if (ActiveConfiguration.Tss != null)
+                        {
+                            @($"{ActiveConfiguration.Tss.DisplayName} {AuthStatus()}")
+                        }
+                        else
+                        {
+                            @("n.A.")
+                        }
+                    </MudText>
+                </MudStack>
+                <MudStack Row="true" Spacing="1">
+                    <MudText Color="Color.Primary" Typo="Typo.body2">
+                        PIN:
+                    </MudText>
+                    <MudIcon Icon="@PinStatus()" Size="Size.Small"/>
+                </MudStack>
+                <MudStack Row="true" Spacing="1" Typo="Typo.body2">
+                    <MudText Color="Color.Primary" Typo="Typo.body2">
+                        PUK:
+                    </MudText>
+                    <MudIcon Icon="@PukStatus()" Size="Size.Small"/>
+                </MudStack>
+            </MudStack>
+            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
             <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary">
-                    TSS:
+                <MudText Color="Color.Primary" Typo="Typo.body2">
+                    Client:
                 </MudText>
-                <MudText>
-                    @if (ActiveConfiguration.Tss != null)
+                <MudText Typo="Typo.body2">
+                    @if (ActiveConfiguration.Client != null)
                     {
-                        @($"{ActiveConfiguration.Tss.DisplayName} {AuthStatus()}")
+                        @($"{ActiveConfiguration.Client.DisplayName}")
                     }
                     else
                     {
@@ -39,14 +71,15 @@
                     }
                 </MudText>
             </MudStack>
+            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
             <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary">
-                    Client:
+                <MudText Color="Color.Primary" Typo="Typo.body2">
+                    Db:
                 </MudText>
-                <MudText>
-                    @if (ActiveConfiguration.Client != null)
+                <MudText Typo="Typo.body2">
+                    @if (ActiveConfiguration.OrderDatabasePath != null)
                     {
-                        @($"{ActiveConfiguration.Client.DisplayName}")
+                        @($"{ActiveConfiguration.OrderDatabasePath}")
                     }
                     else
                     {
@@ -62,16 +95,38 @@
 
     [Inject]
     public IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
-    
+
     [Inject]
     public TssService TssService { get; set; } = null!;
 
     private FiskalyTss? ActiveTss => ActiveConfiguration.Tss;
 
+    private string? PukStatus()
+    {
+        if (ActiveTss is null)
+            return null;
+
+        if (TssService.HasPuk(ActiveTss.Id))
+            return Icons.Material.Outlined.LockOpen;
+
+        return Icons.Material.Outlined.Lock;
+    }
+    
+    private string? PinStatus()
+    {
+        if (ActiveTss is null)
+            return null;
+
+        if (TssService.HasPin(ActiveTss.Id))
+            return Icons.Material.Outlined.LockOpen;
+
+        return Icons.Material.Outlined.Lock;
+    }
+
     private string AuthStatus()
     {
         var sb = new StringBuilder();
-        
+
         if (ActiveTss is null)
             return sb.ToString();
 

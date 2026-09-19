@@ -8,8 +8,13 @@ namespace Innkeep2.Services.Cloud.Fiskaly;
 
 public sealed class ClientService(FiskalyClientClient client, TssService tssService)
 {
+    
+    
     public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllAsync(CancellationToken ct = default)
         => client.GetAllAsync(ct);
+    
+    public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllForTssAsync(Guid tssId, CancellationToken ct = default)
+        => client.GetAllForTssAsync(tssId, ct);
 
     public async Task<Result<FiskalyClient>> CreateClientAsync(
         Guid tssId,

@@ -78,8 +78,18 @@ public partial class FiskalyConfig
 
     private async Task LoadClients()
     {
-        var clientResult = await ClientService.GetAllAsync();
-        ClientEntries = clientResult.Value?.Data.ToArray() ?? [];
+        if (SelectedTss != null)
+        {
+            var clientResult = await ClientService.GetAllForTssAsync(SelectedTss.Id);
+            ClientEntries = clientResult.Value?.Data.ToArray() ?? [];
+        }
+        else
+            ClientEntries = [];
+        
+        if (!ClientEntries.Contains(SelectedClient))
+            SelectedClient = ClientEntries.FirstOrDefault();
+
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task SaveSettings()
@@ -90,7 +100,8 @@ public partial class FiskalyConfig
                 ActiveConfiguration.Event?.Slug,
                 SelectedTss?.Id,
                 SelectedClient?.Id,
-                ActiveConfiguration.UseTestMode
+                ActiveConfiguration.UseTestMode,
+                ActiveConfiguration.OrderDatabasePath
             ),
             errorPrefix: "Failed to save settings"
         );

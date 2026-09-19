@@ -37,9 +37,14 @@
                             <MudText>Client Deaktivieren</MudText>
                         </TitleContent>
                         <ChildContent>
-                            <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error"
-                                       @onclick="DeactivateAsync">Deaktivieren
-                            </MudButton>
+                            <MudStack>
+                                <MudText>Durck Klick auf den Button wird der aktuell aktive
+                                    Client @ActiveConfiguration.Client?.DisplayName deaktiviert
+                                </MudText>
+                                <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error"
+                                           @onclick="DeactivateAsync">Deaktivieren
+                                </MudButton>
+                            </MudStack>
                         </ChildContent>
                     </MudExpansionPanel>
                 </MudPaper>

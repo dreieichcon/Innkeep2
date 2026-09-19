@@ -20,6 +20,9 @@ public sealed class OrderDatabaseService(IActiveConfigurationService activeConfi
         
         var fileName = $"{activeConfiguration.Organizer.Slug}-{activeConfiguration.Event.Slug}-{DateTime.UtcNow:yyyy-MM-dd}.db";
         var path = Path.Combine(DatabaseDirectory, fileName);
+        
+        if (File.Exists(path))
+            return Result<string>.Failure(new Error("Order.Database", "Die Datei existiert bereits."));
 
         var options = new DbContextOptionsBuilder<InnkeepOrderDbContext>()
             .UseSqlite($"Data Source={path}")
@@ -34,7 +37,7 @@ public sealed class OrderDatabaseService(IActiveConfigurationService activeConfi
         return Result<string>.Success(path);
     }
 
-    public async Task<Result<Unit>> SetAsync(string path, CancellationToken ct = default)
+    public async Task<Result<Unit>> SetAsync(string? path, CancellationToken ct = default)
     {
         await activeConfiguration.SetOrderDatabasePath(path);
         return await activeConfiguration.SaveAsync(ct);
