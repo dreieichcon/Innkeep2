@@ -12,7 +12,7 @@ public interface IActiveConfigurationService
     public Event? Event { get; }
     public FiskalyTss? Tss { get; }
     public FiskalyClient? Client { get; }
-    public bool UseTestMode { get; }
+    public bool UseTestMode { get; set; }
     public string? OrderDatabasePath { get; }
 
     public event EventHandler? Changed;

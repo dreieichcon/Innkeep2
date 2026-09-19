@@ -1,0 +1,31 @@
+@using Microsoft.AspNetCore.Components.Authorization
+<AuthorizeView Roles="innkeep2-admin">
+    <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudGrid Class="w-50" Justify="Justify.Center">
+            <MudItem xs="12">
+                <MudPaper Class="p-2">
+                    <MudText Typo="Typo.h4">
+                        @Title
+                    </MudText>
+                    <MudText Typo="Typo.h6">
+                        @SubTitle
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            @ChildContent
+        </MudGrid>
+    </MudStack>
+</AuthorizeView>
+
+@code {
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string? SubTitle { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}

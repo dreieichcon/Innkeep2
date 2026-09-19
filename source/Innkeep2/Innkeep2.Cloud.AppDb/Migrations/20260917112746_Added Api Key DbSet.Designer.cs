@@ -3,16 +3,19 @@ using System;
 using Innkeep2.Cloud.AppDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Innkeep2.Cloud.Database.Migrations
+namespace Innkeep2.Cloud.AppDb.Migrations
 {
     [DbContext(typeof(InnkeepCloudDbContext))]
-    partial class InnkeepCloudDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917112746_Added Api Key DbSet")]
+    partial class AddedApiKeyDbSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");

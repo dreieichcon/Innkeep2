@@ -24,7 +24,7 @@ public sealed class ActiveConfigurationService(
     public Event? Event { get; private set; }
     public FiskalyTss? Tss { get; private set; }
     public FiskalyClient? Client { get; private set; }
-    public bool UseTestMode { get; private set; }
+    public bool UseTestMode { get; set; }
     public string? OrderDatabasePath { get; private set; }
 
     public event EventHandler? Changed;

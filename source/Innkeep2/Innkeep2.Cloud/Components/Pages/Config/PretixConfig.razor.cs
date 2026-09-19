@@ -1,9 +1,6 @@
-using Innkeep2.Cloud.Services;
 using Innkeep2.Models.Internal;
-using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Innkeep2.Cloud.Components.Pages.Config;
 
@@ -19,16 +16,7 @@ public partial class PretixConfig
 
 	[Inject]
 	private CachedSalesItemProvider SalesItemProvider { get; set; } = null!;
-
-	[Inject]
-	private ISnackbar Snackbar { get; set; } = null!;
-
-	[Inject]
-	private UiResultHandler Handler { get; set; } = null!;
-
-	[Inject]
-	private IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
-
+	
 	# endregion
 
 	# region Organizer Selection
@@ -73,7 +61,11 @@ public partial class PretixConfig
 		}
 	}
 
-	private async Task OnEventChanged() => await LoadSalesItems();
+	private async Task OnEventChanged()
+	{
+		ActiveConfiguration.UseTestMode = SelectedEvent?.IsTestMode ?? false;
+		await LoadSalesItems();
+	}
 
 	#endregion
 
@@ -99,7 +91,8 @@ public partial class PretixConfig
 		EventChanged += async (_, _) => await OnEventChanged();
 
 		await LoadOrganizers();
-		await LoadSettings();
+		await base.OnInitializedAsync();
+		LoadSettings();
 	}
 
 	private async Task LoadOrganizers()
@@ -145,10 +138,8 @@ public partial class PretixConfig
 		await InvokeAsync(StateHasChanged);
 	}
 
-	private async Task LoadSettings()
+	private void LoadSettings()
 	{
-		await ActiveConfiguration.RefreshAsync();
-
 		SelectedOrganizer = Organizers.FirstOrDefault(o => o.Slug == ActiveConfiguration.Organizer?.Slug);
 		SelectedEvent = Events.FirstOrDefault(e => e.Slug == ActiveConfiguration.Event?.Slug);
 		UseTestMode = ActiveConfiguration.UseTestMode;

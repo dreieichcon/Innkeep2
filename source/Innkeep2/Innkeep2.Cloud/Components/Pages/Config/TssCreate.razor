@@ -1,44 +1,28 @@
 @page "/Config/Tss/Create"
-@using Innkeep2.Cloud.Services
+@using Innkeep2.Cloud.Components.Pages.Core
 @using Innkeep2.Services.Cloud.Fiskaly
-@using Microsoft.AspNetCore.Components.Authorization
 
-<AuthorizeView Roles="innkeep2-admin">
-    <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
-        <MudGrid Class="w-50" Justify="Justify.Center">
-            <MudItem xs="12">
-                <MudPaper Class="p-2">
-                    <MudText Typo="Typo.h4">
-                        Neue TSS Anlegen
-                    </MudText>
-                </MudPaper>
-            </MudItem>
-            <MudItem xs="12">
-                <MudPaper Class="p-2">
-                    <MudStack>
-                        <MudText>
-                            Mit Klick auf den Button wird eine neue TSS Angelegt.
-                            Dies verursacht noch KEINE Kosten.
-                        </MudText>
-                        <MudButton OnClick="CreateAsync">TSS Anlegen</MudButton>
-                    </MudStack>
-                </MudPaper>
-            </MudItem>
-        </MudGrid>
-    </MudStack>
-</AuthorizeView>
+@inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractUiPage
+
+<ConfigPage Title="Neue TSS Anlegen">
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText>
+                    Mit Klick auf den Button wird eine neue TSS Angelegt.
+                    Dies verursacht noch KEINE Kosten.
+                </MudText>
+                <MudButton OnClick="CreateAsync">TSS Anlegen</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</ConfigPage>
 
 @code {
 
     [Inject]
     public TssService TssService { get; set; } = null!;
-
-    [Inject]
-    public IDialogService DialogService { get; set; } = null!;
-
-    [Inject]
-    public UiResultHandler UiResultHandler { get; set; } = null!;
-
+    
     private async Task CreateAsync()
     {
         var confirmation = await DialogService.ShowMessageBoxAsync("Neue Tss anlegen", "Sind Sie sich sicher?");
@@ -46,7 +30,7 @@
         if (confirmation is not true)
             return;
 
-        var tss = await UiResultHandler.TryExecuteAsync(() => TssService.CreateAsync(Guid.NewGuid()), "");
+        var tss = await Handler.TryExecuteAsync(() => TssService.CreateAsync(Guid.NewGuid()), "");
 
         if (tss is null)
             return;

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Innkeep2.Database.Model;
 using Innkeep2.Models.Core;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,16 @@ public abstract class AbstractRepository<TEntity, TContext>(IDbContextFactory<TC
 
 		var entities = await GetSet(context)
 			.ToListAsync(ct);
+
+		return Result<IReadOnlyList<TEntity>>.Success(entities);
+	}
+
+	public virtual async Task<Result<IReadOnlyList<TEntity>>> GetAllCustomAsync(
+		Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+	{
+		await using var context = CreateContext();
+
+		var entities = await GetSet(context).Where(predicate).ToListAsync(ct);
 
 		return Result<IReadOnlyList<TEntity>>.Success(entities);
 	}

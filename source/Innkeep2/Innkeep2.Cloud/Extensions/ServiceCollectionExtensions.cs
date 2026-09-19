@@ -1,6 +1,7 @@
 using Innkeep2.Cloud.AppDb;
 using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Cloud.Orders;
+using Innkeep2.Cloud.Services;
 using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Credentials;
@@ -9,6 +10,7 @@ using Innkeep2.Requests.Fiskaly;
 using Innkeep2.Requests.Pretix;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
+using Innkeep2.Services.Cloud.Pretix;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -29,6 +31,9 @@ public static class ServiceCollectionExtensions
 		
 		services.AddPretixCaches();
 		services.AddFiskalyServices();
+
+		services.AddSingleton<ApiKeyValidationService>();
+		services.AddOrderServices();
 	}
 
 	public static void RegisterDatabaseServices(this IServiceCollection services)
@@ -40,7 +45,8 @@ public static class ServiceCollectionExtensions
 			options.UseSqlite("Data Source=./db/innkeepSettings.db"));
 
 		services.AddSingleton<InnkeepCloudSettingsRepository>();
-		
+		services.AddSingleton<InnkeepCloudApiKeyRepository>();
+
 		services.AddSingleton<IDbContextFactory<InnkeepOrderDbContext>, InnkeepOrderDbContextFactory>();
 		services.AddSingleton<OrderRepository>();
 	}
@@ -93,5 +99,12 @@ public static class ServiceCollectionExtensions
 	{
 		services.AddSingleton<TssService>();
 		services.AddSingleton<ClientService>();
+		services.AddSingleton<FiskalyTransactionService>();
+	}
+	
+	private static void AddOrderServices(this IServiceCollection services)
+	{
+		services.AddSingleton<PretixOrderService>();
+		services.AddSingleton<OrderService>();
 	}
 }

@@ -3,45 +3,22 @@ using System;
 using Innkeep2.Cloud.AppDb;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Innkeep2.Cloud.Database.Migrations
+namespace Innkeep2.Cloud.AppDb.Migrations
 {
     [DbContext(typeof(InnkeepCloudDbContext))]
-    partial class InnkeepCloudDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917095432_Added Api Keys")]
+    partial class AddedApiKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
-
-            modelBuilder.Entity("Innkeep2.Cloud.AppDb.Models.InnkeepCloudApiKey", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAd")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("KeyHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("Revoked")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InnkeepCloudApiKeys");
-                });
 
             modelBuilder.Entity("Innkeep2.Cloud.AppDb.Models.InnkeepCloudSettings", b =>
                 {

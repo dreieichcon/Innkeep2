@@ -1,25 +1,17 @@
-using Innkeep2.Cloud.Services;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
-using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Microsoft.AspNetCore.Components;
 
 namespace Innkeep2.Cloud.Components.Pages.Config;
 
-public partial class FiskalyConfig : ComponentBase
+public partial class FiskalyConfig
 {
     [Inject] 
     public TssService TssService { get; set; } = null!;
 
     [Inject]
     public ClientService ClientService { get; set; } = null!;
-    
-    [Inject]
-    private UiResultHandler Handler { get; set; } = null!;
-    
-    [Inject]
-    private IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
     
     # region Tss
     private event EventHandler? TssChanged;
@@ -41,6 +33,8 @@ public partial class FiskalyConfig : ComponentBase
     
     # endregion
     
+    # region Client
+    
     private FiskalyClient[] ClientEntries { get; set; } = [];
 
     private FiskalyClient? SelectedClient
@@ -53,23 +47,25 @@ public partial class FiskalyConfig : ComponentBase
             field = value;
         }
     }
+    
+    # endregion
 
     private bool _hasChanges;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadTss();
-        await LoadSettings();
+        await base.OnInitializedAsync();
+        
+        LoadSettings();
 
         TssChanged += async (_, _) => await LoadClients();
         SelectedTss = ActiveConfiguration.Tss;
         _hasChanges = false;
     }
 
-    private async Task LoadSettings()
+    private void LoadSettings()
     {
-        await ActiveConfiguration.RefreshAsync();
-        
         SelectedTss = ActiveConfiguration.Tss;
         SelectedClient = ActiveConfiguration.Client;
     }

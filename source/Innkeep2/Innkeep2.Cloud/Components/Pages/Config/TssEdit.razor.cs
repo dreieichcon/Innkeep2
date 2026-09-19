@@ -12,15 +12,6 @@ public partial class TssEdit
     [Inject]
     public TssService TssService { get; set; } = null!;
 
-    [Inject]
-    private UiResultHandler Handler { get; set; } = null!;
-
-    [Inject]
-    private IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
-
-    [Inject]
-    private IDialogService DialogService { get; set; } = null!;
-
     private bool _isLoading;
     
     private TssCredentialEntry? ActiveCredentialEntry { get; set; } = null!;
