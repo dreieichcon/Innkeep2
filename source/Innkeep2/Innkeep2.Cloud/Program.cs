@@ -9,6 +9,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+	.MinimumLevel.Debug()
+	.WriteTo.Console()
+	.WriteTo.Trace()
+	.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 

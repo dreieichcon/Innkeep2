@@ -19,6 +19,12 @@ public sealed class FiskalyTssClient(
     public Task<Result<FiskalyListResponse<FiskalyTss>>> GetAllAsync(CancellationToken ct = default)
         => GetAsync<FiskalyListResponse<FiskalyTss>>("tss", ct);
     
+    public Task<Result<Unit>> AuthenticateAdminAsync(Guid tssId, string adminPin, CancellationToken ct = default)
+        => PostAsync<Unit>($"tss/{tssId}/admin/auth", new FiskalyAdminAuthRequest { AdminPin = adminPin }, ct);
+
+    public Task<Result<Unit>> LogoutAdminAsync(Guid tssId, CancellationToken ct = default)
+        => PostAsync<Unit>($"tss/{tssId}/admin/logout", new { }, ct);
+    
     public Task<Result<Unit>> ChangeAdminPinAsync(
         Guid tssId,
         string adminPuk,
@@ -29,5 +35,17 @@ public sealed class FiskalyTssClient(
         {
             AdminPuk = adminPuk,
             NewAdminPin = newAdminPin
+        }, ct);
+    
+    public Task<Result<FiskalyTss>> UpdateAsync(
+        Guid tssId,
+        TssState state,
+        string? description = null,
+        CancellationToken ct = default
+    )
+        => PatchAsync<FiskalyTss>($"tss/{tssId}", new FiskalyTssUpdateRequest
+        {
+            State = state,
+            Description = description
         }, ct);
 }

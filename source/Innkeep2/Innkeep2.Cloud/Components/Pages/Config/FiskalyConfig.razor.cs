@@ -8,7 +8,8 @@ namespace Innkeep2.Cloud.Components.Pages.Config;
 
 public partial class FiskalyConfig : ComponentBase
 {
-    [Inject] public TssService TssService { get; set; } = null!;
+    [Inject] 
+    public TssService TssService { get; set; } = null!;
     
     [Inject]
     private UiResultHandler Handler { get; set; } = null!;
@@ -36,6 +37,8 @@ public partial class FiskalyConfig : ComponentBase
     {
         var result = await TssService.GetAllAsync();
         TssEntries = result.Value?.Data.ToArray() ?? [];
+        SelectedTss = ActiveConfiguration.Tss;
+        _hasChanges = false;
     }
 
     private async Task SaveSettings()
@@ -49,5 +52,10 @@ public partial class FiskalyConfig : ComponentBase
             ),
             errorPrefix: "Failed to save settings"
         );
+    }
+
+    private async Task UpdateTss()
+    {
+       
     }
 }

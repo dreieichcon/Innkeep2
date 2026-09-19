@@ -17,13 +17,13 @@ public sealed record FiskalyTss
     public required TssState State { get; init; }
 
     [JsonPropertyName("admin_puk")]
-    public string? AdminPuk { get; init; }
+    public string? AdminPuk { get; set; }
 
     [JsonPropertyName("certificate")]
     public required string Certificate { get; init; }
     
     [JsonPropertyName("description")]
-    public string? Description { get; init; }
+    public string? Description { get; set; }
 
     [JsonPropertyName("serial_number")]
     public required string SerialNumber { get; init; }
@@ -41,5 +41,5 @@ public sealed record FiskalyTss
     public required long TimeCreation { get; init; }
 
     [JsonIgnore]
-    public string DisplayName => $"{Description} ({Id})";
+    public string DisplayName => $"{Description} - {Id} ({State})";
 }

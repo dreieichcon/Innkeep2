@@ -6,7 +6,7 @@
         <MudItem xs="12">
             <MudPaper Class="p-2">
                 <MudText Typo="Typo.h4">
-                    Pretix Einstellungen
+                    Fiskaly Einstellungen
                 </MudText>
             </MudPaper>
         </MudItem>
@@ -23,15 +23,11 @@
                             <MudSelectItem Value="@tss">@tss.DisplayName</MudSelectItem>
                         }
                     </MudSelect>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudPaper Class="p-2">
-                <MudStack Row="true" Justify="Justify.FlexEnd">
-                    <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
-                        Speichern
-                    </MudButton>
+                    <MudStack Row="true" Justify="Justify.FlexEnd">
+                        <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
+                            Speichern
+                        </MudButton>
+                    </MudStack>
                 </MudStack>
             </MudPaper>
         </MudItem>

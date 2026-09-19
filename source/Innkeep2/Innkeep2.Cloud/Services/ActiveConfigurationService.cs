@@ -69,6 +69,12 @@ public sealed class ActiveConfigurationService(
        return Result<Unit>.Success(default);
     }
 
+    public void SetTss(FiskalyTss tss)
+    {
+       Tss = tss;
+       Changed?.Invoke(this, EventArgs.Empty);
+    }
+
     private async Task<Organizer?> ResolveOrganizerAsync(string? slug, CancellationToken ct)
     {
        if (string.IsNullOrEmpty(slug))

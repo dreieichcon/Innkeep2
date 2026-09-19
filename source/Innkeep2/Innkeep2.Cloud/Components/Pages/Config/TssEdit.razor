@@ -1,0 +1,82 @@
+@page "/Config/Tss/Edit"
+@using Innkeep2.Models.Fiskaly.Tss
+
+<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudGrid Class="w-50" Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudText Typo="Typo.h4">
+                    Einstellungen für aktive Tss:
+                </MudText>
+                <MudText Typo="Typo.h6">
+                    @ActiveTss?.DisplayName
+                </MudText>
+                @if (_isLoading)
+                {
+                    <MudProgressLinear Indeterminate="true" Color="Color.Primary"/>
+                }
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack>
+                    <MudTextField Margin="Margin.Dense" @bind-Value="@ActiveCredentialEntry?.AdminPin" Variant="Variant.Outlined" InputType="InputType.Password" Label="Pin"/>
+                    <MudTextField Margin="Margin.Dense" @bind-Value="@ActiveCredentialEntry?.AdminPuk" Variant="Variant.Outlined" InputType="InputType.Password" Label="Puk"/>
+                    <MudStack Row="true" AlignItems="AlignItems.End">
+                        <MudButton @onclick="SetCredentials" Disabled="!CanSetCredentials()">Werte Aktualisieren</MudButton>
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper>
+                <MudExpansionPanel Class="p-2" Disabled="ActiveTss?.State is not TssState.Created">
+                    <TitleContent>
+                        <MudText>1. Tss Deployen</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="Deploy">Deployen</MudButton>
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper>
+                <MudExpansionPanel Class="p-2" Disabled="@(ActiveTss?.State is not (TssState.Initialized or TssState.Uninitialized))">
+                    <TitleContent>
+                        <MudText>2. Tss Admin Pin Setzen</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="SetPin">Admin PIN Setzen</MudButton>
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper>
+                <MudExpansionPanel Class="p-2" Disabled="ActiveTss?.State is not TssState.Uninitialized">
+                    <TitleContent>
+                        <MudText>3. Tss Initialisieren</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudText Typo="Typo.h6" Color="Color.Error">ACHTUNG, DIES ERZEUGT KOSTEN</MudText>
+                        <MudTextField @bind-Value="@ActiveTss?.Description" Margin="Margin.Dense" Variant="Variant.Outlined" Required="true"/>
+                        <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="Initialize" Disabled="@(!CanInitialize())">Initialisieren</MudButton>
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper>
+                <MudExpansionPanel Class="p-2" Disabled="ActiveTss?.State is not (TssState.Uninitialized or TssState.Initialized)">
+                    <TitleContent>
+                        <MudText>3. Tss Deaktivieren</MudText>
+                    </TitleContent>
+                    <ChildContent>
+                        <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="Deactivate">Deaktivieren</MudButton>
+                    </ChildContent>
+                </MudExpansionPanel>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudStack>

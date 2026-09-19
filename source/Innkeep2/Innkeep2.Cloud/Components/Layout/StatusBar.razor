@@ -1,5 +1,8 @@
+@using System.Text
 @using Innkeep2.Cloud.Services
+@using Innkeep2.Models.Fiskaly.Tss
 @using Innkeep2.Services.Cloud
+@using Innkeep2.Services.Cloud.Fiskaly
 @using Microsoft.AspNetCore.Components.Authorization
 
 <MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
@@ -26,7 +29,14 @@
                     TSS:
                 </MudText>
                 <MudText>
-                    @(ActiveConfiguration.Tss?.SerialNumber ?? "n.A.")
+                    @if (ActiveConfiguration.Tss != null)
+                    {
+                        @($"{ActiveConfiguration.Tss.DisplayName} {AuthStatus()}")
+                    }
+                    else
+                    {
+                        @("n.A.")
+                    }
                 </MudText>
             </MudStack>
         </MudStack>
@@ -37,6 +47,27 @@
 
     [Inject]
     public IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
+    
+    [Inject]
+    public TssService TssService { get; set; } = null!;
+
+    private FiskalyTss? ActiveTss => ActiveConfiguration.Tss;
+
+    private string AuthStatus()
+    {
+        var sb = new StringBuilder();
+        
+        if (ActiveTss is null)
+            return sb.ToString();
+
+        if (TssService.HasPuk(ActiveTss.Id))
+            sb.Append(" Puk");
+
+        if (TssService.HasPin(ActiveTss.Id))
+            sb.Append(" Pin");
+
+        return sb.ToString();
+    }
 
     protected override async Task OnInitializedAsync()
     {

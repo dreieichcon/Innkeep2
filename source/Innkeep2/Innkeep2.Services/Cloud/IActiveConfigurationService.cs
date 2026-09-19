@@ -23,4 +23,6 @@ public interface IActiveConfigurationService
     );
 
     public Task<Result<Unit>> RefreshAsync(CancellationToken ct = default);
+    
+    public void SetTss(FiskalyTss tss);
 }
