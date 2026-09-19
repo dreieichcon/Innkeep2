@@ -4,44 +4,49 @@
 @using Innkeep2.Models.Fiskaly.Tss
 @using Innkeep2.Services.Cloud
 @using Innkeep2.Services.Cloud.Fiskaly
+@using Microsoft.AspNetCore.Components.Authorization
 
-<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
-    <MudGrid Class="w-50" Justify="Justify.Center">
-        <MudItem xs="12">
-            <MudPaper Class="p-2">
-                <MudText Typo="Typo.h4">
-                    Client Erzeugen oder Bearbeiten
-                </MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudPaper Class="p-2">
-                <MudStack>
-                    <MudText>
-                        Mit Klick auf den Button wird eine neuer Client für die aktuelle Tss Angelegt.
+<AuthorizeView Roles="innkeep2-admin">
+    <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudGrid Class="w-50" Justify="Justify.Center">
+            <MudItem xs="12">
+                <MudPaper Class="p-2">
+                    <MudText Typo="Typo.h4">
+                        Client Erzeugen oder Bearbeiten
                     </MudText>
-                    <MudTextField @bind-Value="_newClientSerial" Variant="Variant.Outlined" Margin="Margin.Dense"
-                                  Label="Seriennummer"/>
-                    <MudButton OnClick="CreateAsync" Disabled="@(!CanCreate())" Variant="Variant.Outlined">Client
-                        anlegen
-                    </MudButton>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudPaper>
-                <MudExpansionPanel Class="p-2" Disabled="ActiveClient?.State is not ClientState.Registered">
-                    <TitleContent>
-                        <MudText>Client Deaktivieren</MudText>
-                    </TitleContent>
-                    <ChildContent>
-                        <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="DeactivateAsync">Deaktivieren</MudButton>
-                    </ChildContent>
-                </MudExpansionPanel>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="p-2">
+                    <MudStack>
+                        <MudText>
+                            Mit Klick auf den Button wird eine neuer Client für die aktuelle Tss Angelegt.
+                        </MudText>
+                        <MudTextField @bind-Value="_newClientSerial" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                      Label="Seriennummer"/>
+                        <MudButton OnClick="CreateAsync" Disabled="@(!CanCreate())" Variant="Variant.Outlined">Client
+                            anlegen
+                        </MudButton>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper>
+                    <MudExpansionPanel Class="p-2" Disabled="ActiveClient?.State is not ClientState.Registered">
+                        <TitleContent>
+                            <MudText>Client Deaktivieren</MudText>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error"
+                                       @onclick="DeactivateAsync">Deaktivieren
+                            </MudButton>
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudStack>
+</AuthorizeView>
 
 @code {
 
@@ -60,7 +65,7 @@
     private string _newClientSerial = string.Empty;
 
     private FiskalyTss? ActiveTss => ActiveConfiguration.Tss;
-    
+
     private FiskalyClient? ActiveClient => ActiveConfiguration.Client;
 
     private bool CanCreate()
@@ -75,7 +80,7 @@
 
         if (result is null)
             return;
-        
+
         await ActiveConfiguration.SetClient(result);
         _newClientSerial = string.Empty;
     }
@@ -84,15 +89,15 @@
     {
         var confirmation =
             await DialogService.ShowMessageBoxAsync("Sicher?", "Achtung, dieser Schritt ist permanent!");
-        
+
         if (confirmation is not true)
             return;
-        
+
         var result = await UiResultHandler.TryExecuteAsync(
             () => ClientService.UpdateClientStateAsync(ActiveTss!.Id, ActiveClient!.Id, ClientState.Deregistered),
             successMessage: "Client erfolgreich deaktiviert.",
             errorPrefix: "Fehler beim deaktivieren des Client.");
-        
+
         if (result is not null)
             await ActiveConfiguration.SetClient(result);
     }

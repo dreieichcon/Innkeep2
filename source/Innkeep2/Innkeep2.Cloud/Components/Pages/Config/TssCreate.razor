@@ -1,29 +1,32 @@
 @page "/Config/Tss/Create"
 @using Innkeep2.Cloud.Services
 @using Innkeep2.Services.Cloud.Fiskaly
+@using Microsoft.AspNetCore.Components.Authorization
 
-<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
-    <MudGrid Class="w-50" Justify="Justify.Center">
-        <MudItem xs="12">
-            <MudPaper Class="p-2">
-                <MudText Typo="Typo.h4">
-                    Neue TSS Anlegen
-                </MudText>
-            </MudPaper>
-        </MudItem>
-        <MudItem xs="12">
-            <MudPaper Class="p-2">
-                <MudStack>
-                    <MudText>
-                        Mit Klick auf den Button wird eine neue TSS Angelegt.
-                        Dies verursacht noch KEINE Kosten.
+<AuthorizeView Roles="innkeep2-admin">
+    <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+        <MudGrid Class="w-50" Justify="Justify.Center">
+            <MudItem xs="12">
+                <MudPaper Class="p-2">
+                    <MudText Typo="Typo.h4">
+                        Neue TSS Anlegen
                     </MudText>
-                    <MudButton OnClick="CreateAsync">TSS Anlegen</MudButton>
-                </MudStack>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudStack>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12">
+                <MudPaper Class="p-2">
+                    <MudStack>
+                        <MudText>
+                            Mit Klick auf den Button wird eine neue TSS Angelegt.
+                            Dies verursacht noch KEINE Kosten.
+                        </MudText>
+                        <MudButton OnClick="CreateAsync">TSS Anlegen</MudButton>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudStack>
+</AuthorizeView>
 
 @code {
 
@@ -32,7 +35,7 @@
 
     [Inject]
     public IDialogService DialogService { get; set; } = null!;
-    
+
     [Inject]
     public UiResultHandler UiResultHandler { get; set; } = null!;
 
@@ -42,20 +45,20 @@
 
         if (confirmation is not true)
             return;
-        
+
         var tss = await UiResultHandler.TryExecuteAsync(() => TssService.CreateAsync(Guid.NewGuid()), "");
 
         if (tss is null)
             return;
-        
-        await DialogService.ShowMessageBoxAsync("Tss Angelegt", 
-            $"Stellen Sie sicher, dass der folgende PUK gespeichert ist. Er wird nur hier angezeigt: {Environment.NewLine}{tss.AdminPuk}", 
+
+        await DialogService.ShowMessageBoxAsync("Tss Angelegt",
+            $"Stellen Sie sicher, dass der folgende PUK gespeichert ist. Er wird nur hier angezeigt: {Environment.NewLine}{tss.AdminPuk}",
             options: new DialogOptions()
-        {
-            CloseOnEscapeKey = false,
-            BackdropClick = false,
-            CloseButton = false
-        });
+            {
+                CloseOnEscapeKey = false,
+                BackdropClick = false,
+                CloseButton = false
+            });
     }
 
 }
