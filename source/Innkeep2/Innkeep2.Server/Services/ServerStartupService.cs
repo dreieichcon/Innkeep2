@@ -27,12 +27,24 @@ public class ServerStartupService(
 
             return false;
         }
+        Log.Debug("Innkeep2.Cloud Authentication Successful");
 
         Log.Debug("Fetching registered Event");
-        var e = await eventProvider.GetCachedEventAsync(ct);
+        var eventResult = await eventProvider.GetCachedEventAsync(ct);
+
+        if (!eventResult.IsSuccess)
+            Log.Error("Startup failed: could not fetch event ({Code}): {Message}", eventResult.Error!.Code, eventResult.Error!.Message);
+
+        Log.Debug("Registered Event: {Event}", eventResult.Value!.Name);
         
         Log.Debug("Fetching registered SalesItems");
-        var s = await salesItemProvider.GetCachedItemsAsync(ct);
+        var salesItemsResult = await salesItemProvider.GetCachedItemsAsync(ct);
+        
+        if (!salesItemsResult.IsSuccess)
+            Log.Error("Startup failed: could not fetch sales items ({Code}): {Message}", salesItemsResult.Error!.Code, salesItemsResult.Error!.Message);
+
+        Log.Debug("Fetched {Count} Items", salesItemsResult.Value!.Count);
+        
         return true;
     }
 }

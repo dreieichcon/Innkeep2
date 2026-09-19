@@ -1,0 +1,47 @@
+@page "/Config/Api"
+@using Innkeep2.Server.Security
+@using Innkeep2.Ui.Shared.Components.Config
+@using MudBlazor
+
+<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudGrid Class="w-75" Justify="Justify.Center">
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudText Typo="Typo.h4">
+                    API Keys Verwalten
+                </MudText>
+            </MudPaper>
+        </MudItem>
+        <ApiKeyManager 
+            T="ApiKeyEntry" 
+            Keys="@Keys" 
+            GenerateKeyFunc="GenerateApiKey" 
+            RevokeKeyFunc="RevokeApiKey"
+            UpdateApiKeys="async () => await OnInitializedAsync()"/>
+    </MudGrid>
+</MudStack>
+
+
+    
+
+
+@code {
+
+    [Inject]
+    public ApiKeyRepository ApiKeyRepository { get; set; } = null!;
+    
+    private ApiKeyEntry[] Keys { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Keys = (await ApiKeyRepository.GetAllAsync()).Value?.ToArray() ?? [];
+    }
+    
+    
+    private async Task<string?> GenerateApiKey(string keyName) 
+        => ApiKeyRepository.GenerateApiKey(keyName).Value;
+
+    private async Task RevokeApiKey(ApiKeyEntry key) 
+        => await ApiKeyRepository.UpdateAsync(key);
+
+}

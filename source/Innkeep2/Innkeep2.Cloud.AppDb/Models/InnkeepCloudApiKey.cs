@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Innkeep2.Credentials.Interfaces;
 using Innkeep2.Database.Model;
 
 namespace Innkeep2.Cloud.AppDb.Models;
 
-public class InnkeepCloudApiKey : AbstractDbItem
+public class InnkeepCloudApiKey : AbstractDbItem, IApiKey
 {
     [MaxLength(255)]
     public required string Name { get; set; }

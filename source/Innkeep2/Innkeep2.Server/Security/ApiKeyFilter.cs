@@ -13,7 +13,7 @@ public sealed class ApiKeyFilter(ApiKeyRepository repository) : IEndpointFilter
 
         var hash = ApiKeyHasher.Hash(key!);
 
-        if (!repository.IsValid(hash))
+        if (!repository.ValidateApiKey(hash))
             return Results.Unauthorized();
 
         return await next(context);

@@ -1,0 +1,88 @@
+@using MudBlazor
+@typeparam T where T : Innkeep2.Credentials.Interfaces.IApiKey
+
+<MudItem xs="12">
+    <MudPaper Class="p-2">
+        <MudStack>
+            <MudDataGrid T="T" Items="Keys">
+                <NoRecordsContent>
+                    <MudText>Keine API Keys vorhanden</MudText>
+                </NoRecordsContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.Name"/>
+                    <PropertyColumn Property="x => x.CreatedAt"/>
+                    <PropertyColumn Property="x => x.Revoked"/>
+                    <TemplateColumn Title="Aktionen">
+                        <CellTemplate>
+                            <MudButton Disabled="@(context.Item.Revoked)"
+                                       OnClick="() => DeactivateKey(context.Item)">Deaktivieren
+                            </MudButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudStack>
+    </MudPaper>
+</MudItem>
+<MudItem xs="12">
+    <MudPaper Class="p-2">
+        <MudStack>
+            <MudTextField @bind-Value="_keyName" Required="true" Variant="Variant.Outlined" Label="Key Name"/>
+            <MudButton OnClick="GenerateKey">Neuen Key Generieren</MudButton>
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = null!;
+
+    [Parameter, EditorRequired]
+    public required T[] Keys { get; set; }
+
+    private string? _keyName;
+
+    [Parameter, EditorRequired]
+    public required Func<string, Task<string?>> GenerateKeyFunc { get; set; }
+    
+    [Parameter, EditorRequired]
+    public required Func<T, Task> RevokeKeyFunc { get; set; }
+    
+    [Parameter]
+    public EventCallback UpdateApiKeys { get; set; }
+
+    private async Task GenerateKey()
+    {
+        if (string.IsNullOrWhiteSpace(_keyName))
+            return;
+
+        var key = await GenerateKeyFunc(_keyName);
+
+        if (key == null)
+            return;
+
+        await DialogService.ShowMessageBoxAsync("API Key Angelegt",
+            $"Stellen Sie sicher, dass der folgende Key gespeichert ist. Er wird nur einmal angezeigt: {Environment.NewLine}{key}",
+            options: new DialogOptions()
+            {
+                CloseOnEscapeKey = false,
+                BackdropClick = false,
+                CloseButton = false
+            });
+
+        await UpdateApiKeys.InvokeAsync();
+    }
+    
+    private async Task DeactivateKey(T key)
+    {
+        var result = await DialogService.ShowMessageBoxAsync("API Key Deaktivieren", "Dieser Schritt kann nicht Rückgängig gemacht werden. Wirklich fortfahren?", yesText: "Ja", noText: "Nein");
+
+        if (result is not true)
+            return;
+        
+        key.Revoked = true;
+
+        await RevokeKeyFunc(key);
+    }
+}
