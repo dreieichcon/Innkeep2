@@ -6,7 +6,7 @@ using Serilog;
 
 namespace Innkeep2.Services.Server;
 
-public sealed class ServerSalesItemProvider(CloudDataClient client, IMemoryCache cache)
+public sealed class ServerSalesItemProvider(CloudDataClient client)
 {
     private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(120);
 

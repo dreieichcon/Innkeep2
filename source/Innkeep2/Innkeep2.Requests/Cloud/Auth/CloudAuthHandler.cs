@@ -6,7 +6,6 @@ public sealed class CloudAuthHandler(CloudCredential credential) : DelegatingHan
 {
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {
-        request.RequestUri = new Uri(new Uri(credential.CloudUrl), request.RequestUri!);
         request.Headers.Add("X-Api-Key", credential.ApiKey);
 
         return base.SendAsync(request, ct);

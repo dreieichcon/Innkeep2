@@ -3,12 +3,11 @@ using Innkeep2.Models.Core;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Requests.Core;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Innkeep2.Requests.Cloud;
 
 public sealed class CloudTransactionClient(HttpClient httpClient)
-    : CoreApiClient(httpClient, JsonSerializerOptions.Default)
+    : CoreApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
 {
     public Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default)
         => PostAsync<TransactionReceipt>("orders/create", request, ct);

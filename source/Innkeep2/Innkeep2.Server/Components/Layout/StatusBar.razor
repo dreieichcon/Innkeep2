@@ -1,0 +1,44 @@
+@using Innkeep2.Models.Internal
+@using Innkeep2.Services.Server
+@using MudBlazor
+
+<MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
+    <MudStack Row="true" Class="w-100">
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary" Typo="Typo.body2">
+                Veranstaltung:
+            </MudText>
+            <MudText Typo="Typo.body2">
+               @(LoadedEvent?.Name ?? "n.A.")
+            </MudText>
+        </MudStack>
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary" Typo="Typo.body2">
+                Sales Items:
+            </MudText>
+            <MudText Typo="Typo.body2">
+                @SalesItems.Count
+            </MudText>
+        </MudStack>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+    private IReadOnlyList<SalesItem> SalesItems { get; set; } = [];
+    
+    private Event? LoadedEvent { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        LoadedEvent = (await ServerEventProvider.GetCachedEventAsync()).Value;
+        SalesItems = (await SalesItemProvider.GetCachedItemsAsync()).Value ?? [];
+    }
+
+    [Inject]
+    public ServerSalesItemProvider SalesItemProvider { get; set; } = null!;
+    
+    [Inject]
+    public ServerEventProvider ServerEventProvider { get; set; } = null!;
+
+}

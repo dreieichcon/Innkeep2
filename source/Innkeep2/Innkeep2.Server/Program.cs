@@ -1,12 +1,17 @@
 using Innkeep2.Server.Components;
 using Innkeep2.Server.Extensions;
+using Innkeep2.Server.Services;
 using MudBlazor.Services;
 using Serilog;
+
+if (!Directory.Exists("./log"))
+	Directory.CreateDirectory("./log");
 
 Log.Logger = new LoggerConfiguration()
 	.MinimumLevel.Debug()
 	.WriteTo.Console()
 	.WriteTo.Trace()
+	.WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day)
 	.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,5 +47,13 @@ app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
+
+var startupService = app.Services.GetRequiredService<ServerStartupService>();
+
+var startupResult = await startupService.RunAsync();
+
+if (!startupResult)
+	return;
 
 await app.RunAsync();
