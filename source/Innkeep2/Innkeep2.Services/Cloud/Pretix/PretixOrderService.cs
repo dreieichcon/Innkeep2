@@ -1,19 +1,18 @@
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Internal;
-using Innkeep2.Models.Pretix;
 using Innkeep2.Models.Pretix.Order;
 using Innkeep2.Requests.Pretix.Clients;
+using JetBrains.Annotations;
 
-namespace Innkeep2.Services.Pretix;
+namespace Innkeep2.Services.Cloud.Pretix;
 
+[UsedImplicitly]
 public sealed class PretixOrderService(PretixOrderClient client)
 {
-    /// <summary>
-    /// Erstellt eine Bestellung aus den übergebenen Artikeln für das angegebene Event.
-    /// </summary>
     public Task<Result<PretixOrderResponse>> CreateOrderAsync(
         string organizerSlug,
-        PretixEvent pretixEvent,
+        string eventSlug,
+        bool isTestMode,
         IReadOnlyList<SalesItem> items,
         CancellationToken ct = default
     )
@@ -21,15 +20,16 @@ public sealed class PretixOrderService(PretixOrderClient client)
         var order = new PretixOrderCreate
         {
             Locale = "de",
-            IsTestMode = pretixEvent.TestMode,
+            IsTestMode = isTestMode,
             Positions = BuildPositions(items)
         };
 
-        return client.CreateAsync(organizerSlug, pretixEvent.Slug, order, ct);
+        return client.CreateAsync(organizerSlug, eventSlug, order, ct);
     }
 
     private static List<PretixOrderCreatePosition> BuildPositions(IReadOnlyList<SalesItem> items)
-        => items.Select((item, index) => new PretixOrderCreatePosition
+        => items.SelectMany(item => Enumerable.Range(0, item.Quantity ?? 1).Select(_ => item))
+            .Select((item, index) => new PretixOrderCreatePosition
         {
             PositionId = index + 1,
             Item = item.Id,

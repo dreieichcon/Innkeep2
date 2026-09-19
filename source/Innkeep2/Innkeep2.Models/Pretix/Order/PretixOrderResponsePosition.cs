@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Innkeep2.Models.Shared;
 using JetBrains.Annotations;
 
 namespace Innkeep2.Models.Pretix.Order;
@@ -26,4 +27,7 @@ public sealed record PretixOrderResponsePosition
 
     [JsonPropertyName("secret")]
     public required string Secret { get; init; }
+    
+    [JsonIgnore]
+    public bool PrintCheckInVoucher { get; set; }
 }

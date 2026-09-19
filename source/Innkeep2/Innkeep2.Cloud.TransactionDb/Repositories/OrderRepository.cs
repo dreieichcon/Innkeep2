@@ -5,5 +5,5 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Cloud.TransactionDb.Repositories;
 
-public sealed class OrderRepository(IDbContextFactory<InnkeepOrderDbContext> contextFactory)
+public class OrderRepository(IDbContextFactory<InnkeepOrderDbContext> contextFactory)
     : AbstractRepository<Order, InnkeepOrderDbContext>(contextFactory);

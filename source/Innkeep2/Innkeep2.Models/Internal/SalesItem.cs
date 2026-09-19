@@ -13,9 +13,15 @@ public sealed record SalesItem
 	public required decimal Price { get; set; }
 
 	public required decimal TaxRate { get; set; }
+	
+	public int? Quantity { get; set; }
+	
+	public bool PrintCheckInVoucher { get; set; }
 
 	public static SalesItem[] FromPretix(PretixSalesItem item)
 	{
+		var printVoucher = item.InternalName?.StartsWith("print") ?? false;
+		
 		if (item.Variations.Count == 0)
 		{
 			return
@@ -26,7 +32,8 @@ public sealed record SalesItem
 					VariationId = 0,
 					Name = item.Name.German,
 					Price = item.DefaultPrice,
-					TaxRate = item.TaxRate
+					TaxRate = item.TaxRate,
+					PrintCheckInVoucher =  printVoucher
 				}
 			];
 		}
@@ -37,7 +44,8 @@ public sealed record SalesItem
 					VariationId = x.Id,
 					Name = x.Name.German,
 					Price = x.Price,
-					TaxRate = item.TaxRate
+					TaxRate = item.TaxRate,
+					PrintCheckInVoucher = printVoucher
 				}
 			)
 			.ToArray();

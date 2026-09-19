@@ -42,7 +42,7 @@ public sealed class FiskalyTransactionService(
           .Select(g => new FiskalyAmountPerVatRate
           {
              VatRate = VatRateMapper.FromTaxRate(g.Key),
-             Amount = g.Sum(x => x.Price)
+             Amount = g.Sum(x => x.Price * (x.Quantity ?? 1))
           })
           .ToList();
 

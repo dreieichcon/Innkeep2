@@ -5,6 +5,7 @@ namespace Innkeep2.Cloud.TransactionDb.Models;
 
 public class Order : AbstractDbItem
 {
+    public required Guid RequestId { get; set; }
     public required DateTime BookingTime { get; set; }
 
     public required PaymentType PaymentType { get; set; }

@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MSTest" Version="4.0.1"/>
+        <PackageReference Include="MSTest" Version="4.0.2"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -16,7 +16,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Innkeep2.Requests\Innkeep2.Requests.csproj" />
+      <ProjectReference Include="..\Innkeep2.Cloud.TransactionDb\Innkeep2.Cloud.TransactionDb.csproj" />
+      <ProjectReference Include="..\Innkeep2.Cloud\Innkeep2.Cloud.csproj" />
       <ProjectReference Include="..\Innkeep2.TestBase\Innkeep2.TestBase.csproj" />
     </ItemGroup>
 

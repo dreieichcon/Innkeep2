@@ -8,10 +8,13 @@ public sealed record Event
 	
 	public required string Slug { get; set; }
 	
+	public required bool IsTestMode { get; set; }
+	
 	public static Event FromPretix(PretixEvent pEvent)
 		=> new()
 		{
 			Name = pEvent.Name.German,
-			Slug = pEvent.Slug
+			Slug = pEvent.Slug,
+			IsTestMode = pEvent.TestMode
 		};
 }
