@@ -6,13 +6,14 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Shared;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.Services.Shared;
 using Serilog;
 
-namespace Innkeep2.Cloud.Services;
+namespace Innkeep2.Cloud.Services.Transactions;
 
 public sealed partial class TransactionService(
     PretixOrderService pretixOrderService,

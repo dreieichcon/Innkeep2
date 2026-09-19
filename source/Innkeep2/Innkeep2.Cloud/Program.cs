@@ -105,7 +105,7 @@ app.MapGet("/debug/claims", (HttpContext ctx) =>
 
 app.MapGroup("/")
 	.AddEndpointFilter<ApiKeyFilter>()
-	.MapOrderEndpoints();
+	.MapApiEndpoints();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();

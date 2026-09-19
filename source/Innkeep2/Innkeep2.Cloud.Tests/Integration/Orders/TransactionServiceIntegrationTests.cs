@@ -14,11 +14,12 @@ using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.TestBase;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TransactionService = Innkeep2.Cloud.Services.Transactions.TransactionService;
 
 namespace Innkeep2.Cloud.Tests.Integration.Orders;
 
 [TestClass]
-public class OrderServiceIntegrationTests
+public class TransactionServiceIntegrationTests
 {
     private ServiceProvider _serviceProvider = null!;
     private FakeActiveConfigurationService _activeConfiguration = null!;
@@ -139,6 +140,46 @@ public class OrderServiceIntegrationTests
        Assert.AreEqual(item.Price, refundResult.Value!.Sum.AmountReturned);
        Assert.AreNotEqual("TSS OFFLINE", refundResult.Value!.FiskalyQrCode);
        Assert.AreNotEqual("PRETIX OFFLINE", refundResult.Value!.PretixOrderCode);
+    }
+    
+    [TestMethod]
+    public async Task CreateTransferAsync_InboundTransfer_ReturnsReceiptWithGivenAmount()
+    {
+       var transactionService = _serviceProvider.GetRequiredService<TransactionService>();
+
+       var request = new TransferRequest
+       {
+          RequestId = Guid.NewGuid(),
+          Amount = 50.00m,
+          Currency = "EUR"
+       };
+
+       var result = await transactionService.CreateTransferAsync(request);
+
+       Assert.IsTrue(result.IsSuccess);
+       Assert.AreEqual(50.00m, result.Value!.Sum.AmountGiven);
+       Assert.AreEqual(0, result.Value!.Sum.AmountReturned);
+       Assert.AreNotEqual("TSS OFFLINE", result.Value!.FiskalyQrCode);
+    }
+
+    [TestMethod]
+    public async Task CreateTransferAsync_OutboundTransfer_ReturnsReceiptWithReturnedAmount()
+    {
+       var transactionService = _serviceProvider.GetRequiredService<TransactionService>();
+
+       var request = new TransferRequest
+       {
+          RequestId = Guid.NewGuid(),
+          Amount = -20.00m,
+          Currency = "EUR"
+       };
+
+       var result = await transactionService.CreateTransferAsync(request);
+
+       Assert.IsTrue(result.IsSuccess);
+       Assert.AreEqual(0, result.Value!.Sum.AmountGiven);
+       Assert.AreEqual(20.00m, result.Value!.Sum.AmountReturned);
+       Assert.AreNotEqual("TSS OFFLINE", result.Value!.FiskalyQrCode);
     }
 
     private void ResolveActiveConfiguration(IConfiguration configuration)

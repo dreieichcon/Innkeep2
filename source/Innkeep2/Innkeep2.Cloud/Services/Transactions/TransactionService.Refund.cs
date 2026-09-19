@@ -5,10 +5,11 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Pretix.Refund;
 using Innkeep2.Services.Shared;
 using Serilog;
 
-namespace Innkeep2.Cloud.Services;
+namespace Innkeep2.Cloud.Services.Transactions;
 
 public sealed partial class TransactionService
 {
@@ -89,7 +90,7 @@ public sealed partial class TransactionService
         if (!createResult.IsSuccess)
         {
             refund.PretixStatus = TransactionStepStatus.Failed;
-            Log.Warning("Pretix refund failed for transaction {RequestId}: {Error}", refund.RequestId,
+            Log.Warning<Guid, string>("Pretix refund failed for transaction {RequestId}: {Error}", refund.RequestId,
                 createResult.Error!.Message);
             return;
         }
@@ -99,7 +100,7 @@ public sealed partial class TransactionService
                 createResult.Value!.LocalId, ct);
 
         refund.PretixStatus = doneResult.IsSuccess ? TransactionStepStatus.Completed : TransactionStepStatus.Failed;
-        refund.PretixOrderJson = JsonSerializer.Serialize(doneResult.Value ?? createResult.Value);
+        refund.PretixOrderJson = JsonSerializer.Serialize<PretixRefund>(doneResult.Value ?? createResult.Value);
     }
 
     private async Task<FiskalyTransaction?> TryCreateFiskalyRefundAsync(
@@ -113,7 +114,7 @@ public sealed partial class TransactionService
         if (!startResult.IsSuccess)
         {
             refund.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning("Fiskaly refund start failed for transaction {RequestId}: {Error}", refund.RequestId,
+            Log.Warning<Guid, string>("Fiskaly refund start failed for transaction {RequestId}: {Error}", refund.RequestId,
                 startResult.Error!.Message);
             return null;
         }
@@ -124,13 +125,13 @@ public sealed partial class TransactionService
         if (!finishResult.IsSuccess)
         {
             refund.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning("Fiskaly refund finish failed for transaction {RequestId}: {Error}", refund.RequestId,
+            Log.Warning<Guid, string>("Fiskaly refund finish failed for transaction {RequestId}: {Error}", refund.RequestId,
                 finishResult.Error!.Message);
             return null;
         }
 
         refund.FiskalyStatus = TransactionStepStatus.Completed;
-        refund.FiskalyTransactionJson = JsonSerializer.Serialize(finishResult.Value);
+        refund.FiskalyTransactionJson = JsonSerializer.Serialize<FiskalyTransaction?>(finishResult.Value);
 
         return finishResult.Value;
     }

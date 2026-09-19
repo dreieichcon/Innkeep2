@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
+using TransactionService = Innkeep2.Cloud.Services.Transactions.TransactionService;
 
 namespace Innkeep2.Cloud.Extensions;
 

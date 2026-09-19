@@ -40,6 +40,31 @@ public static class ReceiptBuilder
         FiskalyTransactionNumber = fiskalyTransaction?.Number
     };
 
+    public static TransactionReceipt BuildTransfer(
+        Guid transactionId,
+        DateTime bookingTime,
+        Event pretixEvent,
+        decimal amount,
+        decimal amountGiven,
+        decimal amountBack,
+        string currency,
+        FiskalyTransaction? fiskalyTransaction
+    ) => new()
+    {
+        OrderId = transactionId,
+        Title = pretixEvent.Name,
+        Header = pretixEvent.Header ?? "",
+        BookingTime = bookingTime,
+        Currency = currency,
+        Lines = [],
+        Sum = new ReceiptSum { TotalAmount = amount, AmountGiven = amountGiven, AmountReturned = amountBack },
+        TaxInformation = [],
+        Vouchers = [],
+        PretixOrderCode = null,
+        FiskalyQrCode = fiskalyTransaction?.QrCodeData ?? "TSS OFFLINE",
+        FiskalyTransactionNumber = fiskalyTransaction?.Number
+    };
+
     private static List<ReceiptTaxInformation> BuildTaxInformation(OrderRequest order)
         => order.Items
             .GroupBy(x => x.TaxRate)
