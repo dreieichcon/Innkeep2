@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <Folder Include="Database\Migrations\" />
+      <Folder Include="Orders\Migrations\" />
     </ItemGroup>
 
     <ItemGroup>

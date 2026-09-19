@@ -25,6 +25,7 @@ public sealed class ActiveConfigurationService(
     public FiskalyTss? Tss { get; private set; }
     public FiskalyClient? Client { get; private set; }
     public bool UseTestMode { get; private set; }
+    public string? OrderDatabasePath { get; private set; }
 
     public event EventHandler? Changed;
 
@@ -90,6 +91,13 @@ public sealed class ActiveConfigurationService(
     public async Task SetClient(FiskalyClient client)
     {
        Client = client;
+       await SaveAsync();
+       Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async Task SetOrderDatabasePath(string? path)
+    {
+       OrderDatabasePath = path;
        await SaveAsync();
        Changed?.Invoke(this, EventArgs.Empty);
     }

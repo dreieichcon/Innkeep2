@@ -13,6 +13,9 @@ public class InnkeepCloudSettings : AbstractDbItem
 	[MaxLength(64)]
 	public string? PretixEventSlug { get; set; }
 	
+	[MaxLength(256)]
+	public string? SelectedOrderDatabasePath { get; set; }
+	
 	public bool UseTestMode { get; set; }
 	
 	public Guid? SelectedTssId { get; set; }

@@ -12,8 +12,8 @@ public interface IActiveConfigurationService
     public Event? Event { get; }
     public FiskalyTss? Tss { get; }
     public FiskalyClient? Client { get; }
-    
     public bool UseTestMode { get; }
+    public string? OrderDatabasePath { get; }
 
     public event EventHandler? Changed;
 
@@ -26,9 +26,13 @@ public interface IActiveConfigurationService
         CancellationToken ct = default
     );
 
+    public Task<Result<Unit>> SaveAsync(CancellationToken ct = default);
+
     public Task<Result<Unit>> RefreshAsync(CancellationToken ct = default);
     
     public Task SetTss(FiskalyTss tss);
     
     public Task SetClient(FiskalyClient client);
+    
+    public Task SetOrderDatabasePath(string? path);
 }

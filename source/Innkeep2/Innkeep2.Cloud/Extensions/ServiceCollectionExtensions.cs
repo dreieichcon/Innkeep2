@@ -1,5 +1,6 @@
 using Innkeep2.Cloud.Database;
 using Innkeep2.Cloud.Database.Repositories;
+using Innkeep2.Cloud.Orders;
 using Innkeep2.Credentials;
 using Innkeep2.Credentials.Transformers;
 using Innkeep2.Requests.Fiskaly;
@@ -37,6 +38,8 @@ public static class ServiceCollectionExtensions
 			options.UseSqlite("Data Source=./db/innkeepSettings.db"));
 
 		services.AddSingleton<InnkeepCloudSettingsRepository>();
+		
+		services.AddSingleton<IDbContextFactory<InnkeepOrderDbContext>, InnkeepOrderDbContextFactory>();
 	}
 	
 	public static async Task MigrateDatabaseAsync(this IServiceProvider services)
