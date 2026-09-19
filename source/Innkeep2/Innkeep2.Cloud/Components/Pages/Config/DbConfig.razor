@@ -1,0 +1,70 @@
+@page "/Config/Db"
+
+@using Innkeep2.Cloud.Components.Pages.Core
+@using Innkeep2.Cloud.Services
+@inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractUiPage
+
+<ConfigPage Title="Datenbank-Einstellungen">
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText>Ausgewählte Datenbank</MudText>
+                <MudSelect T="string" @bind-Value="SelectedPath" Variant="Variant.Outlined" Margin="Margin.Dense">
+                    @foreach (var path in _paths)
+                    {
+                        <MudSelectItem Value="path">@path</MudSelectItem>
+                    }
+                </MudSelect>
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="w-100">
+                    <MudButton Disabled="!HasChanges" Color="Color.Success" @onclick="SaveAsync">Speichern</MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudButton Color="Color.Success" Variant="Variant.Outlined" @onclick="CreateNewDatabase">Neue Datenbank Anlegen</MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</ConfigPage>
+
+@code {
+
+    [Inject]
+    public OrderDatabaseService OrderDatabaseService { get; set; } = null!;
+
+    private string? SelectedPath { get; set; }
+    
+    private bool HasChanges => SelectedPath != ActiveConfiguration.OrderDatabasePath;
+    
+    private IReadOnlyList<string> _paths = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        _paths = OrderDatabaseService.ListAvailable();
+        SelectedPath = ActiveConfiguration.OrderDatabasePath;
+    }
+
+    private async Task CreateNewDatabase()
+    {
+        await Handler.TryExecuteAsync(
+            () => OrderDatabaseService.CreateAndSelectAsync(), 
+            errorPrefix: "Fehler beim Erstellen einer neuen Datenbank", 
+            successMessage: "Datenbank erfolgreich angelegt.");
+
+        await OnInitializedAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SaveAsync()
+    {
+        await Handler.TryExecuteAsync(
+            () => OrderDatabaseService.SetAsync(SelectedPath), 
+            errorPrefix: "Fehler beim Erstellen einer neuen Datenbank", 
+            successMessage: "Datenbank erfolgreich angelegt.");
+    }
+
+}

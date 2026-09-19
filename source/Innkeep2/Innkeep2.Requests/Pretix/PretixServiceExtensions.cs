@@ -29,6 +29,9 @@ public static class PretixServiceCollectionExtensions
 		
 		services.AddHttpClient<PretixEventClient>(ConfigureClient())
 			.AddHttpMessageHandler<PretixAuthHandler>();
+		
+		services.AddHttpClient<PretixEventSettingsClient>(ConfigureClient())
+			.AddHttpMessageHandler<PretixAuthHandler>();
 			
 		services.AddHttpClient<PretixSalesItemClient>(ConfigureClient())
 			.AddHttpMessageHandler<PretixAuthHandler>();
