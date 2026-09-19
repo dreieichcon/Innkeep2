@@ -1,4 +1,4 @@
-@page "/Orders/Dashboard"
+@page "/Transactions/Dashboard"
 @using Innkeep2.Cloud.Components.Core
 @using Innkeep2.Cloud.Components.Pages.Core
 @using Innkeep2.Cloud.Services
@@ -27,7 +27,7 @@
 @code {
 
     [Inject]
-    public OrderDashboardService OrderDashboardService { get; set; } = null!;
+    public TransactionDashboardService TransactionDashboardService { get; set; } = null!;
 
     private int OrderCount { get; set; }
     
@@ -37,8 +37,8 @@
     
     protected override async Task OnInitializedAsync()
     {
-        OrderCount = await OrderDashboardService.TotalOrderCount();
-        IncomeCash = await OrderDashboardService.TotalCashSum();
+        OrderCount = await TransactionDashboardService.TotalOrderCount();
+        IncomeCash = await TransactionDashboardService.TotalCashSum();
     }
 
 }

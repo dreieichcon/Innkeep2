@@ -33,7 +33,7 @@
 @code {
 
     [Inject]
-    public OrderDatabaseService OrderDatabaseService { get; set; } = null!;
+    public TransactionDatabaseService TransactionDatabaseService { get; set; } = null!;
 
     private string? SelectedPath { get; set; }
     
@@ -44,14 +44,14 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        _paths = OrderDatabaseService.ListAvailable();
+        _paths = TransactionDatabaseService.ListAvailable();
         SelectedPath = ActiveConfiguration.OrderDatabasePath;
     }
 
     private async Task CreateNewDatabase()
     {
         await Handler.TryExecuteAsync(
-            () => OrderDatabaseService.CreateAndSelectAsync(), 
+            () => TransactionDatabaseService.CreateAndSelectAsync(), 
             errorPrefix: "Fehler beim Erstellen einer neuen Datenbank", 
             successMessage: "Datenbank erfolgreich angelegt.");
 
@@ -62,7 +62,7 @@
     private async Task SaveAsync()
     {
         await Handler.TryExecuteAsync(
-            () => OrderDatabaseService.SetAsync(SelectedPath), 
+            () => TransactionDatabaseService.SetAsync(SelectedPath), 
             errorPrefix: "Fehler beim Erstellen einer neuen Datenbank", 
             successMessage: "Datenbank erfolgreich angelegt.");
     }

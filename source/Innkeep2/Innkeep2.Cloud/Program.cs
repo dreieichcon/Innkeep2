@@ -38,7 +38,7 @@ builder.Services.RegisterCloudServices(builder.Configuration);
 builder.Services.RegisterDatabaseServices();
 
 builder.Services.AddSingleton<IActiveConfigurationService, ActiveConfigurationService>();
-builder.Services.AddSingleton<OrderDatabaseService>();
+builder.Services.AddSingleton<TransactionDatabaseService>();
 builder.Services.AddSingleton<StatusBarService>();
 
 var app = builder.Build();

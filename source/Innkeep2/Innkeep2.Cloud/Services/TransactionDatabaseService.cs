@@ -1,4 +1,4 @@
-using Innkeep2.Cloud.Orders;
+using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Models.Core;
 using Innkeep2.Requests.Core;
 using Innkeep2.Services.Cloud;
@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Cloud.Services;
 
-public sealed class OrderDatabaseService(IActiveConfigurationService activeConfiguration)
+public sealed class TransactionDatabaseService(IActiveConfigurationService activeConfiguration)
 {
     private const string DatabaseDirectory = "./db/orders";
 
@@ -24,11 +24,11 @@ public sealed class OrderDatabaseService(IActiveConfigurationService activeConfi
         if (File.Exists(path))
             return Result<string>.Failure(new Error("Order.Database", "Die Datei existiert bereits."));
 
-        var options = new DbContextOptionsBuilder<InnkeepOrderDbContext>()
+        var options = new DbContextOptionsBuilder<InnkeepTransactionDbContext>()
             .UseSqlite($"Data Source={path}")
             .Options;
 
-        await using var context = new InnkeepOrderDbContext(options);
+        await using var context = new InnkeepTransactionDbContext(options);
         await context.Database.MigrateAsync(ct);
 
         await activeConfiguration.SetOrderDatabasePath(path);

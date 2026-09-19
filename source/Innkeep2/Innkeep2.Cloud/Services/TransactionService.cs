@@ -14,10 +14,10 @@ using Serilog;
 
 namespace Innkeep2.Cloud.Services;
 
-public sealed class OrderService(
+public sealed class TransactionService(
     PretixOrderService pretixOrderService,
     FiskalyTransactionService fiskalyTransactionService,
-    OrderRepository orderRepository,
+    TransactionRepository transactionRepository,
     IActiveConfigurationService activeConfiguration
 )
 {
@@ -27,7 +27,7 @@ public sealed class OrderService(
             return Result<TransactionReceipt>.Failure(
                 new Error("Order.NoConfiguration", "No organizer or event is currently selected."));
 
-        var order = new Order
+        var order = new Transaction
         {
             RequestId =  request.RequestId,
             BookingTime = DateTime.UtcNow,
@@ -36,10 +36,11 @@ public sealed class OrderService(
             AmountGiven = request.AmountGiven,
             AmountBack = request.AmountBack,
             Currency = request.Currency,
-            RequestJson = JsonSerializer.Serialize(request)
+            RequestJson = JsonSerializer.Serialize(request),
+            TransactionType = TransactionType.Sale
         };
 
-        var createResult = await orderRepository.CreateAsync(order, ct);
+        var createResult = await transactionRepository.CreateAsync(order, ct);
 
         if (!createResult.IsSuccess)
             return Result<TransactionReceipt>.Failure(createResult.Error!);
@@ -49,7 +50,7 @@ public sealed class OrderService(
         var pretixOrder = await TryCreatePretixOrderAsync(order, organizer.Slug, pretixEvent, request, ct);
         var fiskalyTransaction = await TryCreateFiskalyTransactionAsync(order, request, ct);
 
-        await orderRepository.UpdateAsync(order, ct);
+        await transactionRepository.UpdateAsync(order, ct);
 
         var receipt = ReceiptBuilder.Build(
             order.RequestId, order.BookingTime, pretixEvent, request, pretixOrder, fiskalyTransaction);
@@ -58,7 +59,7 @@ public sealed class OrderService(
     }
     
     private async Task<PretixOrderResponse?> TryCreatePretixOrderAsync(
-        Order order,
+        Transaction transaction,
         string organizerSlug,
         Event eventInternal,
         OrderRequest request,
@@ -69,43 +70,43 @@ public sealed class OrderService(
 
         if (!result.IsSuccess)
         {
-            order.PretixStatus = OrderStepStatus.Failed;
-            Log.Warning("Pretix order creation failed for order {OrderId}: {Error}", order.RequestId, result.Error!.Message);
+            transaction.PretixStatus = TransactionStepStatus.Failed;
+            Log.Warning("Pretix order creation failed for order {OrderId}: {Error}", transaction.RequestId, result.Error!.Message);
             return null;
         }
 
-        order.PretixStatus = OrderStepStatus.Completed;
-        order.PretixOrderJson = JsonSerializer.Serialize(result.Value);
+        transaction.PretixStatus = TransactionStepStatus.Completed;
+        transaction.PretixOrderJson = JsonSerializer.Serialize(result.Value);
 
         return result.Value;
     }
     
     private async Task<FiskalyTransaction?> TryCreateFiskalyTransactionAsync(
-        Order order,
+        Transaction transaction,
         OrderRequest request,
         CancellationToken ct
     )
     {
-        var startResult = await fiskalyTransactionService.StartAsync(order.RequestId, ct);
+        var startResult = await fiskalyTransactionService.StartAsync(transaction.RequestId, ct);
 
         if (!startResult.IsSuccess)
         {
-            order.FiskalyStatus = OrderStepStatus.Failed;
-            Log.Warning("Fiskaly transaction start failed for order {OrderId}: {Error}", order.RequestId, startResult.Error!.Message);
+            transaction.FiskalyStatus = TransactionStepStatus.Failed;
+            Log.Warning("Fiskaly transaction start failed for order {OrderId}: {Error}", transaction.RequestId, startResult.Error!.Message);
             return null;
         }
 
-        var finishResult = await fiskalyTransactionService.FinishAsync(order.RequestId, revision: 2, request, ct);
+        var finishResult = await fiskalyTransactionService.FinishAsync(transaction.RequestId, revision: 2, request, ct);
 
         if (!finishResult.IsSuccess)
         {
-            order.FiskalyStatus = OrderStepStatus.Failed;
-            Log.Warning("Fiskaly transaction finish failed for order {OrderId}: {Error}", order.RequestId, finishResult.Error!.Message);
+            transaction.FiskalyStatus = TransactionStepStatus.Failed;
+            Log.Warning("Fiskaly transaction finish failed for order {OrderId}: {Error}", transaction.RequestId, finishResult.Error!.Message);
             return null;
         }
 
-        order.FiskalyStatus = OrderStepStatus.Completed;
-        order.FiskalyTransactionJson = JsonSerializer.Serialize(finishResult.Value);
+        transaction.FiskalyStatus = TransactionStepStatus.Completed;
+        transaction.FiskalyTransactionJson = JsonSerializer.Serialize(finishResult.Value);
 
         return finishResult.Value;
     }

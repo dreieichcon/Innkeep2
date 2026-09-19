@@ -1,13 +1,13 @@
-@page "/Orders/Overview"
+@page "/Transactions/Overview"
 @using Innkeep2.Cloud.Components.Core
 @using Innkeep2.Cloud.Components.Pages.Core
-@using Innkeep2.Cloud.Orders
+@using Innkeep2.Cloud.TransactionDb
 @using Innkeep2.Cloud.TransactionDb.Models
 @using Microsoft.EntityFrameworkCore
 
 <ConfigPage Title="Bestellungen: Übersicht">
     <PaperItem>
-        <MudDataGrid T="Order" VirtualizeServerData="ServerData" RowsPerPage="50">
+        <MudDataGrid T="Transaction" VirtualizeServerData="ServerData" RowsPerPage="50">
             <Columns>
                 <PropertyColumn Property="x => x.Id"></PropertyColumn>
             </Columns>
@@ -18,15 +18,15 @@
 @code {
 
     [Inject]
-    public IDbContextFactory<InnkeepOrderDbContext> OrderContextFactory { get; set; } = null;
+    public IDbContextFactory<InnkeepTransactionDbContext> OrderContextFactory { get; set; } = null;
     
-    private async Task<GridData<Order>> ServerData(GridStateVirtualize<Order> state, CancellationToken ct = default)
+    private async Task<GridData<Transaction>> ServerData(GridStateVirtualize<Transaction> state, CancellationToken ct = default)
     {
         await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
 
         var orders = context.Orders.OrderBy(x => x.BookingTime);
 
-        return new GridData<Order>()
+        return new GridData<Transaction>()
         {
             Items = await orders.Skip(state.StartIndex).Take(state.Count).ToListAsync(ct),
             TotalItems = orders.Count()

@@ -1,10 +1,10 @@
-using Innkeep2.Cloud.Orders;
+using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Models.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Cloud.Services;
 
-public class OrderDashboardService(IDbContextFactory<InnkeepOrderDbContext> orderFactory)
+public class TransactionDashboardService(IDbContextFactory<InnkeepTransactionDbContext> orderFactory)
 {
     
     public async Task<int> TotalOrderCount()

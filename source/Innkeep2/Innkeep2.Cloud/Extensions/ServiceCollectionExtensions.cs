@@ -1,6 +1,5 @@
 using Innkeep2.Cloud.AppDb;
 using Innkeep2.Cloud.AppDb.Repositories;
-using Innkeep2.Cloud.Orders;
 using Innkeep2.Cloud.Services;
 using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Cloud.TransactionDb.Repositories;
@@ -47,8 +46,8 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<InnkeepCloudSettingsRepository>();
 		services.AddSingleton<InnkeepCloudApiKeyRepository>();
 
-		services.AddSingleton<IDbContextFactory<InnkeepOrderDbContext>, InnkeepOrderDbContextFactory>();
-		services.AddSingleton<OrderRepository>();
+		services.AddSingleton<IDbContextFactory<InnkeepTransactionDbContext>, InnkeepTransactionDbContextFactory>();
+		services.AddSingleton<TransactionRepository>();
 	}
 	
 	public static async Task MigrateDatabaseAsync(this IServiceProvider services)
@@ -105,7 +104,7 @@ public static class ServiceCollectionExtensions
 	private static void AddOrderServices(this IServiceCollection services)
 	{
 		services.AddSingleton<PretixOrderService>();
-		services.AddSingleton<OrderService>();
-		services.AddSingleton<OrderDashboardService>();
+		services.AddSingleton<TransactionService>();
+		services.AddSingleton<TransactionDashboardService>();
 	}
 }

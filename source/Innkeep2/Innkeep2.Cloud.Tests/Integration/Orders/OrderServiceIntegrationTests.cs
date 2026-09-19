@@ -40,12 +40,12 @@ public class OrderServiceIntegrationTests
        services.AddFiskalyClients();
        services.AddSingleton<PretixOrderService>();
        services.AddSingleton<FiskalyTransactionService>();
-       services.AddSingleton<OrderRepository, FakeOrderRepository>();
+       services.AddSingleton<TransactionRepository, FakeTransactionRepository>();
 
        _activeConfiguration = new FakeActiveConfigurationService();
        services.AddSingleton<IActiveConfigurationService>(_activeConfiguration);
 
-       services.AddSingleton<OrderService>();
+       services.AddSingleton<TransactionService>();
 
        _serviceProvider = services.BuildServiceProvider();
 
@@ -58,7 +58,7 @@ public class OrderServiceIntegrationTests
     [TestMethod]
     public async Task CreateOrderAsync_ReturnsReceiptWithCompletedSteps()
     {
-       var orderService = _serviceProvider.GetRequiredService<OrderService>();
+       var orderService = _serviceProvider.GetRequiredService<TransactionService>();
        var salesItemClient = _serviceProvider.GetRequiredService<PretixSalesItemClient>();
 
        var salesItems = await salesItemClient.GetAllAsync(_activeConfiguration.Organizer!.Slug, _activeConfiguration.Event!.Slug);
@@ -85,7 +85,7 @@ public class OrderServiceIntegrationTests
     [TestMethod]
     public async Task CreateOrderAsync_WithVoucherItem_ReturnsReceiptWithVoucher()
     {
-       var orderService = _serviceProvider.GetRequiredService<OrderService>();
+       var orderService = _serviceProvider.GetRequiredService<TransactionService>();
        var salesItemClient = _serviceProvider.GetRequiredService<PretixSalesItemClient>();
 
        var salesItems = await salesItemClient.GetAllAsync(_activeConfiguration.Organizer!.Slug, _activeConfiguration.Event!.Slug);

@@ -1,6 +1,6 @@
 namespace Innkeep2.Cloud.TransactionDb.Models;
 
-public enum OrderStepStatus
+public enum TransactionStepStatus
 {
     Pending,
     Completed,
