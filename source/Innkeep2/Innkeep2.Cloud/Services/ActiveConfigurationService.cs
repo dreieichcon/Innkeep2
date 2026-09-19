@@ -6,6 +6,7 @@ using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
 using Innkeep2.Requests.Core;
+using Innkeep2.Requests.Pretix.Clients;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
@@ -14,6 +15,7 @@ namespace Innkeep2.Cloud.Services;
 
 public sealed class ActiveConfigurationService(
    InnkeepCloudSettingsRepository settingsRepository,
+   PretixEventSettingsClient eventSettingsClient,
    CachedOrganizerProvider organizerProvider,
    CachedEventProvider eventProvider,
    TssService tssService,
@@ -71,6 +73,8 @@ public sealed class ActiveConfigurationService(
 
        Organizer = await ResolveOrganizerAsync(settings.PretixOrganizerSlug, ct);
        Event = await ResolveEventAsync(settings.PretixOrganizerSlug, settings.PretixEventSlug, ct);
+       await ReloadSettingsForEventAsync(ct);
+       
        Tss = await ResolveTssAsync(settings.SelectedTssId, ct);
        Client = await ResolveClientAsync(settings.SelectedClientId, ct);
        UseTestMode = settings.UseTestMode;
@@ -100,6 +104,23 @@ public sealed class ActiveConfigurationService(
        OrderDatabasePath = path;
        await SaveAsync();
        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    
+    public async Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default)
+    {
+       if (Organizer is not { } organizer || Event is not { } currentEvent)
+          return Result<Unit>.Failure(new Error("Configuration.NoEvent", "No event is currently selected."));
+
+       var result = await eventSettingsClient.GetAsync(organizer.Slug, currentEvent.Slug, ct);
+
+       if (!result.IsSuccess)
+          return Result<Unit>.Failure(result.Error!);
+
+       Event = currentEvent with { Header = Event.BuildHeader(result.Value!) };
+
+       await NotifyChangedAsync();
+
+       return Result<Unit>.Success(default);
     }
 
     private async Task<Organizer?> ResolveOrganizerAsync(string? slug, CancellationToken ct)

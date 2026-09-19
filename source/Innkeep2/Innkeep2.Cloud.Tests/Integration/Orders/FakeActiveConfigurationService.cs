@@ -21,7 +21,9 @@ internal sealed class FakeActiveConfigurationService : IActiveConfigurationServi
     public async Task SetTss(FiskalyTss tss) => Tss = tss;
     public async Task SetClient(FiskalyClient client) => Client = client;
     public async Task SetOrderDatabasePath(string? path) => OrderDatabasePath = path;
-
+    public Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default)
+        => Task.FromResult(Result<Unit>.Success(default));
+    
     public Task<Result<Unit>> SaveAsync(CancellationToken ct = default)
         => Task.FromResult(Result<Unit>.Success(default));
 

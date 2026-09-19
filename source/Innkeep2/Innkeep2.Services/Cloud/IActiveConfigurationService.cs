@@ -35,4 +35,6 @@ public interface IActiveConfigurationService
     public Task SetClient(FiskalyClient client);
     
     public Task SetOrderDatabasePath(string? path);
+    
+    public Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default);
 }

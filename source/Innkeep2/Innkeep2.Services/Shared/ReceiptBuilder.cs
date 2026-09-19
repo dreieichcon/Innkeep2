@@ -13,12 +13,15 @@ public static class ReceiptBuilder
     public static TransactionReceipt Build(
         Guid orderId,
         DateTime bookingTime,
+        Event pretixEvent,
         OrderRequest order,
         PretixOrderResponse? pretixOrder = null,
         FiskalyTransaction? fiskalyTransaction = null
     ) => new()
     {
         OrderId = orderId,
+        Title = pretixEvent.Name,
+        Header = pretixEvent.Header ?? "",
         BookingTime = bookingTime,
         Currency = order.Currency,
         Lines = order.Items.Select(ReceiptLine.FromSalesItem).ToList(),

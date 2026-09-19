@@ -51,7 +51,8 @@ public sealed class OrderService(
 
         await orderRepository.UpdateAsync(order, ct);
 
-        var receipt = ReceiptBuilder.Build(order.RequestId, order.BookingTime, request, pretixOrder, fiskalyTransaction);
+        var receipt = ReceiptBuilder.Build(
+            order.RequestId, order.BookingTime, pretixEvent, request, pretixOrder, fiskalyTransaction);
 
         return Result<TransactionReceipt>.Success(receipt);
     }
