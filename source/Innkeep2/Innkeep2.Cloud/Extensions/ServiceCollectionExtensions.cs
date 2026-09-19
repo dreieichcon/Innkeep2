@@ -86,5 +86,6 @@ public static class ServiceCollectionExtensions
 	private static void AddFiskalyServices(this IServiceCollection services)
 	{
 		services.AddSingleton<TssService>();
+		services.AddSingleton<ClientService>();
 	}
 }

@@ -161,6 +161,7 @@ public partial class PretixConfig
 				SelectedOrganizer?.Slug,
 				SelectedEvent?.Slug,
 				ActiveConfiguration.Tss?.Id,
+				ActiveConfiguration.Client?.Id,
 				UseTestMode
 			),
 			errorPrefix: "Failed to save settings"

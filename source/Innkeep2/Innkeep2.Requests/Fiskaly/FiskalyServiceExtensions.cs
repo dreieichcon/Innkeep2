@@ -27,5 +27,8 @@ public static class FiskalyServiceCollectionExtensions
         
         services.AddHttpClient<FiskalyTssClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
             .AddHttpMessageHandler<FiskalyAuthHandler>();
+        
+        services.AddHttpClient<FiskalyClientClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
+            .AddHttpMessageHandler<FiskalyAuthHandler>();
     }
 }

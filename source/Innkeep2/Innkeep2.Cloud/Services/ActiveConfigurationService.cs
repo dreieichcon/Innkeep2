@@ -2,6 +2,7 @@ using Innkeep2.Cloud.Database.Models;
 using Innkeep2.Cloud.Database.Repositories;
 using Innkeep2.Database.Model;
 using Innkeep2.Models.Core;
+using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
 using Innkeep2.Requests.Core;
@@ -15,12 +16,14 @@ public sealed class ActiveConfigurationService(
    InnkeepCloudSettingsRepository settingsRepository,
    CachedOrganizerProvider organizerProvider,
    CachedEventProvider eventProvider,
-   TssService tssService
+   TssService tssService,
+   ClientService clientService
 ) : IActiveConfigurationService
 {
     public Organizer? Organizer { get; private set; }
     public Event? Event { get; private set; }
     public FiskalyTss? Tss { get; private set; }
+    public FiskalyClient? Client { get; private set; }
     public bool UseTestMode { get; private set; }
 
     public event EventHandler? Changed;
@@ -29,6 +32,7 @@ public sealed class ActiveConfigurationService(
        string? organizerSlug,
        string? eventSlug,
        Guid? tssId,
+       Guid? clientId,
        bool useTestMode,
        CancellationToken ct = default
     )
@@ -41,6 +45,7 @@ public sealed class ActiveConfigurationService(
        settings.PretixOrganizerSlug = organizerSlug;
        settings.PretixEventSlug = eventSlug;
        settings.SelectedTssId = tssId;
+       settings.SelectedClientId = clientId;
        settings.UseTestMode = useTestMode;
        settings.Operation = Operation.Update;
 
@@ -51,6 +56,7 @@ public sealed class ActiveConfigurationService(
 
        return await RefreshAsync(ct);
     }
+   
 
     public async Task<Result<Unit>> RefreshAsync(CancellationToken ct = default)
     {
@@ -62,6 +68,7 @@ public sealed class ActiveConfigurationService(
        Organizer = await ResolveOrganizerAsync(settings.PretixOrganizerSlug, ct);
        Event = await ResolveEventAsync(settings.PretixOrganizerSlug, settings.PretixEventSlug, ct);
        Tss = await ResolveTssAsync(settings.SelectedTssId, ct);
+       Client = await ResolveClientAsync(settings.SelectedClientId, ct);
        UseTestMode = settings.UseTestMode;
 
        await NotifyChangedAsync();
@@ -73,6 +80,11 @@ public sealed class ActiveConfigurationService(
     {
        Tss = tss;
        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void SetClient(FiskalyClient client)
+    {
+       throw new NotImplementedException();
     }
 
     private async Task<Organizer?> ResolveOrganizerAsync(string? slug, CancellationToken ct)
@@ -101,6 +113,16 @@ public sealed class ActiveConfigurationService(
        var tssList = (await tssService.GetAllAsync(ct)).Value;
        return tssList?.Data.FirstOrDefault(x => x.Id == id);
     }
+    
+    private async Task<FiskalyClient?> ResolveClientAsync(Guid? clientId, CancellationToken ct)
+    {
+       if (clientId is not { } id)
+          return null;
+
+       var clients = (await clientService.GetAllAsync(ct)).Value;
+       return clients?.Data.FirstOrDefault(x => x.Id == id);
+    }
+
 
     private Task NotifyChangedAsync()
     {

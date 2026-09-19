@@ -85,27 +85,25 @@ public sealed class TssService(FiskalyTssClient client)
             ct
         );
     
-    private async Task<Result<FiskalyTss>> ExecuteAdminOperationAsync(
+    public async Task<Result<T>> ExecuteAdminOperationAsync<T>(
         Guid tssId,
-        Func<CancellationToken, Task<Result<FiskalyTss>>> operation,
+        Func<CancellationToken, Task<Result<T>>> operation,
         CancellationToken ct
     )
     {
-        var credentials = GetCredentials(tssId);
+        var pin = GetCredentials(tssId)?.AdminPin;
 
-        if (credentials?.AdminPin is not { } pin)
-            return Result<FiskalyTss>.Failure(new Error("Tss.NotAuthenticated", $"No admin PIN stored for TSS '{tssId}'."));
+        if (pin is null)
+            return Result<T>.Failure(new Error("Tss.NotAuthenticated", $"No admin PIN stored for TSS '{tssId}'."));
 
         var authResult = await client.AuthenticateAdminAsync(tssId, pin, ct);
 
         if (!authResult.IsSuccess)
-            return Result<FiskalyTss>.Failure(authResult.Error!);
+            return Result<T>.Failure(authResult.Error!);
 
         var result = await operation(ct);
 
         await client.LogoutAdminAsync(tssId, ct);
-
-        LogResult(tssId, result);
 
         return result;
     }

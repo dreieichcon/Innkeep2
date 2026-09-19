@@ -16,4 +16,6 @@ public class InnkeepCloudSettings : AbstractDbItem
 	public bool UseTestMode { get; set; }
 	
 	public Guid? SelectedTssId { get; set; }
+	
+	public Guid? SelectedClientId { get; set; }
 }
