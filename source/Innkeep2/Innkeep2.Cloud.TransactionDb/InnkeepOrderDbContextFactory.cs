@@ -1,7 +1,9 @@
+using Innkeep2.Cloud.Orders;
 using Innkeep2.Services.Cloud;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite;
 
-namespace Innkeep2.Cloud.Orders;
+namespace Innkeep2.Cloud.TransactionDb;
 
 public sealed class InnkeepOrderDbContextFactory(IActiveConfigurationService activeConfiguration)
     : IDbContextFactory<InnkeepOrderDbContext>

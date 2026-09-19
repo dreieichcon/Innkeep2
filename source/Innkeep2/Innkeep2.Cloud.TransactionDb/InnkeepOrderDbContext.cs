@@ -1,4 +1,4 @@
-using Innkeep2.Cloud.Orders.Models;
+using Innkeep2.Cloud.TransactionDb.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Cloud.Orders;

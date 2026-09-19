@@ -1,4 +1,4 @@
-namespace Innkeep2.Cloud.Orders.Models;
+namespace Innkeep2.Cloud.TransactionDb.Models;
 
 public enum OrderStepStatus
 {

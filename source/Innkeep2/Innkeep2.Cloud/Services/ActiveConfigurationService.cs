@@ -1,5 +1,5 @@
-using Innkeep2.Cloud.Database.Models;
-using Innkeep2.Cloud.Database.Repositories;
+using Innkeep2.Cloud.AppDb.Models;
+using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Database.Model;
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Fiskaly.Client;

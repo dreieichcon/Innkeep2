@@ -1,7 +1,8 @@
+using Innkeep2.Cloud.Orders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Innkeep2.Cloud.Orders;
+namespace Innkeep2.Cloud.TransactionDb;
 
 public sealed class InnkeepOrderDbContextDesignTimeFactory : IDesignTimeDbContextFactory<InnkeepOrderDbContext>
 {

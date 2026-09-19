@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Innkeep2.Database.Model;
 using JetBrains.Annotations;
 
-namespace Innkeep2.Cloud.Database.Models;
+namespace Innkeep2.Cloud.AppDb.Models;
 
 [UsedImplicitly]
 public class InnkeepCloudSettings : AbstractDbItem

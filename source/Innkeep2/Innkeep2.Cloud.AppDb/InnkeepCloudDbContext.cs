@@ -1,7 +1,7 @@
-using Innkeep2.Cloud.Database.Models;
+using Innkeep2.Cloud.AppDb.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Innkeep2.Cloud.Database;
+namespace Innkeep2.Cloud.AppDb;
 
 public class InnkeepCloudDbContext(DbContextOptions<InnkeepCloudDbContext> options) : DbContext(options)
 {
