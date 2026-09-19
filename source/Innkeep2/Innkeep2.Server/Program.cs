@@ -1,5 +1,7 @@
+using Innkeep2.Server.Api;
 using Innkeep2.Server.Components;
 using Innkeep2.Server.Extensions;
+using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
 using MudBlazor.Services;
 using Serilog;
@@ -48,6 +50,9 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
 
+app.MapGroup("/")
+	.AddEndpointFilter<ApiKeyFilter>()
+	.MapApiEndpoints();
 
 var startupService = app.Services.GetRequiredService<ServerStartupService>();
 

@@ -1,6 +1,8 @@
 using Innkeep2.Credentials.Models;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Requests.Cloud.Auth;
+using Innkeep2.Server.Queue;
+using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
 using Innkeep2.Services.Server;
 
@@ -14,6 +16,8 @@ public static class ServiceCollectionExtensions
         services.AddCloudClients();
         
         services.AddCloudCaches();
+        
+        services.RegisterServerDatabase();
         
         services.AddSingleton<ServerStartupService>();
     }
@@ -47,5 +51,16 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ServerEventProvider>();
         services.AddSingleton<ServerSalesItemProvider>();
+    }
+    
+    private static void RegisterServerDatabase(this IServiceCollection services)
+    {
+        if (!Directory.Exists("./db"))
+            Directory.CreateDirectory("./db");
+
+        const string databasePath = "./db/server.db";
+
+        services.AddSingleton(new RequestQueueRepository(databasePath));
+        services.AddSingleton(new ApiKeyRepository(databasePath));
     }
 }
