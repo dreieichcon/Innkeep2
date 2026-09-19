@@ -26,6 +26,7 @@
       <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
       <ProjectReference Include="..\Innkeep2.Requests\Innkeep2.Requests.csproj" />
       <ProjectReference Include="..\Innkeep2.Services\Innkeep2.Services.csproj" />
+      <ProjectReference Include="..\Innkeep2.Ui.Shared\Innkeep2.Ui.Shared.csproj" />
     </ItemGroup>
 
 </Project>

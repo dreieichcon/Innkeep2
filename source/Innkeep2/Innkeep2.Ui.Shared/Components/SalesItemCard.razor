@@ -1,0 +1,30 @@
+@using Innkeep2.Models.Internal
+@using MudBlazor
+
+<MudItem Xs="4">
+    <MudPaper Class="p-2">
+        <MudStack>
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6">@SalesItem.Name</MudText>
+                @if (SalesItem.PrintCheckInVoucher)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.Print" Color="Color.Primary"/>
+                }
+            </MudStack>
+            <MudStack Spacing="1">
+                <MudText>Preis: @SalesItem.Price.ToString("C")</MudText>
+                <MudText>Steuer: @SalesItem.TaxRate %</MudText>
+                <MudText>Preis ohne Steuer: @PriceWithoutTax.ToString("C") </MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+</MudItem>
+
+@code {
+
+    [Parameter]
+    public SalesItem SalesItem { get; set; } = null!;
+
+    private decimal PriceWithoutTax => SalesItem.Price * (1 - SalesItem.TaxRate / 100);
+
+}

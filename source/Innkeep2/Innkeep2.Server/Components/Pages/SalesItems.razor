@@ -1,0 +1,32 @@
+@page "/SalesItems"
+@using Innkeep2.Models.Internal
+@using Innkeep2.Services.Server
+@using Innkeep2.Ui.Shared.Components
+@using MudBlazor
+
+<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudGrid Class="w-75" Justify="Justify.Center">
+        <MudItem Xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText Typo="Typo.h4">Sales Items:</MudText>
+            </MudStack>
+        </MudPaper>
+        </MudItem>
+        <SalesItemRenderer SalesItems="Items"/>
+    </MudGrid>
+</MudStack>
+
+@code {
+
+    [Inject]
+    public ServerSalesItemProvider SalesItemProvider { get; set; } = null!;
+
+    private IReadOnlyList<SalesItem> Items { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        Items = (await SalesItemProvider.GetCachedItemsAsync()).Value ?? [];
+    }
+
+}

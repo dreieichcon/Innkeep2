@@ -1,5 +1,13 @@
-<h3>SalesItemRenderer</h3>
+@using Innkeep2.Models.Internal
+
+@foreach (var item in SalesItems)
+{
+    <SalesItemCard SalesItem="@item"/>
+}
 
 @code {
-    
+
+    [Parameter]
+    public IReadOnlyList<SalesItem> SalesItems { get; set; } = [];
+
 }
