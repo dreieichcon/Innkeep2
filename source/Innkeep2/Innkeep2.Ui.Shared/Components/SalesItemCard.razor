@@ -16,6 +16,10 @@
                 <MudText>Steuer: @SalesItem.TaxRate %</MudText>
                 <MudText>Preis ohne Steuer: @PriceWithoutTax.ToString("C") </MudText>
             </MudStack>
+            <MudStack Spacing="1">
+                <MudText>Verfügbar: @AmountDisplay()</MudText>
+                <MudProgressLinear Min="0" Max="1" Value="@ItemPercentageLeft()" Color="BarColor()"/>
+            </MudStack>
         </MudStack>
     </MudPaper>
 </MudItem>
@@ -26,5 +30,33 @@
     public SalesItem SalesItem { get; set; } = null!;
 
     private decimal PriceWithoutTax => SalesItem.Price * (1 - SalesItem.TaxRate / 100);
+
+    private double ItemPercentageLeft()
+    {
+        if (SalesItem.ItemsInStock is not { } stock || SalesItem.MaxStock is not { } maxStock)
+            return 2;
+
+        return ((double)stock / maxStock);
+    }
+
+    private Color BarColor()
+    {
+        return ItemPercentageLeft() switch
+        {
+            > 1 => Color.Surface,
+            > 0.5 => Color.Success,
+            > 0.3 => Color.Warning,
+            < 0.15 => Color.Error,
+            _ => Color.Default,
+        };
+    }
+
+    private string AmountDisplay()
+    {
+        if (SalesItem.ItemsInStock is not { } stock || SalesItem.MaxStock is not { } maxStock)
+            return "∞";
+
+        return $"{stock} / {maxStock}";
+    }
 
 }

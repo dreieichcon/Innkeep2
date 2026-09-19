@@ -17,6 +17,10 @@ public sealed record SalesItem
 	public int? Quantity { get; set; }
 	
 	public bool PrintCheckInVoucher { get; set; }
+	
+	public int? ItemsInStock { get; set; }
+	
+	public int? MaxStock { get; set; }
 
 	public static SalesItem[] FromPretix(PretixSalesItem item)
 	{

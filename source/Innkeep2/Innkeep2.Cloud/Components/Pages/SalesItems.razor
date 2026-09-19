@@ -1,0 +1,30 @@
+@page "/SalesItems"
+@using Innkeep2.Cloud.Components.Pages.Core
+@using Innkeep2.Models.Internal
+@using Innkeep2.Services.Cloud
+@using Innkeep2.Services.Cloud.Cache
+@using Innkeep2.Ui.Shared.Components
+
+<ConfigPage Title="Sales Items">
+    <SalesItemRenderer SalesItems="Items"/>
+</ConfigPage>
+
+@code {
+
+    [Inject]
+    public CachedSalesItemProvider SalesItemProvider { get; set; } = null!;
+    
+    [Inject]
+    public IActiveConfigurationService ActiveConfigurationService { get; set; } = null!;
+
+    private IReadOnlyList<SalesItem> Items { get; set; } = [];
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (ActiveConfigurationService.Organizer is not { } organizer || ActiveConfigurationService.Event is not { } aEvent)
+            return;
+        
+        Items = (await SalesItemProvider.GetCachedItemsAsync(new SalesItemKey(organizer.Slug, aEvent.Slug))).Value ?? [];
+    }
+
+}
