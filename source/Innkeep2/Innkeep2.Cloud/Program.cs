@@ -1,3 +1,4 @@
+using Innkeep2.Cloud.Api;
 using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
@@ -52,7 +53,6 @@ app.UseForwardedHeaders(options);
 
 await app.Services.MigrateDatabaseAsync();
 
-
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -93,6 +93,7 @@ app.MapPost("/Account/Logout", async context =>
 	.RequireAuthorization();
 
 # if DEBUG
+
 app.MapGet("/debug/claims", (HttpContext ctx) =>
 		string.Join("\n", ctx.User.Claims.Select(c => $"{c.Type}: {c.Value}")))
 	.RequireAuthorization(new AuthorizationPolicyBuilder()
@@ -100,6 +101,10 @@ app.MapGet("/debug/claims", (HttpContext ctx) =>
 		.Build());
 
 # endif
+
+app.MapGroup("/")
+	.AddEndpointFilter<ApiKeyFilter>()
+	.MapOrderEndpoints();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
