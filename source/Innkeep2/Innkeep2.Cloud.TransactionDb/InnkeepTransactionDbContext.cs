@@ -5,5 +5,5 @@ namespace Innkeep2.Cloud.TransactionDb;
 
 public sealed class InnkeepTransactionDbContext(DbContextOptions<InnkeepTransactionDbContext> options) : DbContext(options)
 {
-    public DbSet<Transaction> Orders => Set<Transaction>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
 }

@@ -9,7 +9,11 @@
     <PaperItem>
         <MudDataGrid T="Transaction" VirtualizeServerData="ServerData" RowsPerPage="50">
             <Columns>
-                <PropertyColumn Property="x => x.Id"></PropertyColumn>
+                <PropertyColumn Property="x => x.Id"/>
+                <PropertyColumn Property="x => x.TotalAmount"/>
+                <PropertyColumn Property="x => x.AmountGiven"/>
+                <PropertyColumn Property="x => x.AmountBack"/>
+                <PropertyColumn Property="x => x.PaymentType"/>
             </Columns>
         </MudDataGrid>
     </PaperItem>
@@ -24,7 +28,7 @@
     {
         await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
 
-        var orders = context.Orders.OrderBy(x => x.BookingTime);
+        var orders = context.Transactions.OrderBy(x => x.BookingTime);
 
         return new GridData<Transaction>()
         {

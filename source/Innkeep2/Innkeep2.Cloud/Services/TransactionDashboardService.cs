@@ -10,12 +10,12 @@ public class TransactionDashboardService(IDbContextFactory<InnkeepTransactionDbC
     public async Task<int> TotalOrderCount()
     {
         await using var orderDbContext = await orderFactory.CreateDbContextAsync();
-        return await orderDbContext.Orders.CountAsync();
+        return await orderDbContext.Transactions.CountAsync();
     }
     
     public async Task<decimal> TotalCashSum()
     {
         await using var orderDbContext = await orderFactory.CreateDbContextAsync();
-        return orderDbContext.Orders.Where(x => x.PaymentType == PaymentType.Cash).Sum(x => x.TotalAmount);
+        return await orderDbContext.Transactions.Where(x => x.PaymentType == PaymentType.Cash).SumAsync(x => x.TotalAmount);
     }
 }

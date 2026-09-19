@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
 namespace Innkeep2.Models.Core;
@@ -6,5 +7,5 @@ namespace Innkeep2.Models.Core;
 public sealed record Error(
 	string Code,
 	string Message,
-	Exception? Exception = null,
+	[property: JsonIgnore] Exception? Exception = null,
 	IReadOnlyDictionary<string, object?>? Metadata = null);
