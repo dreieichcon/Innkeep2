@@ -22,7 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ServerStartupService>();
     }
     
-    private static void AddCloudCredential(this IServiceCollection services, IConfiguration configuration)
+    public static void AddCloudCredential(this IServiceCollection services, IConfiguration configuration)
     {
         var credential = configuration.GetSection("Cloud").Get<CloudCredential>()
                          ?? throw new InvalidOperationException("Missing 'Cloud' section in configuration.");
@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(credential);
     }
     
-    private static void AddCloudClients(this IServiceCollection services)
+    public static void AddCloudClients(this IServiceCollection services)
     {
         services.AddTransient<CloudAuthHandler>();
 

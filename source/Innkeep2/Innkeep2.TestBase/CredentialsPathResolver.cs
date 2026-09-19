@@ -2,12 +2,12 @@ namespace Innkeep2.TestBase;
 
 public static class CredentialsPathResolver
 {
-    public static string ResolveCredentialsPath()
+    public static string ResolveCredentialsPath(string? project = null)
     {
         var directory = Environment.GetEnvironmentVariable("INNKEEP2_CREDENTIALS_DIR")
                         ?? Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials");
 
-        var path = Path.Combine(directory, "credentials.test.json");
+        var path = Path.Combine(directory, $"credentials.{project}test.json");
 
         return File.Exists(path)
             ? path
