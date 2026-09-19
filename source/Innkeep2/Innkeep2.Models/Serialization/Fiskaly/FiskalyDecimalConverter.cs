@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Innkeep2.Requests.Serialization.Fiskaly;
+namespace Innkeep2.Models.Serialization.Fiskaly;
 
 public class FiskalyDecimalConverter : JsonConverter<decimal>
 {

@@ -21,6 +21,7 @@ public abstract class FiskalyIntegrationTestBase
 
         var services = new ServiceCollection();
         services.AddCredentialsConfiguration(configuration);
+        services.AddSingleton<IConfiguration>(configuration);
         services.AddFiskalyClients();
 
         ServiceProvider = services.BuildServiceProvider();

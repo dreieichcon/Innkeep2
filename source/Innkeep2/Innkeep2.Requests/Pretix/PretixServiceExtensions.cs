@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Innkeep2.Credentials;
 using Innkeep2.Credentials.Models;
+using Innkeep2.Models.Serialization.Pretix;
 using Innkeep2.Requests.Pretix.Clients;
-using Innkeep2.Requests.Serialization.Pretix;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Innkeep2.Requests.Pretix;

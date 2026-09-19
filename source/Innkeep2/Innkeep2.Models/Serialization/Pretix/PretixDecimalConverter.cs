@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace Innkeep2.Requests.Serialization.Pretix;
+namespace Innkeep2.Models.Serialization.Pretix;
 
 public sealed class PretixDecimalConverter : JsonConverter<decimal>
 {

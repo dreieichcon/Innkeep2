@@ -1,4 +1,4 @@
-using Innkeep2.Requests.Serialization.Pretix;
+using Innkeep2.Models.Serialization.Pretix;
 
 namespace Innkeep2.Requests.Tests.Serialization.Pretix;
 
