@@ -1,0 +1,44 @@
+@page "/Orders/Dashboard"
+@using Innkeep2.Cloud.Components.Core
+@using Innkeep2.Cloud.Components.Pages.Core
+@using Innkeep2.Cloud.Services
+
+@inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractUiPage
+
+<ConfigPage Title="Dashboard für Bestellungen">
+    <PaperItem Xs="6">
+        <MudText>Bestellungen Gesamt:</MudText>
+        <MudText Typo="Typo.h4">@OrderCount</MudText>
+    </PaperItem>
+    <PaperItem Xs="6">
+        <MudText>Einnahmen Gesamt:</MudText>
+        <MudText Typo="Typo.h4">@IncomeTotal.ToString("C")</MudText>
+    </PaperItem>
+    <PaperItem Xs="6">
+        <MudText>Einnahmen Bargeld:</MudText>
+        <MudText Typo="Typo.h4">@IncomeTotal.ToString("C")</MudText>
+    </PaperItem>
+    <PaperItem Xs="6">
+        <MudText>Aktueller Stand Kasse:</MudText>
+        <MudText Typo="Typo.h4">@IncomeTotal.ToString("C")</MudText>
+    </PaperItem>
+</ConfigPage>
+
+@code {
+
+    [Inject]
+    public OrderDashboardService OrderDashboardService { get; set; } = null!;
+
+    private int OrderCount { get; set; }
+    
+    private decimal IncomeTotal { get; set; }
+    
+    private decimal IncomeCash { get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        OrderCount = await OrderDashboardService.TotalOrderCount();
+        IncomeCash = await OrderDashboardService.TotalCashSum();
+    }
+
+}

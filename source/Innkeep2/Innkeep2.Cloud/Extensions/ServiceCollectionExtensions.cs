@@ -106,5 +106,6 @@ public static class ServiceCollectionExtensions
 	{
 		services.AddSingleton<PretixOrderService>();
 		services.AddSingleton<OrderService>();
+		services.AddSingleton<OrderDashboardService>();
 	}
 }

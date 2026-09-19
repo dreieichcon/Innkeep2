@@ -1,0 +1,36 @@
+@page "/Orders/Overview"
+@using Innkeep2.Cloud.Components.Core
+@using Innkeep2.Cloud.Components.Pages.Core
+@using Innkeep2.Cloud.Orders
+@using Innkeep2.Cloud.TransactionDb.Models
+@using Microsoft.EntityFrameworkCore
+
+<ConfigPage Title="Bestellungen: Übersicht">
+    <PaperItem>
+        <MudDataGrid T="Order" VirtualizeServerData="ServerData" RowsPerPage="50">
+            <Columns>
+                <PropertyColumn Property="x => x.Id"></PropertyColumn>
+            </Columns>
+        </MudDataGrid>
+    </PaperItem>
+</ConfigPage>
+
+@code {
+
+    [Inject]
+    public IDbContextFactory<InnkeepOrderDbContext> OrderContextFactory { get; set; } = null;
+    
+    private async Task<GridData<Order>> ServerData(GridStateVirtualize<Order> state, CancellationToken ct = default)
+    {
+        await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
+
+        var orders = context.Orders.OrderBy(x => x.BookingTime);
+
+        return new GridData<Order>()
+        {
+            Items = await orders.Skip(state.StartIndex).Take(state.Count).ToListAsync(ct),
+            TotalItems = orders.Count()
+        };
+    }
+    
+}
