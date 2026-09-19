@@ -1,13 +1,26 @@
 using Innkeep2.Server.Components;
+using Innkeep2.Server.Extensions;
 using MudBlazor.Services;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+	.MinimumLevel.Debug()
+	.WriteTo.Console()
+	.WriteTo.Trace()
+	.CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+var credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", "credentials.server.json");
+builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+
+builder.Services.RegisterServerServices(builder.Configuration);
 
 var app = builder.Build();
 
