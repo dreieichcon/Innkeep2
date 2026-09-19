@@ -23,6 +23,7 @@ public sealed class FiskalyTransactionService(
        Guid txId,
        int revision,
        OrderRequest order,
+       int sign = 1,
        CancellationToken ct = default
     )
     {
@@ -30,19 +31,19 @@ public sealed class FiskalyTransactionService(
           return Task.FromResult(Result<FiskalyTransaction>.Failure(
              new Error("Transaction.NoConfiguration", "No TSS or client is currently selected.")));
 
-       var schema = BuildSchema(order);
+       var schema = BuildSchema(order, sign);
 
        return transactionClient.FinishAsync(tss.Id, txId, client.Id, revision, schema, ct);
     }
 
-    private static FiskalyTransactionSchema BuildSchema(OrderRequest order)
+    private static FiskalyTransactionSchema BuildSchema(OrderRequest order, int sign)
     {
        var vatRates = order.Items
           .GroupBy(x => x.TaxRate)
           .Select(g => new FiskalyAmountPerVatRate
           {
              VatRate = VatRateMapper.FromTaxRate(g.Key),
-             Amount = g.Sum(x => x.Price * (x.Quantity ?? 1))
+             Amount = sign * g.Sum(x => x.Price * (x.Quantity ?? 1))
           })
           .ToList();
 
@@ -51,7 +52,7 @@ public sealed class FiskalyTransactionService(
           new()
           {
              PaymentType = order.PaymentType,
-             Amount = order.AmountNeeded,
+             Amount = sign * order.AmountNeeded,
              CurrencyCode = order.Currency
           }
        };

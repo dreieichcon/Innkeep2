@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Models.Core;
@@ -19,4 +20,17 @@ internal sealed class FakeTransactionRepository()
 
     public override Task<Result<Transaction>> UpdateAsync(Transaction entity, CancellationToken ct = default)
         => Task.FromResult(Result<Transaction>.Success(entity));
+    
+    public override Task<Result<Transaction>> GetCustomAsync(
+        Expression<Func<Transaction, bool>> predicate,
+        CancellationToken ct = default
+    )
+    {
+        var compiled = predicate.Compile();
+        var entity = _orders.FirstOrDefault(compiled);
+
+        return Task.FromResult(entity is not null
+            ? Result<Transaction>.Success(entity)
+            : Result<Transaction>.Failure(new Error("Db.NotFound", "Entity not found.")));
+    }
 }

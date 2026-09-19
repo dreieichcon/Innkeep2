@@ -6,274 +6,286 @@ using Microsoft.EntityFrameworkCore;
 namespace Innkeep2.Database.Repository;
 
 public abstract class AbstractRepository<TEntity, TContext>(IDbContextFactory<TContext> contextFactory)
-	where TEntity : class, IDbItem
-	where TContext : DbContext
+    where TEntity : class, IDbItem
+    where TContext : DbContext
 {
-	protected virtual TContext CreateContext() => contextFactory.CreateDbContext();
+    protected virtual TContext CreateContext() => contextFactory.CreateDbContext();
 
-	protected virtual DbSet<TEntity> GetSet(TContext context) => context.Set<TEntity>();
+    protected virtual DbSet<TEntity> GetSet(TContext context) => context.Set<TEntity>();
 
-	public virtual Result<IReadOnlyList<TEntity>> GetAll()
-	{
-		using var context = CreateContext();
+    public virtual Result<IReadOnlyList<TEntity>> GetAll()
+    {
+        using var context = CreateContext();
 
-		return Result<IReadOnlyList<TEntity>>.Success(
-			GetSet(context)
-				.ToList()
-		);
-	}
+        return Result<IReadOnlyList<TEntity>>.Success(
+            GetSet(context)
+                .ToList()
+        );
+    }
 
-	public virtual async Task<Result<IReadOnlyList<TEntity>>> GetAllAsync(CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+    public virtual async Task<Result<IReadOnlyList<TEntity>>> GetAllAsync(CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		var entities = await GetSet(context)
-			.ToListAsync(ct);
+        var entities = await GetSet(context)
+            .ToListAsync(ct);
 
-		return Result<IReadOnlyList<TEntity>>.Success(entities);
-	}
+        return Result<IReadOnlyList<TEntity>>.Success(entities);
+    }
 
-	public virtual async Task<Result<IReadOnlyList<TEntity>>> GetAllCustomAsync(
-		Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+    public virtual async Task<Result<IReadOnlyList<TEntity>>> GetAllCustomAsync(
+        Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		var entities = await GetSet(context).Where(predicate).ToListAsync(ct);
+        var entities = await GetSet(context).Where(predicate).ToListAsync(ct);
 
-		return Result<IReadOnlyList<TEntity>>.Success(entities);
-	}
+        return Result<IReadOnlyList<TEntity>>.Success(entities);
+    }
 
-	public virtual Result<TEntity> Get(int id)
-	{
-		using var context = CreateContext();
+    public virtual Result<TEntity> Get(int id)
+    {
+        using var context = CreateContext();
 
-		var entity = GetSet(context)
-			.Find(id);
+        var entity = GetSet(context)
+            .Find(id);
 
-		return ToResult(entity, id);
-	}
+        return ToResult(entity, id);
+    }
 
-	public virtual async Task<Result<TEntity>> GetAsync(int id, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+    public virtual async Task<Result<TEntity>> GetAsync(int id, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		var entity = await GetSet(context)
-			.FindAsync([id], ct);
+        var entity = await GetSet(context)
+            .FindAsync([id], ct);
 
-		return ToResult(entity, id);
-	}
-	
-	public virtual async Task<Result<TEntity>> GetOrCreateAsync(
-		Func<TEntity> createDefault, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
-		var entity = await GetSet(context).FirstOrDefaultAsync(ct);
+        return ToResult(entity, id);
+    }
 
-		if (entity is not null)
-			return Result<TEntity>.Success(entity);
+    public virtual async Task<Result<TEntity>> GetCustomAsync(
+        Expression<Func<TEntity, bool>> predicate, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		entity = createDefault();
-		GetSet(context).Add(entity);
+        var entity = await GetSet(context).FirstOrDefaultAsync(predicate, ct);
 
-		return await TrySaveAsync(context, entity, ct);
-	}
+        return entity != null
+            ? ToResult(entity, entity.Id)
+            : Result<TEntity>.Failure(new Error("Db.NotFound", $"Entity not found '{predicate}'."));
+    }
 
-	public virtual Result<TEntity> Crud(TEntity entity) => entity.Operation switch
-	{
-		Operation.Create => Create(entity),
-		Operation.Update => Update(entity),
-		Operation.Delete => Delete(entity),
-		Operation.None => Result<TEntity>.Success(entity),
-		_ => Result<TEntity>.Failure(new Error("Db.UnknownOperation", $"Unhandled operation '{entity.Operation}'."))
-	};
+    public virtual async Task<Result<TEntity>> GetOrCreateAsync(
+        Func<TEntity> createDefault, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
+        var entity = await GetSet(context).FirstOrDefaultAsync(ct);
 
-	public virtual Task<Result<TEntity>> CrudAsync(TEntity entity, CancellationToken ct = default)
-		=> entity.Operation switch
-		{
-			Operation.Create => CreateAsync(entity, ct),
-			Operation.Update => UpdateAsync(entity, ct),
-			Operation.Delete => DeleteAsync(entity, ct),
-			Operation.None => Task.FromResult(Result<TEntity>.Success(entity)),
-			_ => Task.FromResult(
-				Result<TEntity>.Failure(new Error("Db.UnknownOperation", $"Unhandled operation '{entity.Operation}'."))
-			)
-		};
+        if (entity is not null)
+            return Result<TEntity>.Success(entity);
 
-	public virtual Result<IReadOnlyList<TEntity>> CrudMany(IEnumerable<TEntity> items)
-	{
-		var entities = items.ToList();
-		using var context = CreateContext();
-		var set = GetSet(context);
+        entity = createDefault();
+        GetSet(context).Add(entity);
 
-		foreach (var entity in entities)
-		{
-			switch (entity.Operation)
-			{
-				case Operation.Create:
-					set.Add(entity);
-					break;
+        return await TrySaveAsync(context, entity, ct);
+    }
 
-				case Operation.Update: 
-					set.Update(entity); 
-					break;
+    public virtual Result<TEntity> Crud(TEntity entity) => entity.Operation switch
+    {
+        Operation.Create => Create(entity),
+        Operation.Update => Update(entity),
+        Operation.Delete => Delete(entity),
+        Operation.None => Result<TEntity>.Success(entity),
+        _ => Result<TEntity>.Failure(new Error("Db.UnknownOperation", $"Unhandled operation '{entity.Operation}'."))
+    };
 
-				case Operation.Delete: 
-					set.Remove(entity); 
-					break;
+    public virtual Task<Result<TEntity>> CrudAsync(TEntity entity, CancellationToken ct = default)
+        => entity.Operation switch
+        {
+            Operation.Create => CreateAsync(entity, ct),
+            Operation.Update => UpdateAsync(entity, ct),
+            Operation.Delete => DeleteAsync(entity, ct),
+            Operation.None => Task.FromResult(Result<TEntity>.Success(entity)),
+            _ => Task.FromResult(
+                Result<TEntity>.Failure(new Error("Db.UnknownOperation", $"Unhandled operation '{entity.Operation}'."))
+            )
+        };
 
-				case Operation.None: 
-					break;
+    public virtual Result<IReadOnlyList<TEntity>> CrudMany(IEnumerable<TEntity> items)
+    {
+        var entities = items.ToList();
+        using var context = CreateContext();
+        var set = GetSet(context);
 
-				default:
-					return Result<IReadOnlyList<TEntity>>.Failure(
-						new Error(
-							"Db.UnknownOperation",
-							$"Unhandled operation '{entity.Operation}' on entity {entity.Id}."
-						)
-					);
-			}
-		}
+        foreach (var entity in entities)
+        {
+            switch (entity.Operation)
+            {
+                case Operation.Create:
+                    set.Add(entity);
+                    break;
 
-		try
-		{
-			context.SaveChanges();
-			return Result<IReadOnlyList<TEntity>>.Success(entities);
-		}
-		catch (DbUpdateException ex)
-		{
-			return Result<IReadOnlyList<TEntity>>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
-		}
-	}
+                case Operation.Update:
+                    set.Update(entity);
+                    break;
 
-	public virtual async Task<Result<IReadOnlyList<TEntity>>> CrudManyAsync(
-		IEnumerable<TEntity> items,
-		CancellationToken ct = default
-	)
-	{
-		var entities = items.ToList();
-		await using var context = CreateContext();
-		var set = GetSet(context);
+                case Operation.Delete:
+                    set.Remove(entity);
+                    break;
 
-		foreach (var entity in entities)
-		{
-			switch (entity.Operation)
-			{
-				case Operation.Create: set.Add(entity); break;
+                case Operation.None:
+                    break;
 
-				case Operation.Update: set.Update(entity); break;
+                default:
+                    return Result<IReadOnlyList<TEntity>>.Failure(
+                        new Error(
+                            "Db.UnknownOperation",
+                            $"Unhandled operation '{entity.Operation}' on entity {entity.Id}."
+                        )
+                    );
+            }
+        }
 
-				case Operation.Delete: set.Remove(entity); break;
+        try
+        {
+            context.SaveChanges();
+            return Result<IReadOnlyList<TEntity>>.Success(entities);
+        }
+        catch (DbUpdateException ex)
+        {
+            return Result<IReadOnlyList<TEntity>>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
+        }
+    }
 
-				case Operation.None: break;
+    public virtual async Task<Result<IReadOnlyList<TEntity>>> CrudManyAsync(
+        IEnumerable<TEntity> items,
+        CancellationToken ct = default
+    )
+    {
+        var entities = items.ToList();
+        await using var context = CreateContext();
+        var set = GetSet(context);
 
-				default:
-					return Result<IReadOnlyList<TEntity>>.Failure(
-						new Error(
-							"Db.UnknownOperation",
-							$"Unhandled operation '{entity.Operation}' on entity {entity.Id}."
-						)
-					);
-			}
-		}
+        foreach (var entity in entities)
+        {
+            switch (entity.Operation)
+            {
+                case Operation.Create: set.Add(entity); break;
 
-		try
-		{
-			await context.SaveChangesAsync(ct);
-			return Result<IReadOnlyList<TEntity>>.Success(entities);
-		}
-		catch (DbUpdateException ex)
-		{
-			return Result<IReadOnlyList<TEntity>>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
-		}
-	}
+                case Operation.Update: set.Update(entity); break;
 
-	public virtual Result<TEntity> Create(TEntity entity)
-	{
-		using var context = CreateContext();
+                case Operation.Delete: set.Remove(entity); break;
 
-		GetSet(context)
-			.Add(entity);
+                case Operation.None: break;
 
-		return TrySave(context, entity);
-	}
+                default:
+                    return Result<IReadOnlyList<TEntity>>.Failure(
+                        new Error(
+                            "Db.UnknownOperation",
+                            $"Unhandled operation '{entity.Operation}' on entity {entity.Id}."
+                        )
+                    );
+            }
+        }
 
-	public virtual async Task<Result<TEntity>> CreateAsync(TEntity entity, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+        try
+        {
+            await context.SaveChangesAsync(ct);
+            return Result<IReadOnlyList<TEntity>>.Success(entities);
+        }
+        catch (DbUpdateException ex)
+        {
+            return Result<IReadOnlyList<TEntity>>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
+        }
+    }
 
-		GetSet(context)
-			.Add(entity);
+    public virtual Result<TEntity> Create(TEntity entity)
+    {
+        using var context = CreateContext();
 
-		return await TrySaveAsync(context, entity, ct);
-	}
+        GetSet(context)
+            .Add(entity);
 
-	public virtual Result<TEntity> Update(TEntity entity)
-	{
-		using var context = CreateContext();
+        return TrySave(context, entity);
+    }
 
-		GetSet(context)
-			.Update(entity);
+    public virtual async Task<Result<TEntity>> CreateAsync(TEntity entity, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		return TrySave(context, entity);
-	}
+        GetSet(context)
+            .Add(entity);
 
-	public virtual async Task<Result<TEntity>> UpdateAsync(TEntity entity, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+        return await TrySaveAsync(context, entity, ct);
+    }
 
-		GetSet(context)
-			.Update(entity);
+    public virtual Result<TEntity> Update(TEntity entity)
+    {
+        using var context = CreateContext();
 
-		return await TrySaveAsync(context, entity, ct);
-	}
+        GetSet(context)
+            .Update(entity);
 
-	public virtual Result<TEntity> Delete(TEntity entity)
-	{
-		using var context = CreateContext();
+        return TrySave(context, entity);
+    }
 
-		GetSet(context)
-			.Remove(entity);
+    public virtual async Task<Result<TEntity>> UpdateAsync(TEntity entity, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-		return TrySave(context, entity);
-	}
+        GetSet(context)
+            .Update(entity);
 
-	public virtual async Task<Result<TEntity>> DeleteAsync(TEntity entity, CancellationToken ct = default)
-	{
-		await using var context = CreateContext();
+        return await TrySaveAsync(context, entity, ct);
+    }
 
-		GetSet(context)
-			.Remove(entity);
+    public virtual Result<TEntity> Delete(TEntity entity)
+    {
+        using var context = CreateContext();
 
-		return await TrySaveAsync(context, entity, ct);
-	}
+        GetSet(context)
+            .Remove(entity);
 
-	private static Result<TEntity> TrySave(TContext context, TEntity entity)
-	{
-		try
-		{
-			context.SaveChanges();
-			return Result<TEntity>.Success(entity);
-		}
-		catch (DbUpdateException ex)
-		{
-			return Result<TEntity>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
-		}
-	}
+        return TrySave(context, entity);
+    }
 
-	private static async Task<Result<TEntity>> TrySaveAsync(TContext context, TEntity entity, CancellationToken ct)
-	{
-		try
-		{
-			await context.SaveChangesAsync(ct);
-			return Result<TEntity>.Success(entity);
-		}
-		catch (DbUpdateException ex)
-		{
-			return Result<TEntity>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
-		}
-	}
+    public virtual async Task<Result<TEntity>> DeleteAsync(TEntity entity, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
 
-	private static Result<TEntity> ToResult(TEntity? entity, int id) => entity is not null
-		? Result<TEntity>.Success(entity)
-		: Result<TEntity>.Failure(new Error("Db.NotFound", $"{typeof(TEntity).Name} with id '{id}' not found."));
+        GetSet(context)
+            .Remove(entity);
+
+        return await TrySaveAsync(context, entity, ct);
+    }
+
+    private static Result<TEntity> TrySave(TContext context, TEntity entity)
+    {
+        try
+        {
+            context.SaveChanges();
+            return Result<TEntity>.Success(entity);
+        }
+        catch (DbUpdateException ex)
+        {
+            return Result<TEntity>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
+        }
+    }
+
+    private static async Task<Result<TEntity>> TrySaveAsync(TContext context, TEntity entity, CancellationToken ct)
+    {
+        try
+        {
+            await context.SaveChangesAsync(ct);
+            return Result<TEntity>.Success(entity);
+        }
+        catch (DbUpdateException ex)
+        {
+            return Result<TEntity>.Failure(new Error("Db.SaveFailed", ex.Message, ex));
+        }
+    }
+
+    private static Result<TEntity> ToResult(TEntity? entity, int id) => entity is not null
+        ? Result<TEntity>.Success(entity)
+        : Result<TEntity>.Failure(new Error("Db.NotFound", $"{typeof(TEntity).Name} with id '{id}' not found."));
 }

@@ -15,6 +15,8 @@ public static class ReceiptBuilder
         DateTime bookingTime,
         Event pretixEvent,
         OrderRequest order,
+        decimal amountGiven,
+        decimal amountBack,
         PretixOrderResponse? pretixOrder = null,
         FiskalyTransaction? fiskalyTransaction = null
     ) => new()
@@ -28,8 +30,8 @@ public static class ReceiptBuilder
         Sum = new ReceiptSum
         {
             TotalAmount = order.AmountNeeded,
-            AmountGiven = order.AmountGiven,
-            AmountReturned = order.AmountBack
+            AmountGiven = amountGiven,
+            AmountReturned = amountBack
         },
         TaxInformation = BuildTaxInformation(order),
         Vouchers = BuildVouchers(order, pretixOrder),

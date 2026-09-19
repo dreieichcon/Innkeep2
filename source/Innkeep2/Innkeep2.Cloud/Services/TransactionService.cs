@@ -14,7 +14,7 @@ using Serilog;
 
 namespace Innkeep2.Cloud.Services;
 
-public sealed class TransactionService(
+public sealed partial class TransactionService(
     PretixOrderService pretixOrderService,
     FiskalyTransactionService fiskalyTransactionService,
     TransactionRepository transactionRepository,
@@ -53,7 +53,15 @@ public sealed class TransactionService(
         await transactionRepository.UpdateAsync(order, ct);
 
         var receipt = ReceiptBuilder.Build(
-            order.RequestId, order.BookingTime, pretixEvent, request, pretixOrder, fiskalyTransaction);
+            order.RequestId,
+            order.BookingTime,
+            pretixEvent,
+            request,
+            request.AmountGiven,
+            request.AmountBack,
+            pretixOrder,
+            fiskalyTransaction
+        );
 
         return Result<TransactionReceipt>.Success(receipt);
     }
@@ -96,7 +104,7 @@ public sealed class TransactionService(
             return null;
         }
 
-        var finishResult = await fiskalyTransactionService.FinishAsync(transaction.RequestId, revision: 2, request, ct);
+        var finishResult = await fiskalyTransactionService.FinishAsync(transaction.RequestId, revision: 2, request, ct:ct);
 
         if (!finishResult.IsSuccess)
         {

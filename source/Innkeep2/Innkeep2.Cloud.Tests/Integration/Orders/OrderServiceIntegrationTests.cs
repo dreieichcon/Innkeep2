@@ -109,6 +109,37 @@ public class OrderServiceIntegrationTests
        Assert.AreEqual(item.Name, result.Value!.Vouchers[0].ItemName);
        Assert.IsFalse(string.IsNullOrWhiteSpace(result.Value!.Vouchers[0].Secret));
     }
+    
+    [TestMethod]
+    public async Task CreateOrderAsync_ThenRefundTransactionAsync_ReturnsRefundReceipt()
+    {
+       var transactionService = _serviceProvider.GetRequiredService<TransactionService>();
+       var salesItemClient = _serviceProvider.GetRequiredService<PretixSalesItemClient>();
+
+       var salesItems = await salesItemClient.GetAllAsync(_activeConfiguration.Organizer!.Slug, _activeConfiguration.Event!.Slug);
+       var item = SalesItem.FromPretix(salesItems.Value!.Results.First()).First();
+       item.Quantity = 1;
+
+       var request = new OrderRequest
+       {
+          RequestId = Guid.NewGuid(),
+          Items = [item],
+          PaymentType = PaymentType.Cash,
+          AmountGiven = item.Price,
+          Currency = "EUR"
+       };
+
+       var saleResult = await transactionService.CreateOrderAsync(request);
+       Assert.IsTrue(saleResult.IsSuccess);
+
+       var refundResult = await transactionService.RefundTransactionAsync(request.RequestId);
+
+       Assert.IsTrue(refundResult.IsSuccess);
+       Assert.AreEqual(0, refundResult.Value!.Sum.AmountGiven);
+       Assert.AreEqual(item.Price, refundResult.Value!.Sum.AmountReturned);
+       Assert.AreNotEqual("TSS OFFLINE", refundResult.Value!.FiskalyQrCode);
+       Assert.AreNotEqual("PRETIX OFFLINE", refundResult.Value!.PretixOrderCode);
+    }
 
     private void ResolveActiveConfiguration(IConfiguration configuration)
     {

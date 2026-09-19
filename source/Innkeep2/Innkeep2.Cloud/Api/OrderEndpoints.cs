@@ -11,9 +11,15 @@ public static class OrderEndpoints
     {
         app.MapGet("/auth", () => Results.Ok());
 
-        app.MapPost("/orders/create", async (OrderRequest request, TransactionService transactionService, CancellationToken ct) =>
+        app.MapPost("/transaction/create", async (OrderRequest request, TransactionService transactionService, CancellationToken ct) =>
         {
             var result = await transactionService.CreateOrderAsync(request, ct);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        });
+        
+        app.MapPost("/transactions/{requestId:guid}/refund", async (Guid requestId, TransactionService transactionService, CancellationToken ct) =>
+        {
+            var result = await transactionService.RefundTransactionAsync(requestId, ct);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
 
