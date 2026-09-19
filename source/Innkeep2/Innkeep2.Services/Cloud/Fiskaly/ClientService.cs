@@ -11,7 +11,7 @@ public sealed class ClientService(FiskalyClientClient client, TssService tssServ
     public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllAsync(CancellationToken ct = default)
         => client.GetAllAsync(ct);
 
-    public async Task<Result<FiskalyClient>> RegisterClientAsync(
+    public async Task<Result<FiskalyClient>> CreateClientAsync(
         Guid tssId,
         Guid clientId,
         string serialNumber,

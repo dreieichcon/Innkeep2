@@ -21,9 +21,12 @@
             <MudPaper Class="p-2">
                 <MudStack>
                     <MudTextField Margin="Margin.Dense" @bind-Value="@ActiveCredentialEntry?.AdminPin" Variant="Variant.Outlined" InputType="InputType.Password" Label="Pin"/>
+                    <MudStack Row="true" AlignItems="AlignItems.End">
+                        <MudButton Variant="Variant.Outlined" Color="Color.Success" @onclick="StoreCredentials" Disabled="!CanStorePin()">PIN Freischalten</MudButton>
+                    </MudStack>
                     <MudTextField Margin="Margin.Dense" @bind-Value="@ActiveCredentialEntry?.AdminPuk" Variant="Variant.Outlined" InputType="InputType.Password" Label="Puk"/>
                     <MudStack Row="true" AlignItems="AlignItems.End">
-                        <MudButton @onclick="SetCredentials" Disabled="!CanSetCredentials()">Werte Aktualisieren</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Success" @onclick="StoreCredentials" Disabled="!CanStorePuk()">PUK Freischalten</MudButton>
                     </MudStack>
                 </MudStack>
             </MudPaper>
@@ -70,7 +73,7 @@
             <MudPaper>
                 <MudExpansionPanel Class="p-2" Disabled="ActiveTss?.State is not (TssState.Uninitialized or TssState.Initialized)">
                     <TitleContent>
-                        <MudText>3. Tss Deaktivieren</MudText>
+                        <MudText>4. Tss Deaktivieren</MudText>
                     </TitleContent>
                     <ChildContent>
                         <MudButton Variant="Variant.Outlined" Class="w-100" Color="Color.Error" @onclick="Deactivate">Deaktivieren</MudButton>

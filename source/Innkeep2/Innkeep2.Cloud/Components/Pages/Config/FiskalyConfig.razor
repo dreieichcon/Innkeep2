@@ -1,4 +1,5 @@
 @page "/Config/Fiskaly"
+@using Innkeep2.Models.Fiskaly.Client
 @using Innkeep2.Models.Fiskaly.Tss
 
 <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
@@ -17,17 +18,39 @@
                         Ausgewählte Tss
                     </MudText>
                     <MudSelect @bind-Value="SelectedTss" T="FiskalyTss" Dense="true"
-                               Variant="Variant.Outlined" Margin="Margin.Dense">
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               ToStringFunc="x => x?.DisplayName">
                         @foreach (var tss in TssEntries)
                         {
                             <MudSelectItem Value="@tss">@tss.DisplayName</MudSelectItem>
                         }
                     </MudSelect>
-                    <MudStack Row="true" Justify="Justify.FlexEnd">
-                        <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
-                            Speichern
-                        </MudButton>
-                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack>
+                    <MudText>
+                        Ausgewählter Client
+                    </MudText>
+                    <MudSelect @bind-Value="SelectedClient" T="FiskalyClient" Dense="true"
+                               Variant="Variant.Outlined" Margin="Margin.Dense"
+                               ToStringFunc="x => x?.DisplayName">
+                        @foreach (var client in ClientEntries)
+                        {
+                            <MudSelectItem Value="@client">@client.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudStack>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12">
+            <MudPaper Class="p-2">
+                <MudStack Row="true" Justify="Justify.FlexEnd">
+                    <MudButton Disabled="@(!_hasChanges)" Color="Color.Primary" OnClick="@SaveSettings">
+                        Speichern
+                    </MudButton>
                 </MudStack>
             </MudPaper>
         </MudItem>

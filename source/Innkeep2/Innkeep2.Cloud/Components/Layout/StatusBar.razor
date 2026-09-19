@@ -39,6 +39,21 @@
                     }
                 </MudText>
             </MudStack>
+            <MudStack Row="true" Spacing="1">
+                <MudText Color="Color.Primary">
+                    Client:
+                </MudText>
+                <MudText>
+                    @if (ActiveConfiguration.Client != null)
+                    {
+                        @($"{ActiveConfiguration.Client.DisplayName}")
+                    }
+                    else
+                    {
+                        @("n.A.")
+                    }
+                </MudText>
+            </MudStack>
         </MudStack>
     </AuthorizeView>
 </MudAppBar>

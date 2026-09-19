@@ -35,13 +35,13 @@ public partial class TssEdit
         }
     }
 
-    private bool CanSetCredentials()
-    {
-        return ActiveCredentialEntry is not null && !string.IsNullOrEmpty(ActiveCredentialEntry.AdminPuk) &&
-               !string.IsNullOrEmpty(ActiveCredentialEntry.AdminPin);
-    }
+    private bool CanStorePin() => 
+        ActiveCredentialEntry is not null && !string.IsNullOrEmpty(ActiveCredentialEntry.AdminPin);
 
-    private async Task SetCredentials()
+    private bool CanStorePuk() => 
+        ActiveCredentialEntry is not null && !string.IsNullOrEmpty(ActiveCredentialEntry.AdminPuk);
+
+    private async Task StoreCredentials()
     {
         TssService.UpsertCredentials(ActiveCredentialEntry!);
         await InvokeAsync(StateHasChanged);
@@ -80,7 +80,7 @@ public partial class TssEdit
         await InvokeAsync(StateHasChanged);
 
         if (result is not null)
-            ActiveConfiguration.SetTss(result);
+            await ActiveConfiguration.SetTss(result);
     }
 
     private bool CanInitialize()
@@ -108,7 +108,7 @@ public partial class TssEdit
         await InvokeAsync(StateHasChanged);
 
         if (result is not null)
-            ActiveConfiguration.SetTss(result);
+            await ActiveConfiguration.SetTss(result);
     }
 
     private async Task Deactivate()
@@ -131,6 +131,6 @@ public partial class TssEdit
         await InvokeAsync(StateHasChanged);
 
         if (result is not null)
-            ActiveConfiguration.SetTss(result);
+            await ActiveConfiguration.SetTss(result);
     }
 }

@@ -11,12 +11,18 @@ public partial class FiskalyConfig : ComponentBase
 {
     [Inject] 
     public TssService TssService { get; set; } = null!;
+
+    [Inject]
+    public ClientService ClientService { get; set; } = null!;
     
     [Inject]
     private UiResultHandler Handler { get; set; } = null!;
     
     [Inject]
     private IActiveConfigurationService ActiveConfiguration { get; set; } = null!;
+    
+    # region Tss
+    private event EventHandler? TssChanged;
     
     private FiskalyTss[] TssEntries { get; set; } = [];
 
@@ -29,8 +35,11 @@ public partial class FiskalyConfig : ComponentBase
                 _hasChanges = true;
             
             field = value;
+            TssChanged?.Invoke(this, EventArgs.Empty);
         }
     }
+    
+    # endregion
     
     private FiskalyClient[] ClientEntries { get; set; } = [];
 
@@ -49,10 +58,32 @@ public partial class FiskalyConfig : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await TssService.GetAllAsync();
-        TssEntries = result.Value?.Data.ToArray() ?? [];
+        await LoadTss();
+        await LoadSettings();
+
+        TssChanged += async (_, _) => await LoadClients();
         SelectedTss = ActiveConfiguration.Tss;
         _hasChanges = false;
+    }
+
+    private async Task LoadSettings()
+    {
+        await ActiveConfiguration.RefreshAsync();
+        
+        SelectedTss = ActiveConfiguration.Tss;
+        SelectedClient = ActiveConfiguration.Client;
+    }
+
+    private async Task LoadTss()
+    {
+        var tssResult = await TssService.GetAllAsync();
+        TssEntries = tssResult.Value?.Data.ToArray() ?? [];
+    }
+
+    private async Task LoadClients()
+    {
+        var clientResult = await ClientService.GetAllAsync();
+        ClientEntries = clientResult.Value?.Data.ToArray() ?? [];
     }
 
     private async Task SaveSettings()
@@ -67,10 +98,5 @@ public partial class FiskalyConfig : ComponentBase
             ),
             errorPrefix: "Failed to save settings"
         );
-    }
-
-    private async Task UpdateTss()
-    {
-       
     }
 }

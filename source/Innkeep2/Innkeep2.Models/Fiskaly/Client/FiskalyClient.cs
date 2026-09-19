@@ -20,4 +20,7 @@ public sealed record FiskalyClient
 
     [JsonPropertyName("time_creation")]
     public required long TimeCreation { get; init; }
+    
+    [JsonIgnore]
+    public string DisplayName => $"{SerialNumber} ({State})";
 }

@@ -56,6 +56,9 @@ public sealed class ActiveConfigurationService(
 
        return await RefreshAsync(ct);
     }
+    
+    public Task<Result<Unit>> SaveAsync(CancellationToken ct = default)
+       => SaveAsync(Organizer?.Slug, Event?.Slug, Tss?.Id, Client?.Id, UseTestMode, ct);
    
 
     public async Task<Result<Unit>> RefreshAsync(CancellationToken ct = default)
@@ -76,15 +79,19 @@ public sealed class ActiveConfigurationService(
        return Result<Unit>.Success(default);
     }
 
-    public void SetTss(FiskalyTss tss)
+    public async Task SetTss(FiskalyTss tss)
     {
        Tss = tss;
+       await SaveAsync();
        Changed?.Invoke(this, EventArgs.Empty);
+       
     }
 
-    public void SetClient(FiskalyClient client)
+    public async Task SetClient(FiskalyClient client)
     {
-       throw new NotImplementedException();
+       Client = client;
+       await SaveAsync();
+       Changed?.Invoke(this, EventArgs.Empty);
     }
 
     private async Task<Organizer?> ResolveOrganizerAsync(string? slug, CancellationToken ct)
