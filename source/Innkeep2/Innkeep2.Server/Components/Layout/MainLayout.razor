@@ -1,9 +1,38 @@
-﻿@inherits LayoutComponentBase
+﻿@using MudBlazor
+@inherits LayoutComponentBase
 
-@Body
+<MudThemeProvider/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="true" Class="innkeep-app-bar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@(() => _drawerOpen = !_drawerOpen)"/>
+        <MudText Typo="Typo.h5" Class="ml-3">Innkeep2.Server</MudText>
+    </MudAppBar>
+    @* <StatusBar/> *@
+    <MudDrawer Open="_drawerOpen" ClipMode="DrawerClipMode.Always">
+        @* <Navbar/> *@
+    </MudDrawer>
+    <MudMainContent>
+        <div class="main-content">
+            <MudStack Class="p-3">
+                @Body
+            </MudStack>
+        </div>
+    </MudMainContent>
+</MudLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code{
+
+    private bool _drawerOpen = true;
+
+}
