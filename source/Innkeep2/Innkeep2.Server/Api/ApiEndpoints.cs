@@ -11,6 +11,18 @@ public static class ApiEndpoints
     {
         app.MapGet("/auth", () => Results.Ok());
         
+        app.MapGet("/data/event", async (ServerEventProvider eventProvider, CancellationToken ct) =>
+        {
+            var result = await eventProvider.GetCachedEventAsync(ct);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        });
+
+        app.MapGet("/data/salesitems", async (ServerSalesItemProvider salesItemProvider, CancellationToken ct) =>
+        {
+            var result = await salesItemProvider.GetCachedItemsAsync(ct);
+            return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+        });
+        
         app.MapPost("/orders/create", async (
             OrderRequest request,
             CloudTransactionClient cloudClient,

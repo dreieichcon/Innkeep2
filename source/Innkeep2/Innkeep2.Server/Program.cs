@@ -1,24 +1,23 @@
+using Innkeep2.Credentials;
 using Innkeep2.Server.Api;
 using Innkeep2.Server.Components;
 using Innkeep2.Server.Extensions;
 using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
+using Innkeep2.Services.Shared;
 using MudBlazor.Services;
 using Serilog;
 
-if (!Directory.Exists("./log"))
-	Directory.CreateDirectory("./log");
-
-Log.Logger = new LoggerConfiguration()
-	.MinimumLevel.Debug()
-	.WriteTo.Console()
-	.WriteTo.Trace()
-	.WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day)
-	.CreateLogger();
+AppSetup.SetupLogging();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", "credentials.server.json");
+if (AppSetup.SetupCredentials("server", CredentialCreator.ServerJsonTemplate, out var credentialsPath))
+{
+	Log.Warning("No credentials file found. A template was created at {Path}. Fill it in and restart.", credentialsPath);
+	return;
+}
+
 builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
 
 // Add services to the container.
