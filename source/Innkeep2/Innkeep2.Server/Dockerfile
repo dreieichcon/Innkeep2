@@ -20,4 +20,10 @@ RUN dotnet publish "./Innkeep2.Server.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+USER root
+RUN mkdir -p /app/logs && chown -R app:app /app/logs
+RUN mkdir -p /app/dataprotection-keys && chown $APP_UID /app/dataprotection-keys
+
+
 ENTRYPOINT ["dotnet", "Innkeep2.Server.dll"]

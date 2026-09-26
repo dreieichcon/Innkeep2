@@ -12,6 +12,9 @@ riderModule.iml
 
 **/credentials/**
 credentials.json
+credentials.*.json
+!credentials.*.example.json
+*.crt
 
 *.DotSettings.user
 

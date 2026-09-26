@@ -1,0 +1,47 @@
+services:
+  innkeep2.server:
+    image: hub.bvb-dreieich.de/innkeep/innkeep2.server
+    container_name: innkeep2.server
+    restart: always
+    build:
+      context: ../../source/Innkeep2
+      dockerfile: Innkeep2.Server/Dockerfile
+    expose:
+      - "8080"
+    volumes:
+      - "./db/:/app/db/"
+      - "./credentials/:/credentials/:ro"
+      - "./logs/:/app/logs/"
+
+  caddy:
+    image: caddy:2
+    container_name: innkeep2.server.caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./Caddyfile:/etc/caddy/Caddyfile:ro"
+      - "caddy_data:/data"
+      - "caddy_config:/config"
+    depends_on:
+      - innkeep2.server
+
+  export-ca:
+    image: alpine
+    container_name: innkeep2.server.export-ca
+    depends_on:
+      - caddy
+    volumes:
+      - "caddy_data:/data:ro"
+      - "./exported-ca/:/export/"
+    entrypoint: >
+      sh -c "
+      until [ -f /data/caddy/pki/authorities/local/root.crt ]; do sleep 1; done;
+      cp /data/caddy/pki/authorities/local/root.crt /export/innkeep2-server-root-ca.crt;
+      echo 'CA exported to ./exported-ca/innkeep2-server-root-ca.crt';
+      "
+
+volumes:
+  caddy_data:
+  caddy_config:

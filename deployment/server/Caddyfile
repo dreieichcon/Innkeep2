@@ -1,0 +1,4 @@
+innkeep-server {
+    tls internal
+    reverse_proxy innkeep2.server:8080
+}
