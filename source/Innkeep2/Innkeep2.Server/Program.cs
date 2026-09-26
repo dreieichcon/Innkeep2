@@ -5,6 +5,7 @@ using Innkeep2.Server.Extensions;
 using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
 using Innkeep2.Services.Shared;
+using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 using Serilog;
 
@@ -44,7 +45,16 @@ app.UseWhen(
 	branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true)
 );
 
+# if DEBUG
 app.UseHttpsRedirection();
+#endif 
+
+# if RELEASE
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+	ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+# endif
 
 app.UseAntiforgery();
 
