@@ -2,15 +2,24 @@ namespace Innkeep2.Credentials;
 
 public static class CredentialCreator
 {
-    public static string ServerJsonTemplate = """
-                                              {
-                                                "Cloud": {
-                                                  "ApiKey": "",
-                                                  "CloudUrl": ""
-                                                }
-                                              }
-                                              """;
+    public const string ServerJsonTemplate = """
+                                             {
+                                               "Cloud": {
+                                                 "ApiKey": "",
+                                                 "CloudUrl": ""
+                                               }
+                                             }
+                                             """;
     
+    public const string ClientJsonTemplate = """
+                                             {
+                                               "Server": {
+                                                 "ApiKey": "",
+                                                 "ServerUrl": ""
+                                               }
+                                             }
+                                             """;
+
     public static bool EnsureExists(string path, string templateJson)
     {
         if (File.Exists(path))
