@@ -7,7 +7,7 @@ public class ClientStartupService(ServerAuthClient authClient)
 {
     public async Task<bool> RunAsync(CancellationToken ct = default)
     {
-        Log.Debug("Authenticating against Innkeep2.Cloud");
+        Log.Debug("Authenticating against Innkeep2.Server");
         var authStatus = await authClient.CheckAsync(ct);
 
         if (!authStatus.IsSuccess)
@@ -15,10 +15,10 @@ public class ClientStartupService(ServerAuthClient authClient)
             var error = authStatus.Error!;
 
             if (error.Exception is not null)
-                Log.Error(error.Exception, "Startup failed: could not authenticate with Cloud ({Code}): {Message}",
+                Log.Error(error.Exception, "Startup failed: could not authenticate with Server ({Code}): {Message}",
                     error.Code, error.Message);
             else
-                Log.Error("Startup failed: could not authenticate with Cloud ({Code}): {Message}", error.Code,
+                Log.Error("Startup failed: could not authenticate with Server ({Code}): {Message}", error.Code,
                     error.Message);
 
             return false;
