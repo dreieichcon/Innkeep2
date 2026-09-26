@@ -1,3 +1,5 @@
+@using Innkeep2.Client.Components.Dialogs
+@using Innkeep2.Models.Internal.Receipt
 @using Innkeep2.Services.Client
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton 
@@ -15,9 +17,15 @@
 @code {
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
+    
+    [Inject]
+    public IDialogService DialogService { get; set; } = null!;
 
     [Inject]
     public ClientTransactionService TransactionService { get; set; } = null!;
+    
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
 
     private bool TransactionDisabled => !TransactionService.EnoughGiven;
 
@@ -28,7 +36,52 @@
 
     private async Task StartTransaction()
     {
-        var result = await TransactionService.SubmitOrderAsync();
+        var parameters = new DialogParameters<PaymentCompleteDialog>()
+        {
+            { x => x.TransactionReceipt, _testReceipt }
+        };
+        
+        var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
+        
+        var dialogResult = await dialog.Result;
+
+        if (dialogResult!.Canceled)
+            return;
+        
+        ClientCartService.Clear();
+        NavigationManager.NavigateTo("/");
     }
+    
+    private readonly TransactionReceipt _testReceipt = new TransactionReceipt
+    {
+        OrderId = Guid.NewGuid(),
+        Title = "Kassensoftware Test",
+        Header = "Musterfirma GmbH\nMusterstraße 1\n12345 Musterstadt\n\nUst.Id: DE123456789\n",
+        BookingTime = DateTime.UtcNow,
+        Currency = "EUR",
+        Lines =
+        [
+            new ReceiptLine { Name = "Bier 0,5l", UnitPrice = 4.50m, Quantity = 2 },
+            new ReceiptLine { Name = "Bratwurst", UnitPrice = 3.80m, Quantity = 1 },
+            new ReceiptLine { Name = "Eintritt", UnitPrice = 12.00m, Quantity = 1 }
+        ],
+        Sum = new ReceiptSum
+        {
+            TotalAmount = 24.80m,
+            AmountGiven = 30.00m,
+            AmountReturned = 5.20m
+        },
+        TaxInformation =
+        [
+            new ReceiptTaxInformation { TaxRate = 19m, Net = 20.84m, TaxAmount = 3.96m, Gross = 24.80m }
+        ],
+        Vouchers =
+        [
+            new ReceiptVoucher { ItemName = "Eintritt", Secret = "abc123secret" }
+        ],
+        PretixOrderCode = "ABC12",
+        FiskalyQrCode = "V0;955002-00;Kassenbeleg-V1;Beleg^0.00_2.55_0.00_0.00_0.00^2.55:Bar;18;112;test-signature-data",
+        FiskalyTransactionNumber = 42
+    };
 
 }

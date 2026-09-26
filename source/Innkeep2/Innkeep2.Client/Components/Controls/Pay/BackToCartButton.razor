@@ -1,3 +1,4 @@
+@using Innkeep2.Services.Client
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton 
         Variant="Variant.Outlined" 
@@ -12,11 +13,16 @@
 </MudPaper>
 
 @code {
+    
     [Inject]
     public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
     
     private async Task GoBack()
     {
+        ClientTransactionService.SetAmountGiven(0, true);
         NavigationManager.NavigateTo("/");
     }
 

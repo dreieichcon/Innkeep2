@@ -116,3 +116,7 @@ button.w50{
     width: 48% !Important;
     aspect-ratio: 1.6/1;
 }
+
+.dialog-backdrop{
+    backdrop-filter: blur(20px);
+}

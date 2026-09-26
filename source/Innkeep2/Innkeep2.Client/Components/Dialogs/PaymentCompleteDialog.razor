@@ -1,0 +1,72 @@
+@using Innkeep2.Client.Components.Controls.POS
+@using Innkeep2.Models.Internal.Receipt
+
+<MudDialog Style="min-width: 70vw !important; height: 70vh !important">
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudText>
+                @TransactionReceipt.BookingTime
+            </MudText>
+            <MudText Typo="Typo.h6">
+                Bestellung @TransactionReceipt.OrderId Abgeschlossen 
+            </MudText>
+            <MudText Typo="Typo.h6">
+                Pretix: @PretixInformation
+            </MudText>
+            <MudText Typo="Typo.h6">
+                Fiskaly: @FiskalyInformation
+            </MudText>
+        </MudStack>
+        <MudDivider Light="true"/>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Justify="Justify.SpaceBetween" Class="h-100 w-100">
+            <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Class="h-100 w-100">
+                <MudStack>
+                    <MudText Typo="Typo.h1">
+                        Gegeben: @TransactionReceipt.Sum.AmountGiven.ToString("C")
+                    </MudText>
+                    <MudText Typo="Typo.h1">
+                        Zurück: @TransactionReceipt.Sum.AmountReturned.ToString("C")
+                    </MudText>
+                </MudStack>
+            </MudStack>
+            <MudStack Row="true" Justify="Justify.SpaceBetween" Style="height: 30% !important; min-height: 30% !important">
+                <ReprintButton/>
+                <MudPaper Class="pointer noselect" Elevation="0">
+                    <MudButton
+                        Variant="Variant.Outlined"
+                        Color="Color.Error"
+                        Class="h-100 w-100"
+                        @onclick="@Close">
+                        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h4">
+                                Schließen
+                            </MudText>
+                        </MudStack>
+                    </MudButton>
+                </MudPaper>
+            </MudStack>
+        </MudStack>
+
+    </DialogContent>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public required TransactionReceipt TransactionReceipt { get; set; }
+
+    private string PretixInformation => TransactionReceipt.PretixOrderCode == "PRETIX OFFLINE" ? TransactionReceipt.PretixOrderCode : "Ok";
+
+    private string FiskalyInformation => TransactionReceipt.FiskalyQrCode == "TSS OFFLINE" ? TransactionReceipt.FiskalyQrCode : "Ok";
+
+    private void Close()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+    
+}
