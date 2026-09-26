@@ -12,6 +12,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddServerCredential(configuration);
         services.AddServerClients();
+        services.AddSingleton<ClientEventProvider>();
         services.AddSingleton<ClientSalesItemProvider>();
         
         services.AddSingleton<ClientCartService>();
