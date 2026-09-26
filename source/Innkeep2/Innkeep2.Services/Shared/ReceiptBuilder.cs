@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
@@ -13,7 +14,8 @@ public static class ReceiptBuilder
     public static TransactionReceipt Build(
         Guid orderId,
         DateTime bookingTime,
-        Event pretixEvent,
+        string title,
+        string header,
         OrderRequest order,
         decimal amountGiven,
         decimal amountBack,
@@ -22,8 +24,8 @@ public static class ReceiptBuilder
     ) => new()
     {
         OrderId = orderId,
-        Title = pretixEvent.Name,
-        Header = pretixEvent.Header ?? "",
+        Title = title,
+        Header = header,
         BookingTime = bookingTime,
         Currency = order.Currency,
         Lines = order.Items.Select(ReceiptLine.FromSalesItem).ToList(),
@@ -43,7 +45,8 @@ public static class ReceiptBuilder
     public static TransactionReceipt BuildTransfer(
         Guid transactionId,
         DateTime bookingTime,
-        Event pretixEvent,
+        string title,
+        string header,
         decimal amount,
         decimal amountGiven,
         decimal amountBack,
@@ -52,8 +55,8 @@ public static class ReceiptBuilder
     ) => new()
     {
         OrderId = transactionId,
-        Title = pretixEvent.Name,
-        Header = pretixEvent.Header ?? "",
+        Title = title,
+        Header = header,
         BookingTime = bookingTime,
         Currency = currency,
         Lines = [],

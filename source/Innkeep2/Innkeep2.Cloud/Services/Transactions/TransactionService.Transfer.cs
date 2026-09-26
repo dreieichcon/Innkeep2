@@ -22,6 +22,8 @@ public sealed partial class TransactionService
         {
             RequestId = request.RequestId,
             TransactionType = TransactionType.Transfer,
+            Title = pretixEvent.Name,
+            Header = pretixEvent.Header ?? "",
             BookingTime = DateTime.UtcNow,
             PaymentType = PaymentType.Cash,
             TotalAmount = request.Amount,
@@ -45,7 +47,8 @@ public sealed partial class TransactionService
         var receipt = ReceiptBuilder.BuildTransfer(
             transfer.RequestId,
             transfer.BookingTime,
-            pretixEvent,
+            pretixEvent.Name,
+            pretixEvent.Header ?? "",
             request.Amount,
             transfer.AmountGiven,
             transfer.AmountBack,

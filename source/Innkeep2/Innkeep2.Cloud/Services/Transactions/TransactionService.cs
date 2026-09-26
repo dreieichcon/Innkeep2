@@ -6,7 +6,6 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
-using Innkeep2.Models.Shared;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
@@ -30,15 +29,17 @@ public sealed partial class TransactionService(
 
         var order = new Transaction
         {
-            RequestId =  request.RequestId,
+            RequestId = request.RequestId,
+            TransactionType = TransactionType.Sale,
+            Title = pretixEvent.Name,
+            Header = pretixEvent.Header ?? "",
             BookingTime = DateTime.UtcNow,
             PaymentType = request.PaymentType,
             TotalAmount = request.AmountNeeded,
             AmountGiven = request.AmountGiven,
             AmountBack = request.AmountBack,
             Currency = request.Currency,
-            RequestJson = JsonSerializer.Serialize(request),
-            TransactionType = TransactionType.Sale
+            RequestJson = JsonSerializer.Serialize(request)
         };
 
         var createResult = await transactionRepository.CreateAsync(order, ct);
@@ -56,7 +57,8 @@ public sealed partial class TransactionService(
         var receipt = ReceiptBuilder.Build(
             order.RequestId,
             order.BookingTime,
-            pretixEvent,
+            pretixEvent.Name,
+            pretixEvent.Header ?? "",
             request,
             request.AmountGiven,
             request.AmountBack,

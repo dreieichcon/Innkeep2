@@ -23,6 +23,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Innkeep2.Cloud.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+ENV LC_ALL=de-DE.UTF-8
+ENV LANG=de-DE.UTF-8
 WORKDIR /app
 COPY --from=publish /app/publish .
 

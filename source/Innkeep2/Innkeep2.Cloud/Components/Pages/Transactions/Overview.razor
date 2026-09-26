@@ -3,11 +3,17 @@
 @using Innkeep2.Cloud.Components.Pages.Core
 @using Innkeep2.Cloud.TransactionDb
 @using Innkeep2.Cloud.TransactionDb.Models
+@using Innkeep2.Cloud.TransactionDb.Repositories
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Ui.Shared.Components.Receipt
 @using Microsoft.EntityFrameworkCore
 
 <ConfigPage Title="Bestellungen: Übersicht">
-    <PaperItem>
-        <MudDataGrid T="Transaction" VirtualizeServerData="ServerData" RowsPerPage="50">
+    <PaperItem Xs="9">
+        <MudDataGrid T="Transaction" Virtualize="true" VirtualizeServerData="ServerData" RowsPerPage="50" Dense="false" RowClick="e => SelectedTransaction = e.Item">
+            <PagerContent>
+                <MudDataGridPager></MudDataGridPager>
+            </PagerContent>
             <Columns>
                 <PropertyColumn Property="x => x.Id"/>
                 <PropertyColumn Property="x => x.TotalAmount"/>
@@ -17,12 +23,22 @@
             </Columns>
         </MudDataGrid>
     </PaperItem>
+    <PaperItem Xs="3">
+        @if (Receipt != null)
+        {
+            <ReceiptWebDisplay Receipt="Receipt"/>
+        }
+    </PaperItem>
 </ConfigPage>
 
 @code {
 
     [Inject]
     public IDbContextFactory<InnkeepTransactionDbContext> OrderContextFactory { get; set; } = null;
+    
+    private Transaction? SelectedTransaction { get; set; }
+    
+    private TransactionReceipt? Receipt => SelectedTransaction != null ? TransactionReceiptFactory.FromTransaction(SelectedTransaction) : null;
     
     private async Task<GridData<Transaction>> ServerData(GridStateVirtualize<Transaction> state, CancellationToken ct = default)
     {

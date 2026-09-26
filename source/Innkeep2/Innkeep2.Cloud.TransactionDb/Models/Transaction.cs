@@ -6,6 +6,9 @@ namespace Innkeep2.Cloud.TransactionDb.Models;
 public class Transaction : AbstractDbItem
 {
     public required Guid RequestId { get; set; }
+    
+    public required string Title { get; set; }
+    public required string Header { get; set; }
 
     public required TransactionType TransactionType { get; set; }
 

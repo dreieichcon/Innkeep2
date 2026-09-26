@@ -39,6 +39,8 @@ public sealed partial class TransactionService
             RequestId = Guid.NewGuid(),
             TransactionType = TransactionType.Refund,
             RefundRequestId = original.RequestId,
+            Title = pretixEvent.Name,
+            Header = pretixEvent.Header ?? "",
             BookingTime = DateTime.UtcNow,
             PaymentType = original.PaymentType,
             TotalAmount = -original.TotalAmount,
@@ -65,7 +67,8 @@ public sealed partial class TransactionService
         var receipt = ReceiptBuilder.Build(
             refund.RequestId,
             refund.BookingTime,
-            pretixEvent,
+            pretixEvent.Name,
+            pretixEvent.Header ?? "",
             originalRequest,
             refund.AmountGiven,
             refund.AmountBack,

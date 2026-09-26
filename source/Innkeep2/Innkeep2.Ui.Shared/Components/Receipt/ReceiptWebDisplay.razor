@@ -1,0 +1,74 @@
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Print
+@using MudBlazor
+@preservewhitespace true
+
+<style>
+   .whitespace {
+      white-space: pre;
+      font-family: monospace;
+   }
+</style>
+
+<MudPaper Class="pa-4">
+   <MudText Align="Align.Center" Typo="Typo.h5">@Receipt.Title</MudText>
+   @foreach (var line in Receipt.Header.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+   {
+      <MudText Align="Align.Center">@line</MudText>
+   }
+   <MudText Align="Align.Center"
+            Class="mt-2">@Receipt.BookingTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</MudText>
+   
+   <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+
+   @foreach (var line in Receipt.Lines)
+   {
+      @foreach (var printLine in ReceiptFormatter.FormatLines(line))
+      {
+         <div class="whitespace">@printLine</div>
+      }
+   }
+   <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+   
+   <MudStack Row="true" Justify="Justify.SpaceBetween">
+      <MudText Typo="Typo.subtitle1">Gesamt</MudText>
+      <MudText Typo="Typo.subtitle1">@Receipt.Sum.TotalAmount.ToString("0.00")€</MudText>
+   </MudStack>
+   
+   <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+   
+   @foreach (var tax in ReceiptFormatter.FormatTaxInformation(Receipt.TaxInformation))
+   {
+      <div class="whitespace">@tax</div>
+   }
+   
+   <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+   
+   <MudStack Row="true" Justify="Justify.SpaceBetween">
+      <MudText>Gegeben</MudText>
+      <MudText>@Receipt.Sum.AmountGiven.ToString("0.00")€</MudText>
+   </MudStack>
+   
+   <MudStack Row="true" Justify="Justify.SpaceBetween">
+      <MudText>Zurück</MudText>
+      <MudText>@Receipt.Sum.AmountReturned.ToString("0.00")€</MudText>
+   </MudStack>
+
+   <MudDivider Class="my-2"/>
+   <MudText Typo="Typo.caption">Transaktion: @Receipt.OrderId</MudText>
+   @if (Receipt.FiskalyTransactionNumber is { } number)
+   {
+      <MudText Typo="Typo.caption">TSE-Nr.: @number</MudText>
+   }
+   @if (Receipt.PretixOrderCode is { } orderCode)
+   {
+      <MudText Typo="Typo.caption">Bestellung: @orderCode</MudText>
+   }
+</MudPaper>
+
+@code {
+
+   [Parameter, EditorRequired]
+   public TransactionReceipt? Receipt { get; set; }
+
+}

@@ -51,7 +51,8 @@ public static class OrderHandlers
         return ReceiptBuilder.Build(
             request.RequestId,
             DateTime.UtcNow,
-            pretixEvent,
+            pretixEvent.Name,
+            pretixEvent.Header ?? "",
             request,
             request.AmountGiven,
             request.AmountBack

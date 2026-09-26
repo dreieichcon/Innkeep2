@@ -3,7 +3,7 @@
 <AuthorizeView Roles="innkeep2-admin">
     <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
         <MudGrid Class="w-75" Justify="Justify.Center">
-            <MudItem xs="12">
+            <MudItem xs="@MainContentSize">
                 <MudPaper Class="p-2">
                     <MudText Typo="Typo.h4">
                         @Title
@@ -28,5 +28,8 @@
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public int MainContentSize { get; set; } = 12;
 
 }
