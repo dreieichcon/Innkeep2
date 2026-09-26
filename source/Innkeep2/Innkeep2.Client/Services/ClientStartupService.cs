@@ -37,6 +37,7 @@ public class ClientStartupService(ServerAuthClient authClient, ClientEventProvid
         
         Log.Debug("Fetching registered SalesItems");
         var salesItemsResult = await salesItemProvider.GetCachedItemsAsync(ct);
+        _ = salesItemProvider.StartPollingAsync(ct);
         
         if (!salesItemsResult.IsSuccess)
             Log.Error("Startup failed: could not fetch sales items ({Code}): {Message}", salesItemsResult.Error!.Code, salesItemsResult.Error!.Message);

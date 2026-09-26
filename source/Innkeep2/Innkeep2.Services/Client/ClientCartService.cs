@@ -35,4 +35,23 @@ public sealed class ClientCartService
         _items.Clear();
         Changed?.Invoke(this, EventArgs.Empty);
     }
+
+    public decimal TotalWithoutTax => _items.Sum(x =>
+    {
+        var lineTotal = x.Price * (x.Quantity ?? 1);
+        var tax = Math.Round(lineTotal / (1 + x.TaxRate / 100) * (x.TaxRate / 100), 2);
+        return lineTotal - tax;
+    });
+
+    public IReadOnlyList<(decimal TaxRate, decimal TaxAmount)> TaxAmountsByRate()
+        => _items
+            .GroupBy(x => x.TaxRate)
+            .Select(g =>
+            {
+                var gross = g.Sum(x => x.Price * (x.Quantity ?? 1));
+                var tax = Math.Round(gross / (1 + g.Key / 100) * (g.Key / 100), 2);
+
+                return (TaxRate: g.Key, TaxAmount: tax);
+            })
+            .ToList();
 }

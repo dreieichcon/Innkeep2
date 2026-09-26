@@ -16,8 +16,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ClientSalesItemProvider>();
         
         services.AddSingleton<ClientCartService>();
+        services.AddSingleton<ClientTransactionService>();
         services.AddSingleton<ClientStartupService>();
-
     }
     
     private static void AddServerCredential(this IServiceCollection services, IConfiguration configuration)

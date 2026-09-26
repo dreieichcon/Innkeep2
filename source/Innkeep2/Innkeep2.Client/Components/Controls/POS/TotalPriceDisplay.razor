@@ -1,0 +1,47 @@
+@using Innkeep2.Services.Client
+
+<MudStack Class="h-100 w-100 border p-2" Spacing="2">
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h5" Color="Color.Primary">
+            Total
+        </MudText>
+        <MudText Typo="Typo.h5" Color="Color.Primary">
+            @ClientCartService.Total.ToString("C")
+        </MudText>
+    </MudStack>
+    <MudDivider Light="true"/>
+    <MudStack Spacing="1">
+        @foreach (var split in ClientCartService.TaxAmountsByRate())
+        {
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <MudText>
+                    @split.TaxRate.ToString("0") %
+                </MudText>
+                <MudText>
+                    @split.TaxAmount.ToString("C")
+                </MudText>
+            </MudStack>
+        }
+        <MudDivider Light="true"/>
+    </MudStack>
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h6">
+            Netto
+        </MudText>
+        <MudText Typo="Typo.h6">
+            @ClientCartService.TotalWithoutTax.ToString("C")
+        </MudText>
+    </MudStack>
+</MudStack>
+
+@code {
+
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClientCartService.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+    }
+
+}

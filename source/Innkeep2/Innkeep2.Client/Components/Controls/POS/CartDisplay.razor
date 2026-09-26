@@ -1,0 +1,33 @@
+@using Innkeep2.Client.Components.Controls.Abstract
+@using Innkeep2.Services.Client
+
+<AbstractList ListTitle="Cart">
+    @foreach (var item in ClientCartService.Items)
+    {
+        <MudStack Row="true" Class="border p-2" Justify="Justify.SpaceBetween">
+            <MudText Typo="Typo.body1" Color="Color.Primary">
+                @item.Name
+            </MudText>
+            <MudStack Row="true">
+                <MudText Typo="Typo.body1">
+                    @item.Quantity x
+                </MudText>
+                <MudText Typo="Typo.body1">
+                    @item.Price
+                </MudText>
+            </MudStack>
+        </MudStack>
+    }
+</AbstractList>
+
+@code {
+
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClientCartService.Changed += async (_,_) => await InvokeAsync(StateHasChanged);
+    }
+
+}

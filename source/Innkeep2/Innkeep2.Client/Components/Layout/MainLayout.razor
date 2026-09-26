@@ -1,11 +1,17 @@
-﻿@inherits LayoutComponentBase
+﻿@using Innkeep2.Client.Components.Controls
+@inherits LayoutComponentBase
 
 <MudThemeProvider/>
 <MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-@Body
+<MudLayout>
+    <AppBar/>
+    <MudMainContent Class="h-100 w-100 d-flex">
+        @Body
+    </MudMainContent>
+</MudLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

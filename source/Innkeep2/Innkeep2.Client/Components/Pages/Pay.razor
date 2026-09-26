@@ -1,0 +1,23 @@
+@page "/Pay"
+@using Innkeep2.Client.Components.Controls.Pay
+@using Innkeep2.Client.Components.Controls.POS
+@using Innkeep2.Services.Client
+
+<MudStack Class="p-1 h-100 w-100">
+    <MudStack Row="true" Class="item-thirds pos-top">
+        <CartDisplay/>
+        @ClientTransactionService.LastReceipt?.FiskalyTransactionNumber
+        @ClientTransactionService.LastReceipt?.PretixOrderCode
+    </MudStack>
+    <MudStack Row="true" Class="item-thirds pos-bottom">
+        <TotalPriceDisplay/>
+        <CommitPaymentButton/>
+    </MudStack>
+</MudStack>
+
+@code {
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+}

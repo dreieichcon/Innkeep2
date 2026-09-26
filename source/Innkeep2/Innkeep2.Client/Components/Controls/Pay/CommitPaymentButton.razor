@@ -1,0 +1,27 @@
+@using Innkeep2.Services.Client
+<MudPaper Class="pointer noselect" Elevation="0">
+    <MudButton 
+        Variant="Variant.Outlined" 
+        Color="Color.Success" 
+        Class="h-100 w-100" 
+        @onclick="StartTransaction"
+        Disabled="false">
+        <MudText Typo="Typo.h4">
+            BESTELLUNG ABSCHICKEN
+        </MudText>
+    </MudButton>
+</MudPaper>
+
+@code {
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private async Task StartTransaction()
+    {
+        var result = await ClientTransactionService.SubmitOrderAsync();
+    }
+
+}

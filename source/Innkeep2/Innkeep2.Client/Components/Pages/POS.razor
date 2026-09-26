@@ -1,0 +1,13 @@
+﻿@page "/"
+@using Innkeep2.Client.Components.Controls.POS
+
+<MudStack Class="p-1 h-100 w-100">
+    <MudStack Row="true" Class="item-thirds pos-top">
+        <CartDisplay/>
+        <SalesItemDisplay/>
+    </MudStack>
+    <MudStack Row="true" Class="item-thirds pos-bottom">
+        <TotalPriceDisplay/>
+        <PayButton/>
+    </MudStack>
+</MudStack>

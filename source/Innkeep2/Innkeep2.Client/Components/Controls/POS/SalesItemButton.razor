@@ -1,0 +1,88 @@
+@using System.Diagnostics
+@using Innkeep2.Models.Internal
+@using Innkeep2.Services.Client
+
+<div class="pointer noselect" @onclick="AddToCart">
+    <MudPaper Class="border" Elevation="0">
+        <MudStack Row="true" Class="sales-button">
+            <MudStack Class="h-100 border-right p-2" Spacing="1" Justify="Justify.Center">
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.body1" Color="Color.Primary">
+                        @SalesItem.Name
+                    </MudText>
+                    @if (SalesItem.PrintCheckInVoucher)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Print" Color="Color.Primary" Size="Size.Small"/>
+                    }
+                </MudStack>
+                @if (SalesItem.ItemsInStock != null)
+                {
+                    <MudStack Spacing="1">
+                        <MudText Typo="Typo.body2">Verfügbar: @AmountDisplay()</MudText>
+                        <MudProgressLinear Min="0" Max="1" Value="@ItemPercentageLeft()" Color="BarColor()"/>
+                    </MudStack>
+                }
+            </MudStack>
+            <MudStack Justify="Justify.Center" Class="h-100 p-1" Spacing="0">
+                <MudText Typo="Typo.body1" Class="w-100 nobreak">
+                    @SalesItem.Price.ToString("C")
+                </MudText>
+                @if (SalesItem.TaxRate > 0)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Error">
+                        @SalesItem.TaxRate.ToString("##")%
+                    </MudText>
+                    <MudText Typo="Typo.subtitle2">
+                        @PriceWithoutTax.ToString("C")
+                    </MudText>
+                }
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+</div>
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public SalesItem SalesItem { get; set; }
+
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
+
+    private decimal PriceWithoutTax => SalesItem.Price * (1 - SalesItem.TaxRate / 100);
+
+    private void AddToCart()
+    {
+        ClientCartService.AddItem(SalesItem);
+    }
+
+    private double ItemPercentageLeft()
+    {
+        if (SalesItem.ItemsInStock is not { } stock || SalesItem.MaxStock is not { } maxStock)
+            return 2;
+
+        return ((double)stock / maxStock);
+    }
+
+    private Color BarColor()
+    {
+        return ItemPercentageLeft() switch
+        {
+            > 1 => Color.Surface,
+            > 0.5 => Color.Success,
+            > 0.3 => Color.Warning,
+            < 0.15 => Color.Error,
+            _ => Color.Default,
+        };
+    }
+
+    private string AmountDisplay()
+    {
+        if (SalesItem.ItemsInStock is not { } stock || SalesItem.MaxStock is not { } maxStock)
+            return "∞";
+
+        return $"{stock} / {maxStock}";
+    }
+
+}

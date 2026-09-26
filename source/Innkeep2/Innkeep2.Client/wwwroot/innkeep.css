@@ -1,21 +1,92 @@
-:root{
+:root {
     --app-bar-height: 48px;
+    --button-height: 80px;
+    --top-height: 75%;
+    --bottom-height: 23%;
 }
 
-.innkeep-app-bar{
-    
+.innkeep-app-bar {
+
 }
 
-.innkeep-status-bar{
+.innkeep-status-bar {
     top: var(--app-bar-height) !important;
     color: var(--mud-palette-black) !important;
     background-color: var(--mud-palette-background) !important;
 }
 
-.mud-main-content{
-    padding-top: calc(2* var(--app-bar-height)) !important;
+.mud-main-content {
+    padding-top: calc(1 * var(--app-bar-height)) !important;
 }
 
-.mud-drawer{
-    top: calc(2* var(--app-bar-height)) !important;
+.mud-drawer {
+    top: calc(2 * var(--app-bar-height)) !important;
+}
+
+.pos-top {
+    height: var(--top-height) !important;
+    max-height: var(--top-height) !important;
+    min-height: var(--top-height) !important;
+}
+
+.pos-bottom {
+    height: var(--bottom-height) !important;
+    max-height: var(--bottom-height) !important;
+    min-height: var(--bottom-height) !important;
+}
+
+.item-thirds {
+    > div {
+        max-width: 32% !important;
+        width: 32% !important;
+        min-width: 32% !important;
+    }
+}
+
+.nobreak {
+    text-wrap: nowrap !important;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
+                                     supported by Chrome, Edge, Opera and Firefox */
+}
+
+.pointer {
+    cursor: pointer !important;
+}
+
+.border {
+    border: 1px solid var(--mud-palette-divider);
+    margin: -1px !important;
+}
+
+.border-right {
+    border-right: 1px solid var(--mud-palette-divider);
+}
+
+.gap-1 {
+    gap: 2px !important;
+}
+
+.sales-button {
+    height: var(--button-height);
+    min-height: var(--button-height);
+
+    > div:first-child {
+        width: 75% !important;
+        min-width: 75% !important;
+    }
+
+    > div:last-child {
+        width: 25% !important;
+        max-width: 25% !important;
+        min-width: 25% !important;
+    }
 }

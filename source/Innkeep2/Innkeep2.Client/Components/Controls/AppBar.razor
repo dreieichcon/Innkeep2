@@ -1,0 +1,28 @@
+@using Innkeep2.Services.Client
+<MudAppBar Dense="true" Color="Color.Primary">
+    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="w-100">
+        <MudText Typo="Typo.body1">Innkeep2.Client</MudText>
+        <MudText Typo="Typo.body1">@EventName</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.body2">Last Poll: @(SalesItemProvider.LastUpdated?.ToLocalTime().ToString("HH:mm:ss"))</MudText>
+        <MudNavLink Href="/config" Icon="@Icons.Material.Filled.Settings" Style="width: 5% !important;" IconColor="Color.Surface"/>
+    </MudStack>
+</MudAppBar>
+
+@code {
+
+    [Inject]
+    public ClientEventProvider EventProvider { get; set; } = null!;
+    
+    [Inject]
+    public ClientSalesItemProvider SalesItemProvider { get; set; } = null!;
+    
+    private string? EventName { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        EventName = (await EventProvider.GetCachedEventAsync()).Value?.Name;
+        SalesItemProvider.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+    }
+
+}

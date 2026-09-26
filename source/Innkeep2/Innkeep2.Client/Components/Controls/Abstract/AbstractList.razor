@@ -1,0 +1,22 @@
+<MudPaper Class="d-flex flex-column border" Style="height: 100%; overflow: hidden;" Elevation="0">
+    <MudPaper Class="p-2 border" Elevation="0" Style="z-index: 10000 !important;">
+        <MudText>@ListTitle</MudText>
+    </MudPaper>
+    <MudStack 
+        Class="flex-grow-1 overflow-y-auto p-2 overflow-x-hidden" 
+        Style="min-height: 0;"
+        Spacing="2">
+        @ChildContent
+    </MudStack>
+</MudPaper>
+
+
+@code {
+
+    [Parameter]
+    public string? ListTitle { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}

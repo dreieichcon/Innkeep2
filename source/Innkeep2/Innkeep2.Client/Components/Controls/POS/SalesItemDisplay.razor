@@ -1,0 +1,32 @@
+@using Innkeep2.Client.Components.Controls.Abstract
+@using Innkeep2.Models.Internal
+@using Innkeep2.Services.Client
+
+<AbstractList ListTitle="Sales Items">
+    @foreach (var item in Items)
+    {
+        <SalesItemButton SalesItem="item"/>
+    }
+</AbstractList>
+
+@code {
+
+    [Inject]
+    public ClientSalesItemProvider ItemProvider { get; set; } = null!;
+
+    public SalesItem[] Items { get; set; } = [];
+    
+    protected override async Task OnInitializedAsync()
+    {
+        ItemProvider.Changed += async (_, _) => await ReloadItems();
+        await ReloadItems();
+    }
+
+    private async Task ReloadItems()
+    {
+        var result = await ItemProvider.GetCachedItemsAsync();
+        Items = result.Value?.ToArray() ?? [];
+        
+        await InvokeAsync(StateHasChanged);
+    }
+}
