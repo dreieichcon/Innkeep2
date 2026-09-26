@@ -54,7 +54,8 @@
 
     private void AddToCart()
     {
-        ClientCartService.AddItem(SalesItem);
+        ClientCartService.AddItem(SalesItem, ClientCartService.NextItemCount);
+        ClientCartService.NextItemCount = 1;
     }
 
     private double ItemPercentageLeft()

@@ -1,16 +1,18 @@
 @page "/Pay"
 @using Innkeep2.Client.Components.Controls.Pay
 @using Innkeep2.Client.Components.Controls.POS
+@using Innkeep2.Client.Components.Controls.Shared
 @using Innkeep2.Services.Client
 
 <MudStack Class="p-1 h-100 w-100">
     <MudStack Row="true" Class="item-thirds pos-top">
         <CartDisplay/>
-        @ClientTransactionService.LastReceipt?.FiskalyTransactionNumber
-        @ClientTransactionService.LastReceipt?.PretixOrderCode
+        <PaymentAmounts/>
+        <Keypad @bind-Count="@Count" OnOkClick="@OnOkClick" DefaultValue="0" ClearOnCommit="true"/>
     </MudStack>
     <MudStack Row="true" Class="item-thirds pos-bottom">
-        <TotalPriceDisplay/>
+        <PaymentPriceDisplay/>
+        <BackToCartButton/>
         <CommitPaymentButton/>
     </MudStack>
 </MudStack>
@@ -19,5 +21,12 @@
 
     [Inject]
     public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private decimal Count { get; set; }
+
+    private void OnOkClick()
+    {
+        ClientTransactionService.SetAmountGiven(Count, true);
+    }
 
 }

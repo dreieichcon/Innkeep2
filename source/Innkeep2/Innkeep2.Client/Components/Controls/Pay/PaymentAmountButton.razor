@@ -1,0 +1,26 @@
+@using Innkeep2.Services.Client
+
+<div class="pointer noselect" @onclick="AddAmount">
+    <MudPaper Class="border" Elevation="0">
+        <MudStack Class="p-2" Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h3" Color="Color.Primary">
+                @Amount.ToString("C0")
+            </MudText>
+        </MudStack>
+    </MudPaper>
+</div>
+
+@code {
+
+    [Parameter]
+    public decimal Amount { get; set; }
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private void AddAmount()
+    {
+        ClientTransactionService.SetAmountGiven(Amount);
+    }
+
+}

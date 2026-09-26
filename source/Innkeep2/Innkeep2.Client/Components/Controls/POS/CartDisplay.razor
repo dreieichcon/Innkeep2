@@ -1,7 +1,7 @@
 @using Innkeep2.Client.Components.Controls.Abstract
 @using Innkeep2.Services.Client
 
-<AbstractList ListTitle="Cart">
+<AbstractList ListTitle="Bestelldetails">
     @foreach (var item in ClientCartService.Items)
     {
         <MudStack Row="true" Class="border p-2" Justify="Justify.SpaceBetween">
@@ -18,6 +18,16 @@
             </MudStack>
         </MudStack>
     }
+    <MudSpacer/>
+    <div class="pointer noselect" @onclick="ResetAmount">
+        <MudPaper Class="border" Elevation="0">
+            <MudStack Class="p-2" Justify="Justify.Center" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h4" Color="Color.Error" Class="m-2">
+                    Leeren
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </div>
 </AbstractList>
 
 @code {
@@ -28,6 +38,11 @@
     protected override async Task OnInitializedAsync()
     {
         ClientCartService.Changed += async (_,_) => await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ResetAmount()
+    {
+        ClientCartService.Clear();
     }
 
 }

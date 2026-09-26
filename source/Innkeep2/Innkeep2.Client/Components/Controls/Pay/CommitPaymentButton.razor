@@ -5,7 +5,7 @@
         Color="Color.Success" 
         Class="h-100 w-100" 
         @onclick="StartTransaction"
-        Disabled="false">
+        Disabled="TransactionDisabled">
         <MudText Typo="Typo.h4">
             BESTELLUNG ABSCHICKEN
         </MudText>
@@ -17,11 +17,18 @@
     public NavigationManager NavigationManager { get; set; } = null!;
 
     [Inject]
-    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+    public ClientTransactionService TransactionService { get; set; } = null!;
+
+    private bool TransactionDisabled => !TransactionService.EnoughGiven;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TransactionService.Changed += async(_, _) => await InvokeAsync(StateHasChanged);
+    }
 
     private async Task StartTransaction()
     {
-        var result = await ClientTransactionService.SubmitOrderAsync();
+        var result = await TransactionService.SubmitOrderAsync();
     }
 
 }

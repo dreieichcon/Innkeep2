@@ -11,14 +11,20 @@ public sealed class ClientTransactionService(ServerTransactionClient transaction
     public decimal AmountGiven { get; private set; }
 
     public decimal AmountBack => AmountGiven - cartService.Total;
+    
+    public bool EnoughGiven => AmountGiven >= cartService.Total;
 
     public TransactionReceipt? LastReceipt { get; private set; }
 
     public event EventHandler? Changed;
 
-    public void SetAmountGiven(decimal amount)
+    public void SetAmountGiven(decimal amount, bool overwrite = false)
     {
-        AmountGiven = amount;
+        if (overwrite)
+            AmountGiven = amount;
+        
+        else
+            AmountGiven += amount;
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

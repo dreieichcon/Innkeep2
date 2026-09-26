@@ -1,0 +1,32 @@
+@using Innkeep2.Client.Components.Controls.Abstract
+@using Innkeep2.Services.Client
+
+<AbstractList ListTitle="Geld">
+   @foreach (var item in _amounts)
+   {
+       <PaymentAmountButton Amount="@item"/>
+   }
+   <MudSpacer/>
+   <div class="pointer noselect" @onclick="ResetAmount">
+       <MudPaper Class="border" Elevation="0">
+           <MudStack Class="p-2" Justify="Justify.Center" AlignItems="AlignItems.Center">
+               <MudText Typo="Typo.h4" Color="Color.Error" Class="m-2">
+                  Zurücksetzen
+               </MudText>
+           </MudStack>
+       </MudPaper>
+   </div>
+   
+</AbstractList>
+
+@code {
+    private readonly decimal[] _amounts = [1, 2, 5, 10, 20, 50, 100];
+    
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private void ResetAmount()
+    {
+        ClientTransactionService.SetAmountGiven(0, true);
+    }
+}

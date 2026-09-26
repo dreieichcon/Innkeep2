@@ -90,3 +90,29 @@
         min-width: 25% !important;
     }
 }
+
+.keypad-main{
+    width: 100% !important;
+    height: 100% !important;
+    
+    > div{
+        width: 100% !important;
+        
+        > button {
+            width: 30% !Important;
+            aspect-ratio: 1/1;
+            border: 1px solid var(--mud-palette-divider);
+        }
+        
+        > button.wide{
+            width: 64% !important;
+            aspect-ratio: 2.13333333/1;
+            border: 1px solid var(--mud-palette-divider);
+        }
+    }
+}
+
+button.w50{
+    width: 48% !Important;
+    aspect-ratio: 1.6/1;
+}

@@ -1,0 +1,114 @@
+<MudPaper Class="d-flex flex-column border" Style="height: 100%; overflow: hidden;" Elevation="0">
+    <MudPaper Class="p-2 border" Elevation="0" Style="z-index: 10000 !important;">
+        <MudStack Row="true">
+            <MudText Typo="Typo.h5">Menge:</MudText>
+            <MudText Typo="Typo.h5" Color="@CommittedColor">@(CountText ?? Count.ToString())</MudText>
+        </MudStack>
+    </MudPaper>
+    <MudStack Spacing="3" Class="p-2">
+        <MudStack Class="keypad-main">
+            <MudStack Row="true">
+                <KeypadButton @bind-DisplayValue="@CountText" Value="7"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="8"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="9"/>
+            </MudStack>
+            <MudStack Row="true">
+                <KeypadButton @bind-DisplayValue="@CountText" Value="4"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="5"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="6"/>
+            </MudStack>
+            <MudStack Row="true">
+                <KeypadButton @bind-DisplayValue="@CountText" Value="1"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="2"/>
+                <KeypadButton @bind-DisplayValue="@CountText" Value="3"/>
+            </MudStack>
+            <MudStack Row="true">
+                <KeypadButton class="wide" @bind-DisplayValue="@CountText" Value="0"/>
+                @if (AllowFraction)
+                {
+                    <KeypadButton @bind-DisplayValue="@CountText" Value=","/>
+                }
+            </MudStack>
+        </MudStack>
+        <MudStack Row="true">
+            <MudButton Variant="Variant.Outlined" Class="w50" Color="Color.Success" OnClick="@Ok">
+                <MudText Typo="Typo.h4">
+                    OK
+                </MudText>
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Class="w50" Color="Color.Error" OnClick="@Clear">
+                <MudText Typo="Typo.h4">
+                    CLEAR
+                </MudText>
+            </MudButton>
+        </MudStack>
+    </MudStack>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public string? ListTitle { get; set; }
+
+    [Parameter]
+    public bool AllowFraction { get; set; } = true;
+
+    [Parameter]
+    public decimal DefaultValue { get; set; }
+
+    [Parameter]
+    public decimal Count
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+
+            field = value;
+            CountChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<decimal> CountChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnOkClick { get; set; }
+    
+    [Parameter]
+    public bool ClearOnCommit { get; set; }
+
+    private async Task Ok()
+    {
+        if (decimal.TryParse(CountText, out decimal value))
+        {
+            Count = value;
+            CountText = null;
+            await OnOkClick.InvokeAsync();
+            
+            if (ClearOnCommit)
+                Clear();
+            
+        }
+    }
+
+    private void Clear()
+    {
+        Count = DefaultValue;
+        CountText = null;
+    }
+
+    private string? CountText
+    {
+        get;
+        set
+        {
+            field = value;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private Color CommittedColor => CountText == null ? Color.Success : Color.Default;
+
+}

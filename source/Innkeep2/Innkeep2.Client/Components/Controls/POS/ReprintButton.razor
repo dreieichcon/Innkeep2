@@ -1,0 +1,29 @@
+@using Innkeep2.Services.Client
+<MudPaper Class="pointer noselect" Elevation="0">
+    <MudButton
+        Variant="Variant.Outlined"
+        Color="Color.Secondary"
+        Class="h-100 w-100"
+        @onclick=""
+        Disabled="@(TransactionService.LastReceipt is null)">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Filled.Print" Size="Size.Large"/>
+            <MudText Typo="Typo.h4">
+                Letzten Bon Drucken
+            </MudText>
+        </MudStack>
+    </MudButton>
+</MudPaper>
+
+@code {
+
+    [Inject]
+    public ClientTransactionService TransactionService { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TransactionService.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+    }
+    
+
+}

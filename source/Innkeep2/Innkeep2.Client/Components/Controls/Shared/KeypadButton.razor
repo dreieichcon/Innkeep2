@@ -1,0 +1,43 @@
+<MudButton Class="@Class" OnClick="@AddToDisplay">
+    <MudText Typo="Typo.h3">
+        @Value
+    </MudText>
+</MudButton>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter, EditorRequired]
+    public required string? DisplayValue
+    {
+        get;
+        set
+        {
+            if (field == value)
+                return;
+            
+            field = value;
+            DisplayValueChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    public EventCallback<string> DisplayValueChanged { get; set; }
+    
+    [Parameter]
+    public string? Class { get; set; }
+
+    private void AddToDisplay()
+    {
+        if (DisplayValue is null)
+            DisplayValue = Value;
+        
+        else
+            DisplayValue += Value;
+    }
+
+}

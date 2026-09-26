@@ -12,6 +12,16 @@ public sealed class ClientCartService
 
     public event EventHandler? Changed;
 
+    public int NextItemCount
+    {
+        get;
+        set
+        {
+            field = value;
+            Changed?.Invoke(this, EventArgs.Empty);
+        }
+    } = 1;
+
     public void AddItem(SalesItem item, int quantity = 1)
     {
         var existing = _items.FirstOrDefault(x => x.Id == item.Id && x.VariationId == item.VariationId);

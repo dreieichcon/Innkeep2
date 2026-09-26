@@ -1,0 +1,47 @@
+@using Innkeep2.Services.Client
+
+<MudStack Class="h-100 w-100 border p-2" Spacing="2">
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h4" Color="Color.Primary">
+            Summe
+        </MudText>
+        <MudText Typo="Typo.h4" Color="Color.Primary">
+            @ClientCartService.Total.ToString("C")
+        </MudText>
+    </MudStack>
+    <MudDivider Light="true"/>
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h4" Color="@GivenColor">
+            Gegeben
+        </MudText>
+        <MudText Typo="Typo.h4" Color="@GivenColor">
+            @TransactionService.AmountGiven.ToString("C")
+        </MudText>
+    </MudStack>
+    <MudStack Row="true" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h4">
+            Zurück
+        </MudText>
+        <MudText Typo="Typo.h4">
+            @TransactionService.AmountBack.ToString("C")
+        </MudText>
+    </MudStack>
+</MudStack>
+
+@code {
+
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
+
+    [Inject]
+    public ClientTransactionService TransactionService { get; set; } = null!;
+    
+    private Color GivenColor => TransactionService.AmountGiven >= ClientCartService.Total ? Color.Success : Color.Error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        TransactionService.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+        ClientCartService.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+    }
+
+}
