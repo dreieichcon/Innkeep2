@@ -1,0 +1,87 @@
+@page "/Config"
+@using System.Globalization
+@using Innkeep2.Print.Printer
+@using Innkeep2.Print.Storage
+@using Innkeep2.Ui.Shared.Components.Core
+
+<ListPage Title="Drucker Einstellungen">
+    <PaperItem Xs="12">
+        <MudStack Spacing="3">
+            <MudTextField T="string" @bind-Value="_vendorIdHex" Label="Vendor ID (Hex)" Variant="Variant.Outlined"/>
+            <MudTextField T="string" @bind-Value="_productIdHex" Label="Product ID (Hex)" Variant="Variant.Outlined"/>
+            <MudStack Row="true" Spacing="2">
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">
+                    Speichern
+                </MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="TestPrint">
+                    Testdruck
+                </MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="OpenDrawer">
+                    Kassenlade Öffnen
+                </MudButton>
+            </MudStack>
+        </MudStack>
+    </PaperItem>
+</ListPage>
+
+@code {
+
+    [Inject]
+    public PrinterSettingsRepository SettingsRepository { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private string _vendorIdHex = "";
+    private string _productIdHex = "";
+
+    protected override void OnInitialized()
+    {
+        var settings = SettingsRepository.GetOrCreate();
+        _vendorIdHex = settings.VendorId.ToString("X4");
+        _productIdHex = settings.ProductId.ToString("X4");
+    }
+
+    private void Save()
+    {
+        if (!int.TryParse(_vendorIdHex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var vendorId) ||
+            !int.TryParse(_productIdHex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var productId))
+        {
+            Snackbar.Add("Ungültige Hex-Werte", Severity.Error);
+            return;
+        }
+
+        SettingsRepository.Save(new PrinterSettings { VendorId = vendorId, ProductId = productId });
+        Snackbar.Add("Drucker-Einstellungen gespeichert", Severity.Success);
+    }
+    
+    [Inject]
+    public UsbPrinterService PrinterService { get; set; } = null!;
+
+    private void TestPrint()
+    {
+        try
+        {
+            PrinterService.PrintTestPage();
+            Snackbar.Add("Testdruck gesendet", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OpenDrawer()
+    {
+        try
+        {
+            PrinterService.OpenDrawer();
+            Snackbar.Add("Kassenlade geöffnet", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+        }
+    }
+
+}

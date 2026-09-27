@@ -1,5 +1,7 @@
 using Innkeep2.Client.Services;
 using Innkeep2.Credentials.Models;
+using Innkeep2.Print.Printer;
+using Innkeep2.Print.Storage;
 using Innkeep2.Requests.Server;
 using Innkeep2.Requests.Server.Auth;
 using Innkeep2.Services.Client;
@@ -12,6 +14,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddServerCredential(configuration);
         services.AddServerClients();
+        services.RegisterPrinterServices();
         services.AddSingleton<ClientEventProvider>();
         services.AddSingleton<ClientSalesItemProvider>();
         
@@ -43,5 +46,16 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ServerTransactionClient>((sp, client) =>
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/"))
             .AddHttpMessageHandler<ServerAuthHandler>();
+    }
+
+    private static void RegisterPrinterServices(this IServiceCollection services)
+    {
+        if (!Directory.Exists("./db"))
+            Directory.CreateDirectory("./db");
+
+        const string databasePath = "./db/printerconfig.db";
+
+        services.AddSingleton(new PrinterSettingsRepository(databasePath));
+        services.AddSingleton<UsbPrinterService>();
     }
 }

@@ -1,7 +1,7 @@
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Shared;
 
-namespace Innkeep2.Print;
+namespace Innkeep2.Print.Formatter;
 
 public static class ReceiptFormatter
 {
