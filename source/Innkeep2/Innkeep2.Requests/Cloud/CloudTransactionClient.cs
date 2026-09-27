@@ -10,11 +10,21 @@ public sealed class CloudTransactionClient(HttpClient httpClient)
     : CoreApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
 {
     public Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default)
-        => PostAsync<TransactionReceipt>("transaction/create", request, ct);
+        => PostAsync<TransactionReceipt>("transactions/create", request, ct);
 
     public Task<Result<TransactionReceipt>> RefundAsync(Guid requestId, CancellationToken ct = default)
         => PostAsync<TransactionReceipt>($"transactions/{requestId}/refund", null, ct);
 
     public Task<Result<TransactionReceipt>> TransferAsync(TransferRequest request, CancellationToken ct = default)
         => PostAsync<TransactionReceipt>("transactions/transfer", request, ct);
+    
+    public Task<Result<PagedResult<TransactionSummary>>> GetTransactionsAsync(
+        int skip,
+        int take,
+        CancellationToken ct = default
+    )
+        => GetAsync<PagedResult<TransactionSummary>>($"transactions?skip={skip}&take={take}", ct);
+
+    public Task<Result<TransactionReceipt>> GetTransactionAsync(Guid requestId, CancellationToken ct = default)
+        => GetAsync<TransactionReceipt>($"transactions/{requestId}", ct);
 }

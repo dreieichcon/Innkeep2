@@ -1,4 +1,4 @@
-namespace Innkeep2.Cloud.TransactionDb.Models;
+namespace Innkeep2.Models.Shared;
 
 public enum TransactionStepStatus
 {
