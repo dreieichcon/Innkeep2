@@ -21,6 +21,10 @@ public static class ReceiptFormatter
     
     public static string[] FormatTaxInformation(IReadOnlyList<ReceiptTaxInformation> taxInformation)
     {
+
+        if (!taxInformation.Any())
+            return [];
+        
         const int classWidth = 3;
         const int rateWidth = 5;
         const int netWidth = 10;

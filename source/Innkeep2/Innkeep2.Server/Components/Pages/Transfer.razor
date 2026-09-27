@@ -1,0 +1,70 @@
+@page "/Transactions/Transfer"
+@using Innkeep2.Requests.Cloud
+@using Innkeep2.Requests.Client
+@using Innkeep2.Models.Internal
+@using Innkeep2.Ui.Shared.Components.Core
+@using MudBlazor
+
+<ListPage Title="Geld Buchen">
+    <PaperItem Xs="12">
+        <MudStack Spacing="3" Style="max-width: 400px;">
+            <MudToggleGroup T="bool" @bind-Value="_isInbound">
+                <MudToggleItem Value="true" Text="Einzahlung"/>
+                <MudToggleItem Value="false" Text="Auszahlung"/>
+            </MudToggleGroup>
+
+            <MudNumericField T="decimal" @bind-Value="_amount" Label="Betrag" Variant="Variant.Outlined" Min="0" Format="N2"/>
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_amount <= 0 || _isBusy)" OnClick="SubmitAsync">
+                Buchen
+            </MudButton>
+        </MudStack>
+    </PaperItem>
+</ListPage>
+
+@code {
+
+    [Inject]
+    public CloudTransactionClient TransactionClient { get; set; } = null!;
+
+    [Inject]
+    public ClientPrintClient PrintClient { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager Navigation { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private bool _isInbound = true;
+    private decimal _amount;
+    private bool _isBusy;
+
+    private async Task SubmitAsync()
+    {
+        _isBusy = true;
+
+        var request = new TransferRequest
+        {
+            RequestId = Guid.NewGuid(),
+            Amount = _isInbound ? _amount : -_amount,
+            Currency = "EUR"
+        };
+
+        var result = await TransactionClient.TransferAsync(request);
+
+        if (!result.IsSuccess)
+        {
+            Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
+            _isBusy = false;
+            return;
+        }
+
+        Snackbar.Add("Buchung erfolgreich", Severity.Success);
+
+        await PrintClient.PrintReceiptAsync(result.Value!);
+
+        Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
+    }
+
+}
