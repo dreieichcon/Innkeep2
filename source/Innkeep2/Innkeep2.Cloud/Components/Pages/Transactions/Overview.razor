@@ -9,21 +9,31 @@
 
 <ConfigPage Title="Bestellungen: Übersicht" GridClass="w-100">
     <PaperItem Xs="9">
-        <MudDataGrid T="Transaction" Virtualize="true" ServerData="ServerData" RowsPerPage="50" Dense="false">            
+        <MudDataGrid T="Transaction" ServerData="ServerData" RowsPerPage="50" Dense="false"
+                     RowClick="e => SelectedTransaction = e.Item">
             <PagerContent>
                 <MudDataGridPager/>
             </PagerContent>
             <Columns>
-                <PropertyColumn Property="x => x.Id"/>
+                <PropertyColumn Property="x => x.RequestId"/>
+                <PropertyColumn Property="x => x.BookingTime"/>
+                <PropertyColumn Property="x => x.TransactionType"/>
                 <PropertyColumn Property="x => x.TotalAmount"/>
-                <PropertyColumn Property="x => x.AmountGiven"/>
-                <PropertyColumn Property="x => x.AmountBack"/>
-                <PropertyColumn Property="x => x.PaymentType"/>
+                <PropertyColumn Property="x => x.PretixStatus"/>
+                <PropertyColumn Property="x => x.FiskalyStatus"/>
+                <TemplateColumn Title="Original">
+                    <CellTemplate>
+                        @if (context.Item.RefundRequestId is { } originalId)
+                        {
+                            <MudLink Href="@($"/Transactions/{originalId}")">@originalId</MudLink>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
             </Columns>
         </MudDataGrid>
     </PaperItem>
     <PaperItem Xs="3">
-        @if (Receipt != null)
+        @if (Receipt is not null)
         {
             <ReceiptWebDisplay Receipt="Receipt"/>
         }
@@ -33,26 +43,28 @@
 @code {
 
     [Inject]
-    public IDbContextFactory<InnkeepTransactionDbContext> OrderContextFactory { get; set; } = null;
-    
+    public IDbContextFactory<InnkeepTransactionDbContext> OrderContextFactory { get; set; } = null!;
+
     private Transaction? SelectedTransaction { get; set; }
-    
-    private TransactionReceipt? Receipt => SelectedTransaction != null ? TransactionReceiptFactory.FromTransaction(SelectedTransaction) : null;
-    
+
+    private TransactionReceipt? Receipt => SelectedTransaction is not null
+       ? TransactionReceiptFactory.FromTransaction(SelectedTransaction)
+       : null;
+
     private async Task<GridData<Transaction>> ServerData(GridState<Transaction> state, CancellationToken ct = default)
     {
-        await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
+       await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
 
-        var query = context.Transactions.OrderByDescending(x => x.BookingTime);
+       var query = context.Transactions.OrderByDescending(x => x.BookingTime);
 
-        var total = await query.CountAsync(ct);
-        var items = await query.Skip(state.Page * state.PageSize).Take(state.PageSize).ToListAsync(ct);
+       var total = await query.CountAsync(ct);
+       var items = await query.Skip(state.Page * state.PageSize).Take(state.PageSize).ToListAsync(ct);
 
-        return new GridData<Transaction>
-        {
-            Items = items,
-            TotalItems = total
-        };
+       return new GridData<Transaction>
+       {
+          Items = items,
+          TotalItems = total
+       };
     }
-    
+
 }

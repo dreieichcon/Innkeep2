@@ -15,11 +15,11 @@
     </PaperItem>
     <PaperItem Xs="6">
         <MudText>Einnahmen Bargeld:</MudText>
-        <MudText Typo="Typo.h4">@IncomeTotal.ToString("C")</MudText>
+        <MudText Typo="Typo.h4">@IncomeCash.ToString("C")</MudText>
     </PaperItem>
     <PaperItem Xs="6">
         <MudText>Aktueller Stand Kasse:</MudText>
-        <MudText Typo="Typo.h4">@IncomeTotal.ToString("C")</MudText>
+        <MudText Typo="Typo.h4">@RegisterBalance.ToString("C")</MudText>
     </PaperItem>
 </ConfigPage>
 
@@ -29,15 +29,16 @@
     public TransactionDashboardService TransactionDashboardService { get; set; } = null!;
 
     private int OrderCount { get; set; }
-    
     private decimal IncomeTotal { get; set; }
-    
     private decimal IncomeCash { get; set; }
-    
+    private decimal RegisterBalance { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
         OrderCount = await TransactionDashboardService.TotalOrderCount();
-        IncomeCash = await TransactionDashboardService.TotalCashSum();
+        IncomeTotal = await TransactionDashboardService.TotalIncome();
+        IncomeCash = await TransactionDashboardService.TotalCashIncome();
+        RegisterBalance = await TransactionDashboardService.CurrentRegisterBalance();
     }
 
 }
