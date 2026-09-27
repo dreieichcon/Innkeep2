@@ -1,8 +1,12 @@
+using Innkeep2.Models.Shared;
+
 namespace Innkeep2.Models.Internal.Receipt;
 
 public sealed record TransactionReceipt
 {
     public required Guid OrderId { get; init; }
+    
+    public required TransactionType TransactionType { get; init; }
     
     public required string Title { get; init; }
     
@@ -19,10 +23,16 @@ public sealed record TransactionReceipt
     public required List<ReceiptTaxInformation> TaxInformation { get; init; }
     
     public required List<ReceiptVoucher> Vouchers { get; init; }
+    
+    public required PaymentType PaymentType { get; init; }
 
     public string? PretixOrderCode { get; init; }
     
     public string? FiskalyQrCode { get; init; }
     
     public long? FiskalyTransactionNumber { get; init; }
+    
+    public bool IsCopy { get; set; }
+    
+    public bool HasFiskalyQrCode => !string.IsNullOrEmpty(FiskalyQrCode) && FiskalyQrCode != "TSS OFFLINE";
 }

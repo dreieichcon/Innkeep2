@@ -1,4 +1,5 @@
 using Innkeep2.Models.Internal.Receipt;
+using Innkeep2.Models.Shared;
 
 namespace Innkeep2.Print;
 
@@ -13,10 +14,7 @@ public static class ReceiptFormatter
         var leftPart = $"je {line.UnitPrice:N2} €";
         var rightPart = $"{line.TotalPrice:N2} € {line.TaxClass}";
 
-        var spacing = MaxLineWidth - leftPart.Length - rightPart.Length;
-        var detailLine = spacing > 0
-            ? leftPart + new string(' ', spacing) + rightPart
-            : leftPart + " " + rightPart;
+        var detailLine = SpaceBetween(leftPart, rightPart);
 
         return [.. nameLines, detailLine];
     }
@@ -50,6 +48,56 @@ public static class ReceiptFormatter
         }
 
         return lines.ToArray();
+    }
+    
+    public static string FormatReceiptTypeLabel(TransactionReceipt receipt) => (receipt.TransactionType, receipt.IsCopy) switch
+    {
+        (TransactionType.Sale, false) => "Beleg",
+        (TransactionType.Sale, true) => "Belegkopie",
+        (TransactionType.Transfer, false) => "Transferbeleg",
+        (TransactionType.Transfer, true) => "Transferbeleg (Kopie)",
+        (TransactionType.Refund, false) => "Stornobeleg",
+        (TransactionType.Refund, true) => "Stornobeleg (Kopie)",
+        _ => "Beleg"
+    };
+    
+    public static string[] FormatSubheading(TransactionReceipt receipt)
+    {
+        var lines = new List<string>
+        {
+            SpaceBetween("Datum:", receipt.BookingTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")),
+            SpaceBetween("Id:", receipt.OrderId.ToString())
+        };
+
+        if (receipt.PretixOrderCode is { } code)
+            lines.Add(SpaceBetween("Pretix:", code));
+
+        return lines.ToArray();
+    }
+
+    public static string[] FormatSum(TransactionReceipt receipt)
+    {
+        var paymentTypeLabel = receipt.PaymentType switch
+        {
+            PaymentType.Cash => "Bar",
+            PaymentType.NonCash => "Karte",
+            _ => ""
+        };
+
+        return
+        [
+            SpaceBetween("Total", $"{receipt.Sum.TotalAmount:N2} €"),
+            SpaceBetween($"Gegeben ({paymentTypeLabel})", $"{receipt.Sum.AmountGiven:N2} €"),
+            SpaceBetween("Zurück", $"{receipt.Sum.AmountReturned:N2} €")
+        ];
+    }
+    
+    private static string SpaceBetween(string left, string right)
+    {
+        var spacing = MaxLineWidth - left.Length - right.Length;
+        return spacing > 0
+            ? left + new string(' ', spacing) + right
+            : left + " " + right;
     }
     
     private static List<string> WrapText(string text, int maxLength)

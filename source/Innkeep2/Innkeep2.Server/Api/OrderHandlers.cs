@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
+using Innkeep2.Models.Shared;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Server.Queue;
 using Innkeep2.Services.Server;
@@ -49,10 +50,7 @@ public static class OrderHandlers
         var pretixEvent = eventResult.Value ?? new Event { Name = "", Slug = "", IsTestMode = false };
 
         return ReceiptBuilder.Build(
-            request.RequestId,
-            DateTime.UtcNow,
-            pretixEvent.Name,
-            pretixEvent.Header ?? "",
+            new ReceiptContext(request.RequestId, TransactionType.Sale, DateTime.UtcNow, pretixEvent.Name, pretixEvent.Header ?? ""),
             request,
             request.AmountGiven,
             request.AmountBack

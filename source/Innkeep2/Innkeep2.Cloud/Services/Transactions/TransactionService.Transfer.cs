@@ -45,10 +45,7 @@ public sealed partial class TransactionService
         await transactionRepository.UpdateAsync(transfer, ct);
 
         var receipt = ReceiptBuilder.BuildTransfer(
-            transfer.RequestId,
-            transfer.BookingTime,
-            pretixEvent.Name,
-            pretixEvent.Header ?? "",
+            new ReceiptContext(transfer.RequestId, TransactionType.Transfer, transfer.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
             request.Amount,
             transfer.AmountGiven,
             transfer.AmountBack,

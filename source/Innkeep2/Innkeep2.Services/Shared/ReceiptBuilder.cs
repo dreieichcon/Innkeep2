@@ -3,6 +3,7 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Shared;
 
 namespace Innkeep2.Services.Shared;
 
@@ -12,10 +13,7 @@ public static class ReceiptBuilder
     private const string OfflineFiskalyPlaceholder = "TSS OFFLINE";
 
     public static TransactionReceipt Build(
-        Guid orderId,
-        DateTime bookingTime,
-        string title,
-        string header,
+        ReceiptContext context,
         OrderRequest order,
         decimal amountGiven,
         decimal amountBack,
@@ -23,11 +21,13 @@ public static class ReceiptBuilder
         FiskalyTransaction? fiskalyTransaction = null
     ) => new()
     {
-        OrderId = orderId,
-        Title = title,
-        Header = header,
-        BookingTime = bookingTime,
+        OrderId = context.OrderId,
+        TransactionType = context.TransactionType,
+        Title = context.Title,
+        Header = context.Header,
+        BookingTime = context.BookingTime,
         Currency = order.Currency,
+        PaymentType = order.PaymentType,
         Lines = order.Items.Select(ReceiptLine.FromSalesItem).ToList(),
         Sum = new ReceiptSum
         {
@@ -43,10 +43,7 @@ public static class ReceiptBuilder
     };
 
     public static TransactionReceipt BuildTransfer(
-        Guid transactionId,
-        DateTime bookingTime,
-        string title,
-        string header,
+        ReceiptContext context,
         decimal amount,
         decimal amountGiven,
         decimal amountBack,
@@ -54,10 +51,12 @@ public static class ReceiptBuilder
         FiskalyTransaction? fiskalyTransaction
     ) => new()
     {
-        OrderId = transactionId,
-        Title = title,
-        Header = header,
-        BookingTime = bookingTime,
+        OrderId = context.OrderId,
+        TransactionType = TransactionType.Transfer,
+        PaymentType = PaymentType.Cash,
+        Title = context.Title,
+        Header = context.Header,
+        BookingTime = context.BookingTime,
         Currency = currency,
         Lines = [],
         Sum = new ReceiptSum { TotalAmount = amount, AmountGiven = amountGiven, AmountReturned = amountBack },

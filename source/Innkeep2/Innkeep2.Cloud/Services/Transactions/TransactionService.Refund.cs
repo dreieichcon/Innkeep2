@@ -6,6 +6,7 @@ using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
 using Innkeep2.Models.Pretix.Refund;
+using Innkeep2.Models.Shared;
 using Innkeep2.Services.Shared;
 using Serilog;
 
@@ -65,10 +66,7 @@ public sealed partial class TransactionService
         await transactionRepository.UpdateAsync(refund, ct);
 
         var receipt = ReceiptBuilder.Build(
-            refund.RequestId,
-            refund.BookingTime,
-            pretixEvent.Name,
-            pretixEvent.Header ?? "",
+            new ReceiptContext(refund.RequestId, TransactionType.Refund, refund.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
             originalRequest,
             refund.AmountGiven,
             refund.AmountBack,

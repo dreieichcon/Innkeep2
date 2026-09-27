@@ -8,7 +8,7 @@
 @using Innkeep2.Ui.Shared.Components.Receipt
 @using Microsoft.EntityFrameworkCore
 
-<ConfigPage Title="Bestellungen: Übersicht">
+<ConfigPage Title="Bestellungen: Übersicht" GridClass="w-100">
     <PaperItem Xs="9">
         <MudDataGrid T="Transaction" Virtualize="true" VirtualizeServerData="ServerData" RowsPerPage="50" Dense="false" RowClick="e => SelectedTransaction = e.Item">
             <PagerContent>

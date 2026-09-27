@@ -6,6 +6,7 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Shared;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
@@ -55,10 +56,7 @@ public sealed partial class TransactionService(
         await transactionRepository.UpdateAsync(order, ct);
 
         var receipt = ReceiptBuilder.Build(
-            order.RequestId,
-            order.BookingTime,
-            pretixEvent.Name,
-            pretixEvent.Header ?? "",
+            new ReceiptContext(order.RequestId, TransactionType.Sale, order.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
             request,
             request.AmountGiven,
             request.AmountBack,

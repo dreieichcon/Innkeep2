@@ -4,6 +4,7 @@ using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Shared;
 using Innkeep2.Services.Shared;
 
 namespace Innkeep2.Cloud.TransactionDb.Repositories;
@@ -24,10 +25,12 @@ public static class TransactionReceiptFactory
             return new TransactionReceipt
             {
                 OrderId = transaction.RequestId,
+                TransactionType = transaction.TransactionType,
                 Title = transaction.Title,
                 Header = transaction.Header,
                 BookingTime = transaction.BookingTime,
                 Currency = transaction.Currency ?? "",
+                PaymentType = transaction.PaymentType,
                 Lines = [],
                 Sum = new ReceiptSum
                 {
@@ -47,10 +50,7 @@ public static class TransactionReceiptFactory
             : null;
 
         return ReceiptBuilder.Build(
-            transaction.RequestId,
-            transaction.BookingTime,
-            transaction.Title,
-            transaction.Header,
+            new ReceiptContext(transaction.RequestId, transaction.TransactionType, transaction.BookingTime, transaction.Title, transaction.Header),
             request!,
             transaction.AmountGiven,
             transaction.AmountBack,
