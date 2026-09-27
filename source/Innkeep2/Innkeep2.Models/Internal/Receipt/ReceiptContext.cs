@@ -7,5 +7,6 @@ public sealed record ReceiptContext(
     TransactionType TransactionType,
     DateTime BookingTime,
     string Title,
-    string Header
+    string Header,
+    Guid? RefundRequestId = null
 );

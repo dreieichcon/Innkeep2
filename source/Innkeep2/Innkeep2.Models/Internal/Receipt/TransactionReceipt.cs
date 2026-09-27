@@ -8,6 +8,8 @@ public sealed record TransactionReceipt
     
     public required TransactionType TransactionType { get; init; }
     
+    public Guid? RefundRequestId { get; init; }
+    
     public required string Title { get; init; }
     
     public required string Header { get; init; }
@@ -33,6 +35,8 @@ public sealed record TransactionReceipt
     public long? FiskalyTransactionNumber { get; init; }
     
     public bool IsCopy { get; set; }
+    
+    public bool IsRefunded { get; init; }
     
     public bool HasFiskalyQrCode => !string.IsNullOrEmpty(FiskalyQrCode) && FiskalyQrCode != "TSS OFFLINE";
 }

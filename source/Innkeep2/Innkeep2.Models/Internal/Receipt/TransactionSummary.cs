@@ -8,6 +8,8 @@ public sealed record TransactionSummary
     
     public required string? PretixOrderCode { get; init; }
     
+    public required Guid? RefundRequestId { get; init; }
+    
     public required DateTime BookingTime { get; init; }
     
     public required TransactionType TransactionType { get; init; }

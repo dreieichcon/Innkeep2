@@ -5,6 +5,7 @@ using Innkeep2.Models.Core;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
+using Innkeep2.Models.Shared;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
 using TransactionService = Innkeep2.Cloud.Services.Transactions.TransactionService;
@@ -55,6 +56,7 @@ public static class ApiEndpoints
             {
                 RequestId = x.RequestId,
                 PretixOrderCode = ExtractPretixOrderCode(x),
+                RefundRequestId = x.RefundRequestId,
                 BookingTime = x.BookingTime,
                 TransactionType = x.TransactionType,
                 TotalAmount = x.TotalAmount,
@@ -77,6 +79,10 @@ public static class ApiEndpoints
                 return Results.BadRequest(result.Error);
 
             var receipt = TransactionReceiptFactory.FromTransaction(result.Value!);
+
+            var hasRefundResult = await repository.HasRefundAsync(requestId, ct);
+            receipt = receipt with { IsRefunded = hasRefundResult.Value };
+
             return Results.Ok(receipt);
         });
 
@@ -104,10 +110,17 @@ public static class ApiEndpoints
 
     private static string? ExtractPretixOrderCode(Transaction transaction)
     {
-        if (transaction.PretixOrderJson is null)
+        if (transaction.PretixOrderJson is null || transaction.TransactionType != TransactionType.Sale)
             return null;
 
-        var pretixOrder = JsonSerializer.Deserialize<PretixOrderResponse>(transaction.PretixOrderJson);
-        return pretixOrder?.Code;
+        try
+        {
+            var pretixOrder = JsonSerializer.Deserialize<PretixOrderResponse>(transaction.PretixOrderJson);
+            return pretixOrder?.Code;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

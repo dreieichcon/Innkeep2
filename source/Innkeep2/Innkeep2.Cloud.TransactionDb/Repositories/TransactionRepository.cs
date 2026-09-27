@@ -23,4 +23,13 @@ public class TransactionRepository(IDbContextFactory<InnkeepTransactionDbContext
 
         return Result<PagedResult<Transaction>>.Success(new PagedResult<Transaction>(items, total));
     }
+    
+    public virtual async Task<Result<bool>> HasRefundAsync(Guid requestId, CancellationToken ct = default)
+    {
+        await using var context = CreateContext();
+
+        var exists = await GetSet(context).AnyAsync(x => x.RefundRequestId == requestId, ct);
+
+        return Result<bool>.Success(exists);
+    }
 }

@@ -1,0 +1,130 @@
+@page "/Transactions/{RequestId:guid}"
+@using Innkeep2.Requests.Cloud
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Models.Shared
+@using Innkeep2.Requests.Client
+@using Innkeep2.Ui.Shared.Components.Core
+@using Innkeep2.Ui.Shared.Components.Receipt
+@using MudBlazor
+
+<ListPage Title="Bestellung: Details">
+    @if (Receipt is not null)
+    {
+        <PaperItem Xs="3">
+            <ReceiptWebDisplay Receipt="Receipt"/>
+        </PaperItem>
+        <PaperItem Xs="9">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h6">Übersicht</MudText>
+                <MudText>Typ: @Receipt.TransactionType</MudText>
+                <MudText>Datum: @Receipt.BookingTime.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</MudText>
+                <MudText>Gesamt: @Receipt.Sum.TotalAmount.ToString("N2") €</MudText>
+                <MudText>Zahlart: @Receipt.PaymentType</MudText>
+                @if (Receipt.PretixOrderCode is { } orderCode)
+                {
+                    <MudText>Pretix: @orderCode</MudText>
+                }
+                @if (Receipt.RefundRequestId is { } originalId)
+                {
+                    <MudText>
+                        Original: <MudLink Href="@($"/Transactions/{originalId}")">@originalId</MudLink>
+                    </MudText>
+                }
+                <MudDivider Class="my-2"/>
+
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Color="Color.Error"
+                               Disabled="@(Receipt.TransactionType != TransactionType.Sale || Receipt.IsRefunded || _isBusy)"
+                               OnClick="@CancelOrderAsync">
+                        Storno
+                    </MudButton>
+                    <MudButton Color="Color.Primary" Disabled="@_isBusy" OnClick="@ReprintAsync">
+                        Erneut Drucken
+                    </MudButton>
+                    <MudButton OnClick="@(() => Navigation.NavigateTo("/Transactions/Overview", true))">
+                        Zurück
+                    </MudButton>
+                </MudStack>
+            </MudStack>
+        </PaperItem>
+    }
+    else
+    {
+        <PaperItem Xs="3">
+            <MudText>Bestellung nicht gefunden.</MudText>
+        </PaperItem>
+    }
+</ListPage>
+
+@code {
+
+    [Parameter]
+    public Guid RequestId { get; set; }
+
+    [Inject]
+    public CloudTransactionClient TransactionClient { get; set; } = null!;
+
+    [Inject]
+    public ClientPrintClient PrintClient { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager Navigation { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = null!;
+
+    private TransactionReceipt? Receipt { get; set; }
+    private bool _isBusy;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        var result = await TransactionClient.GetTransactionAsync(RequestId);
+        Receipt = result.IsSuccess ? result.Value : null;
+    }
+
+    private async Task CancelOrderAsync()
+    {
+        var confirmed = await DialogService.ShowMessageBoxAsync(
+            "Bestellung stornieren",
+            "Dieser Schritt kann nicht rückgängig gemacht werden. Wirklich fortfahren?",
+            yesText: "Ja",
+            noText: "Nein"
+        );
+
+        if (confirmed is not true)
+            return;
+
+        _isBusy = true;
+
+        var result = await TransactionClient.RefundAsync(RequestId);
+
+        if (result.IsSuccess)
+        {
+            Snackbar.Add("Bestellung storniert", Severity.Success);
+            Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
+        }
+        else
+        {
+            Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
+            _isBusy = false;
+        }
+    }
+
+    private async Task ReprintAsync()
+    {
+        if (Receipt is null)
+            return;
+
+        _isBusy = true;
+
+        var result = await PrintClient.PrintReceiptAsync(Receipt with { IsCopy = true });
+
+        Snackbar.Add(result.IsSuccess ? "An Drucker gesendet" : $"Fehler: {result.Error!.Message}", result.IsSuccess ? Severity.Error : Severity.Success);
+
+        _isBusy = false;
+    }
+
+}

@@ -9,9 +9,9 @@
 
 <ConfigPage Title="Bestellungen: Übersicht" GridClass="w-100">
     <PaperItem Xs="9">
-        <MudDataGrid T="Transaction" Virtualize="true" VirtualizeServerData="ServerData" RowsPerPage="50" Dense="false" RowClick="e => SelectedTransaction = e.Item">
+        <MudDataGrid T="Transaction" Virtualize="true" ServerData="ServerData" RowsPerPage="50" Dense="false">            
             <PagerContent>
-                <MudDataGridPager></MudDataGridPager>
+                <MudDataGridPager/>
             </PagerContent>
             <Columns>
                 <PropertyColumn Property="x => x.Id"/>
@@ -39,16 +39,19 @@
     
     private TransactionReceipt? Receipt => SelectedTransaction != null ? TransactionReceiptFactory.FromTransaction(SelectedTransaction) : null;
     
-    private async Task<GridData<Transaction>> ServerData(GridStateVirtualize<Transaction> state, CancellationToken ct = default)
+    private async Task<GridData<Transaction>> ServerData(GridState<Transaction> state, CancellationToken ct = default)
     {
         await using var context = await OrderContextFactory.CreateDbContextAsync(ct);
 
-        var orders = context.Transactions.OrderBy(x => x.BookingTime);
+        var query = context.Transactions.OrderByDescending(x => x.BookingTime);
 
-        return new GridData<Transaction>()
+        var total = await query.CountAsync(ct);
+        var items = await query.Skip(state.Page * state.PageSize).Take(state.PageSize).ToListAsync(ct);
+
+        return new GridData<Transaction>
         {
-            Items = await orders.Skip(state.StartIndex).Take(state.Count).ToListAsync(ct),
-            TotalItems = orders.Count()
+            Items = items,
+            TotalItems = total
         };
     }
     

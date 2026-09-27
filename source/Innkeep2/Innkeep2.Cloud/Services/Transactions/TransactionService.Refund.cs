@@ -66,7 +66,14 @@ public sealed partial class TransactionService
         await transactionRepository.UpdateAsync(refund, ct);
 
         var receipt = ReceiptBuilder.Build(
-            new ReceiptContext(refund.RequestId, TransactionType.Refund, refund.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
+            new ReceiptContext(
+                refund.RequestId,
+                TransactionType.Refund,
+                refund.BookingTime,
+                pretixEvent.Name,
+                pretixEvent.Header ?? "",
+                original.RequestId
+            ),
             originalRequest,
             refund.AmountGiven,
             refund.AmountBack,

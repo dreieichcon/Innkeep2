@@ -1,4 +1,5 @@
 using Innkeep2.Credentials.Models;
+using Innkeep2.Requests.Client;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Requests.Cloud.Auth;
 using Innkeep2.Server.Queue;
@@ -12,8 +13,10 @@ public static class ServiceCollectionExtensions
 {
     public static void RegisterServerServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddClientCredential(configuration);
         services.AddCloudCredential(configuration);
         services.AddCloudClients();
+        services.AddClientClients();
         
         services.AddCloudCaches();
         
@@ -28,6 +31,20 @@ public static class ServiceCollectionExtensions
                          ?? throw new InvalidOperationException("Missing 'Cloud' section in configuration.");
 
         services.AddSingleton(credential);
+    }
+    
+    public static void AddClientCredential(this IServiceCollection services, IConfiguration configuration)
+    {
+        var credential = configuration.GetSection("Client").Get<ClientCredential>()
+                         ?? throw new InvalidOperationException("Missing 'Client' section in configuration.");
+
+        services.AddSingleton(credential);
+    }
+    
+    public static void AddClientClients(this IServiceCollection services)
+    {
+        services.AddHttpClient<ClientPrintClient>((sp, client) =>
+            client.BaseAddress = new Uri(sp.GetRequiredService<ClientCredential>().ClientUrl.TrimEnd('/') + "/"));
     }
     
     public static void AddCloudClients(this IServiceCollection services)

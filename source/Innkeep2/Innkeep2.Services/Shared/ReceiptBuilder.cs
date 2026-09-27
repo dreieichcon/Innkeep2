@@ -28,6 +28,7 @@ public static class ReceiptBuilder
         BookingTime = context.BookingTime,
         Currency = order.Currency,
         PaymentType = order.PaymentType,
+        RefundRequestId = context.RefundRequestId,
         Lines = order.Items.Select(ReceiptLine.FromSalesItem).ToList(),
         Sum = new ReceiptSum
         {

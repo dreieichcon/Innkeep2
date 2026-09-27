@@ -1,0 +1,66 @@
+@page "/Transactions/Overview"
+@using Innkeep2.Requests.Cloud
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Ui.Shared.Components.Core
+@using MudBlazor
+
+<ListPage Title="Bestellungen: Übersicht" GridClass="w-100">
+    <PaperItem Xs="12">
+        <MudDataGrid T="TransactionSummary" Virtualize="true" ServerData="ServerData" RowsPerPage="50" Dense="false">
+            <PagerContent>
+                <MudDataGridPager/>
+            </PagerContent>
+            <Columns>
+                <PropertyColumn Property="x => x.RequestId"/>
+                <PropertyColumn Property="x => x.PretixOrderCode"/>
+                <PropertyColumn Property="x => x.BookingTime"/>
+                <PropertyColumn Property="x => x.TransactionType"/>
+                <PropertyColumn Property="x => x.TotalAmount"/>
+                <PropertyColumn Property="x => x.PretixStatus"/>
+                <PropertyColumn Property="x => x.FiskalyStatus"/>
+                <TemplateColumn Title="Original">
+                    <CellTemplate>
+                        @if (context.Item.RefundRequestId is { } originalId)
+                        {
+                            <MudLink Href="@($"/Transactions/{originalId}")">@originalId</MudLink>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Aktionen">
+                    <CellTemplate>
+                        <MudButton OnClick="@(() => Navigate(context.Item.RequestId))">Anzeigen</MudButton>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </PaperItem>
+</ListPage>
+
+@code {
+
+    [Inject]
+    public CloudTransactionClient TransactionClient { get; set; } = null!;
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; } = null!;
+    
+    private void Navigate(Guid requestId)
+    {
+        NavigationManager.NavigateTo($"Transactions/{requestId}");
+    }
+
+    private async Task<GridData<TransactionSummary>> ServerData(GridState<TransactionSummary> state, CancellationToken ct = default)
+    {
+        var result = await TransactionClient.GetTransactionsAsync(state.Page * state.PageSize, state.PageSize, ct);
+
+        if (!result.IsSuccess)
+            return new GridData<TransactionSummary> { Items = [], TotalItems = 0 };
+
+        return new GridData<TransactionSummary>
+        {
+            Items = result.Value!.Items,
+            TotalItems = result.Value!.TotalCount
+        };
+    }
+
+}

@@ -69,8 +69,11 @@ public static class ReceiptFormatter
             SpaceBetween("Id:", receipt.OrderId.ToString())
         };
 
-        if (receipt.PretixOrderCode is { } code)
+        if (receipt.TransactionType is TransactionType.Sale && receipt.PretixOrderCode is { } code)
             lines.Add(SpaceBetween("Pretix:", code));
+
+        if (receipt.RefundRequestId is { } referenceId)
+            lines.Add(SpaceBetween("Ref:", referenceId.ToString()));
 
         return lines.ToArray();
     }
@@ -84,9 +87,11 @@ public static class ReceiptFormatter
             _ => ""
         };
 
+        var sign = receipt.TransactionType == TransactionType.Refund ? "-" : "";
+
         return
         [
-            SpaceBetween("Total", $"{receipt.Sum.TotalAmount:N2} €"),
+            SpaceBetween("Total", $"{sign}{receipt.Sum.TotalAmount:N2} €"),
             SpaceBetween($"Gegeben ({paymentTypeLabel})", $"{receipt.Sum.AmountGiven:N2} €"),
             SpaceBetween("Zurück", $"{receipt.Sum.AmountReturned:N2} €")
         ];
