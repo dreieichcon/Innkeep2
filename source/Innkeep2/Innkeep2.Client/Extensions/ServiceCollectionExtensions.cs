@@ -5,6 +5,7 @@ using Innkeep2.Print.Storage;
 using Innkeep2.Requests.Server;
 using Innkeep2.Requests.Server.Auth;
 using Innkeep2.Services.Client;
+using Innkeep2.Services.Extensions;
 
 namespace Innkeep2.Client.Extensions;
 
@@ -20,6 +21,9 @@ public static class ServiceCollectionExtensions
         
         services.AddSingleton<ClientCartService>();
         services.AddSingleton<ClientTransactionService>();
+        
+        services.AddSunServices();
+        
         services.AddSingleton<ClientStartupService>();
     }
     

@@ -10,6 +10,7 @@ using Innkeep2.Requests.Pretix;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
+using Innkeep2.Services.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
 
 		services.AddSingleton<ApiKeyValidationService>();
 		services.AddOrderServices();
+		services.AddSunServices();
 	}
 
 	public static void RegisterDatabaseServices(this IServiceCollection services)

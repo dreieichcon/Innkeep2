@@ -3,6 +3,7 @@ using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
 using Innkeep2.Services.Cloud;
+using Innkeep2.Services.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -109,5 +110,8 @@ app.MapGroup("/")
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
+var darkModeService = app.Services.GetRequiredService<DarkModeService>();
+Task.Run(async() => await darkModeService.StartPollingAsync(CancellationToken.None));
 
 await app.RunAsync();

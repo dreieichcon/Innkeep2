@@ -1,5 +1,6 @@
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Services.Server;
+using Innkeep2.Services.Shared;
 using Serilog;
 
 namespace Innkeep2.Server.Services;
@@ -7,10 +8,13 @@ namespace Innkeep2.Server.Services;
 public class ServerStartupService(
     CloudAuthClient authClient,
     ServerEventProvider eventProvider,
-    ServerSalesItemProvider salesItemProvider)
+    ServerSalesItemProvider salesItemProvider,
+    DarkModeService darkModeService)
 {
     public async Task<bool> RunAsync(CancellationToken ct = default)
     {
+        Task.Run(async () => await darkModeService.StartPollingAsync(ct));
+        
         Log.Debug("Authenticating against Innkeep2.Cloud");
         var authStatus = await authClient.CheckAsync(ct);
 

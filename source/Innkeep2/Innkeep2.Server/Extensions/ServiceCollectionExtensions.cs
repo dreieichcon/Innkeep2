@@ -6,6 +6,7 @@ using Innkeep2.Requests.Cloud.Auth;
 using Innkeep2.Server.Queue;
 using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
+using Innkeep2.Services.Extensions;
 using Innkeep2.Services.Server;
 
 namespace Innkeep2.Server.Extensions;
@@ -22,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddCloudCaches();
         
         services.RegisterServerDatabase();
+        services.AddSunServices();
         
         services.AddSingleton<ServerStartupService>();
     }

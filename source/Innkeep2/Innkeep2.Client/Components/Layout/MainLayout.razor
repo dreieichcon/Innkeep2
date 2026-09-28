@@ -1,17 +1,15 @@
 ﻿@using Innkeep2.Client.Components.Controls
+@using Innkeep2.Ui.Shared.Layout
 @inherits LayoutComponentBase
 
-<MudThemeProvider/>
-<MudPopoverProvider/>
-<MudDialogProvider MaxWidth="MaxWidth.ExtraLarge" FullWidth="true" BackdropClick="false" BackgroundClass="dialog-backdrop"/>
-<MudSnackbarProvider/>
-
-<MudLayout>
-    <AppBar/>
-    <MudMainContent Class="h-100 w-100 d-flex">
+<ClientLayout>
+    <TopContent>
+        <AppBar/>
+    </TopContent>
+    <MainContent>
         @Body
-    </MudMainContent>
-</MudLayout>
+    </MainContent>
+</ClientLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

@@ -1,8 +1,9 @@
+@using Innkeep2.Services.Shared
 @using Innkeep2.Ui.Shared.Theme
 @using MudBlazor
 @inherits LayoutComponentBase
 
-<MudThemeProvider Theme="@InnkeepTheme.Theme" IsDarkMode="@IsDarkMode" />
+<MudThemeProvider Theme="@InnkeepTheme.Theme" IsDarkMode="@DarkModeService.IsDarkMode" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
@@ -23,8 +24,6 @@
 
 @code{
     
-    private bool IsDarkMode = true;
-    
     [Parameter]
     public RenderFragment? MainContent { get; set; }
     
@@ -39,5 +38,16 @@
     
     [Parameter]
     public EventCallback<bool> IsDrawerOpenChanged { get; set; }
+    
+    [Inject]
+    public DarkModeService DarkModeService { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        DarkModeService.Changed += OnDarkModeChanged;
+    }
+
+    private void OnDarkModeChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
 
 }
