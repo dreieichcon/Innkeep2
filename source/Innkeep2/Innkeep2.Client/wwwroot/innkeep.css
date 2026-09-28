@@ -5,9 +5,7 @@
     --bottom-height: 23%;
 }
 
-.innkeep-app-bar {
 
-}
 
 .innkeep-status-bar {
     top: var(--app-bar-height) !important;

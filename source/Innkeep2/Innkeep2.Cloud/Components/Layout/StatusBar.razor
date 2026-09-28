@@ -3,93 +3,90 @@
 @using Innkeep2.Models.Fiskaly.Tss
 @using Innkeep2.Services.Cloud
 @using Innkeep2.Services.Cloud.Fiskaly
+@using Innkeep2.Ui.Shared.Layout
 @using Microsoft.AspNetCore.Components.Authorization
 
-<MudAppBar Elevation="1" Dense="true" Class="innkeep-status-bar">
-    <AuthorizeView Roles="innkeep2-admin">
-        <MudStack Row="true" Class="w-100" Justify="Justify.SpaceEvenly">
-            <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary" Typo="Typo.body2">
-                    Veranstalter:
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    @(ActiveConfiguration.Organizer?.Name ?? "n.A.")
-                </MudText>
-            </MudStack>
-            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
-            <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary" Typo="Typo.body2">
-                    Veranstaltung:
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    @(ActiveConfiguration.Event?.Name ?? "n.A.")
-                </MudText>
-            </MudStack>
-            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
-            <MudStack Row="true" Spacing="2">
-                <MudStack Row="true" Spacing="1">
-                    <MudText Color="Color.Primary" Typo="Typo.body2">
-                        TSS:
-                    </MudText>
-                    <MudText Typo="Typo.body2">
-                        @if (ActiveConfiguration.Tss != null)
-                        {
-                            @($"{ActiveConfiguration.Tss.DisplayName} {AuthStatus()}")
-                        }
-                        else
-                        {
-                            @("n.A.")
-                        }
-                    </MudText>
-                </MudStack>
-                <MudStack Row="true" Spacing="1">
-                    <MudText Color="Color.Primary" Typo="Typo.body2">
-                        PIN:
-                    </MudText>
-                    <MudIcon Icon="@PinStatus()" Size="Size.Small"/>
-                </MudStack>
-                <MudStack Row="true" Spacing="1" Typo="Typo.body2">
-                    <MudText Color="Color.Primary" Typo="Typo.body2">
-                        PUK:
-                    </MudText>
-                    <MudIcon Icon="@PukStatus()" Size="Size.Small"/>
-                </MudStack>
-            </MudStack>
-            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
-            <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary" Typo="Typo.body2">
-                    Client:
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    @if (ActiveConfiguration.Client != null)
-                    {
-                        @($"{ActiveConfiguration.Client.DisplayName}")
-                    }
-                    else
-                    {
-                        @("n.A.")
-                    }
-                </MudText>
-            </MudStack>
-            <MudDivider Vertical="true" FlexItem="true" Light="true"/>
-            <MudStack Row="true" Spacing="1">
-                <MudText Color="Color.Primary" Typo="Typo.body2">
-                    Db:
-                </MudText>
-                <MudText Typo="Typo.body2">
-                    @if (ActiveConfiguration.OrderDatabasePath != null)
-                    {
-                        @($"{ActiveConfiguration.OrderDatabasePath}")
-                    }
-                    else
-                    {
-                        @("n.A.")
-                    }
-                </MudText>
-            </MudStack>
+<SubStatusBar Authorize="true">
+    <MudStack Row="true" Spacing="1">
+        <MudText Color="Color.Primary" Typo="Typo.body2">
+            Veranstalter:
+        </MudText>
+        <MudText Typo="Typo.body2">
+            @(ActiveConfiguration.Organizer?.Name ?? "n.A.")
+        </MudText>
+    </MudStack>
+    <MudDivider Vertical="true" FlexItem="true" Light="true"/>
+    <MudStack Row="true" Spacing="1">
+        <MudText Color="Color.Primary" Typo="Typo.body2">
+            Veranstaltung:
+        </MudText>
+        <MudText Typo="Typo.body2">
+            @(ActiveConfiguration.Event?.Name ?? "n.A.")
+        </MudText>
+    </MudStack>
+    <MudDivider Vertical="true" FlexItem="true" Light="true"/>
+    <MudStack Row="true" Spacing="2">
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary" Typo="Typo.body2">
+                TSS:
+            </MudText>
+            <MudText Typo="Typo.body2">
+                @if (ActiveConfiguration.Tss != null)
+                {
+                    @($"{ActiveConfiguration.Tss.DisplayName} {AuthStatus()}")
+                }
+                else
+                {
+                    @("n.A.")
+                }
+            </MudText>
         </MudStack>
-    </AuthorizeView>
-</MudAppBar>
+        <MudStack Row="true" Spacing="1">
+            <MudText Color="Color.Primary" Typo="Typo.body2">
+                PIN:
+            </MudText>
+            <MudIcon Icon="@PinStatus()" Size="Size.Small"/>
+        </MudStack>
+        <MudStack Row="true" Spacing="1" Typo="Typo.body2">
+            <MudText Color="Color.Primary" Typo="Typo.body2">
+                PUK:
+            </MudText>
+            <MudIcon Icon="@PukStatus()" Size="Size.Small"/>
+        </MudStack>
+    </MudStack>
+    <MudDivider Vertical="true" FlexItem="true" Light="true"/>
+    <MudStack Row="true" Spacing="1">
+        <MudText Color="Color.Primary" Typo="Typo.body2">
+            Client:
+        </MudText>
+        <MudText Typo="Typo.body2">
+            @if (ActiveConfiguration.Client != null)
+            {
+                @($"{ActiveConfiguration.Client.DisplayName}")
+            }
+            else
+            {
+                @("n.A.")
+            }
+        </MudText>
+    </MudStack>
+    <MudDivider Vertical="true" FlexItem="true" Light="true"/>
+    <MudStack Row="true" Spacing="1">
+        <MudText Color="Color.Primary" Typo="Typo.body2">
+            Db:
+        </MudText>
+        <MudText Typo="Typo.body2">
+            @if (ActiveConfiguration.OrderDatabasePath != null)
+            {
+                @($"{ActiveConfiguration.OrderDatabasePath}")
+            }
+            else
+            {
+                @("n.A.")
+            }
+        </MudText>
+    </MudStack>
+</SubStatusBar>
 
 @code {
 
@@ -111,7 +108,7 @@
 
         return Icons.Material.Outlined.Lock;
     }
-    
+
     private string? PinStatus()
     {
         if (ActiveTss is null)

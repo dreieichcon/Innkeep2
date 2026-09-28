@@ -1,18 +1,23 @@
 @using MudBlazor
-<MudItem xs="@Xs">
-    <MudPaper Class="p-2">
-        <MudStack>
+<MudItem xs="@Xs" Class="@ItemClass">
+    <MudPaper Class="@PaperClass">
+        <MudStack Class="@StackClass">
             @ChildContent
         </MudStack>
     </MudPaper>
 </MudItem>
 
 @code {
-
-    [Parameter]
-    public int Xs { get; set; } = 12;
-
-    [Parameter]
-    public RenderFragment? ChildContent { get; set; }
+    [Parameter] 
+    public int Xs { get; set; }
     
+    [Parameter] 
+    public bool FullHeight { get; set; }
+    
+    [Parameter] 
+    public RenderFragment? ChildContent { get; set; }
+
+    private string? ItemClass => FullHeight ? "h-100" : null;
+    private string PaperClass => FullHeight ? "p-2 h-100 overflow-hidden" : "p-2";
+    private string? StackClass => FullHeight ? "h-100" : null;
 }

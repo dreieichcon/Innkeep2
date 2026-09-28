@@ -1,0 +1,38 @@
+:root{
+    --app-bar-height: 48px;
+}
+
+html, body{
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden;
+}
+
+.innkeep-status-bar{
+    top: var(--app-bar-height) !important;
+    color: var(--mud-palette-text) !important;
+    background-color: var(--mud-palette-background) !important;
+}
+
+.config-page {
+    height: calc(100vh - 3 * var(--app-bar-height));
+    min-height: 0;
+}
+
+.fill-remaining {
+    flex: 1 1 0;
+    min-height: 0;
+    align-content: flex-start;
+}
+
+.limit-height{
+    max-height: 100% !important;
+}
+
+.management-layout .mud-main-content {
+    padding-top: calc(2 * var(--app-bar-height)) !important;
+}
+
+.management-layout .mud-drawer {
+    top: calc(2 * var(--app-bar-height)) !important;
+}

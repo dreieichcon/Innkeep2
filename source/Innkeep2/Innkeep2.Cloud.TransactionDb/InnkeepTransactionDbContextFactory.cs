@@ -14,7 +14,11 @@ public sealed class InnkeepTransactionDbContextFactory(IActiveConfigurationServi
         var options = new DbContextOptionsBuilder<InnkeepTransactionDbContext>()
             .UseSqlite($"Data Source={path}")
             .Options;
+        
+        var context = new InnkeepTransactionDbContext(options);
+        
+        context.Database.Migrate();
 
-        return new InnkeepTransactionDbContext(options);
+        return context;
     }
 }

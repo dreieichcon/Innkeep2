@@ -8,8 +8,9 @@
 @using Microsoft.EntityFrameworkCore
 
 <ConfigPage Title="Bestellungen: Übersicht" GridClass="w-100">
-    <PaperItem Xs="9">
+    <PaperItem Xs="9" FullHeight="true">
         <MudDataGrid T="Transaction" ServerData="ServerData" RowsPerPage="50" Dense="false"
+                     FixedHeader="true" Height="100%" Class="h-100 d-flex flex-column"
                      RowClick="e => SelectedTransaction = e.Item">
             <PagerContent>
                 <MudDataGridPager/>
@@ -59,7 +60,7 @@
 
        var total = await query.CountAsync(ct);
        var items = await query.Skip(state.Page * state.PageSize).Take(state.PageSize).ToListAsync(ct);
-
+       
        return new GridData<Transaction>
        {
           Items = items,

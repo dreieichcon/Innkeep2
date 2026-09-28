@@ -1,24 +1,18 @@
-﻿@inherits LayoutComponentBase
+﻿@using Innkeep2.Ui.Shared.Layout
+@inherits LayoutComponentBase
 
-<MudThemeProvider />
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
-
-<MudLayout>
-    <AppBar @bind-DrawerOpen="_drawerOpen"/>
-    <StatusBar/>
-    <MudDrawer Open="_drawerOpen" ClipMode="DrawerClipMode.Always">
+<ManagementLayout>
+    <TopContent>
+        <AppBar @bind-DrawerOpen="_drawerOpen"/>
+        <StatusBar/>
+    </TopContent>
+    <DrawerContent>
         <Navbar/>
-    </MudDrawer>
-    <MudMainContent>
-        <div class="main-content">
-            <MudStack Class="p-3">
-                @Body
-            </MudStack>
-        </div>
-    </MudMainContent>
-</MudLayout>
+    </DrawerContent>
+    <MainContent>
+        @Body
+    </MainContent>
+</ManagementLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

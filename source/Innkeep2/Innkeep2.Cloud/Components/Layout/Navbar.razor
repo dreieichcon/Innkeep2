@@ -2,10 +2,12 @@
 
 <AuthorizeView Roles="innkeep2-admin">
     <MudNavMenu>
-        <MudNavLink Href="/SalesItems">Sales Items</MudNavLink>
         <MudNavGroup Title="Bestellungen" Icon="@Icons.Material.Outlined.AttachMoney" Expanded="true">
             <MudNavLink Href="/Transactions/Dashboard">Dashboard</MudNavLink>
             <MudNavLink Href="/Transactions/Overview">Übersicht</MudNavLink>
+        </MudNavGroup>
+        <MudNavGroup Title="Veranstaltung" Icon="@Icons.Material.Outlined.Business" Expanded="true">
+            <MudNavLink Href="/SalesItems">Produkte</MudNavLink>
         </MudNavGroup>
         <MudNavGroup Title="Config" Icon="@Icons.Material.Outlined.Settings" Expanded="true">
             <MudNavLink Href="/Config/Api">Api Config</MudNavLink>

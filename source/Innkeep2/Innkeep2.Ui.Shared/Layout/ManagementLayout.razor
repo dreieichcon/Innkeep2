@@ -1,0 +1,39 @@
+@using Innkeep2.Ui.Shared.Theme
+@using MudBlazor
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@InnkeepTheme.Theme" IsDarkMode="@IsDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Class="management-layout">
+    @TopContent
+    <MudDrawer Open="_drawerOpen" ClipMode="DrawerClipMode.Always">
+        @DrawerContent
+    </MudDrawer>
+    <MudMainContent>
+        <div class="main-content">
+            <MudStack Class="p-3">
+                @MainContent
+            </MudStack>
+        </div>
+    </MudMainContent>
+</MudLayout>
+
+@code{
+
+    private bool _drawerOpen = true;
+
+    private bool IsDarkMode = true;
+    
+    [Parameter]
+    public RenderFragment? MainContent { get; set; }
+    
+    [Parameter]
+    public RenderFragment? TopContent { get; set; }
+    
+    [Parameter]
+    public RenderFragment? DrawerContent { get; set; }
+
+}

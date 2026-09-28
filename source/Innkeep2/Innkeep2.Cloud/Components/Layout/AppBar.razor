@@ -1,4 +1,5 @@
 @using Microsoft.AspNetCore.Components.Authorization
+
 <MudAppBar Elevation="1" Dense="true" Class="innkeep-app-bar">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@(() => DrawerOpen = !DrawerOpen)"/>
     <MudText Typo="Typo.h5" Class="ml-3">Innkeep2</MudText>
@@ -8,7 +9,7 @@
             <MudStack Row="true" Spacing="5" Justify="Justify.Center" AlignItems="AlignItems.Center">
                 <MudStack Row="true" Spacing="0" Justify="Justify.Center" AlignItems="AlignItems.Center">
                     <MudIcon Icon="@Icons.Material.Filled.Person"></MudIcon>
-                    <MudText Typo="Typo.body1" Class="ml-3">
+                    <MudText Typo="Typo.body1" Class="ml-3" Color="Color.Inherit">
                         @(
                         context.User.FindFirst("preferred_username")
                             ?.Value ?? context.User.Identity?.Name
