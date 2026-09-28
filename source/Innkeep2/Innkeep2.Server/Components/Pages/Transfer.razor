@@ -5,17 +5,19 @@
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
-<ListPage Title="Geld Buchen">
-    <PaperItem Xs="12">
-        <MudStack Spacing="3" Style="max-width: 400px;">
+<ListPage Title="Geld Buchen" MainContentSize="4">
+    <PaperItem Xs="4">
+        <MudStack Spacing="3" Class="p-2">
             <MudToggleGroup T="bool" @bind-Value="_isInbound">
                 <MudToggleItem Value="true" Text="Einzahlung"/>
                 <MudToggleItem Value="false" Text="Auszahlung"/>
             </MudToggleGroup>
 
-            <MudNumericField T="decimal" @bind-Value="_amount" Label="Betrag" Variant="Variant.Outlined" Min="0" Format="N2"/>
+            <MudNumericField T="decimal" @bind-Value="_amount" Label="Betrag" Variant="Variant.Outlined" Min="0"
+                             Format="N2"/>
 
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_amount <= 0 || _isBusy)" OnClick="SubmitAsync">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_amount <= 0 || _isBusy)"
+                       OnClick="SubmitAsync">
                 Buchen
             </MudButton>
         </MudStack>

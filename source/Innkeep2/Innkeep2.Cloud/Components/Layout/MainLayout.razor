@@ -1,7 +1,7 @@
 ﻿@using Innkeep2.Ui.Shared.Layout
 @inherits LayoutComponentBase
 
-<ManagementLayout>
+<ManagementLayout @bind-IsDrawerOpen="_drawerOpen">
     <TopContent>
         <AppBar @bind-DrawerOpen="_drawerOpen"/>
         <StatusBar/>

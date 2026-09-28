@@ -9,7 +9,7 @@
 
 <MudLayout Class="management-layout">
     @TopContent
-    <MudDrawer Open="_drawerOpen" ClipMode="DrawerClipMode.Always">
+    <MudDrawer Open="@IsDrawerOpen" ClipMode="DrawerClipMode.Always">
         @DrawerContent
     </MudDrawer>
     <MudMainContent>
@@ -22,9 +22,7 @@
 </MudLayout>
 
 @code{
-
-    private bool _drawerOpen = true;
-
+    
     private bool IsDarkMode = true;
     
     [Parameter]
@@ -35,5 +33,11 @@
     
     [Parameter]
     public RenderFragment? DrawerContent { get; set; }
+    
+    [Parameter]
+    public bool IsDrawerOpen { get; set; }
+    
+    [Parameter]
+    public EventCallback<bool> IsDrawerOpenChanged { get; set; }
 
 }

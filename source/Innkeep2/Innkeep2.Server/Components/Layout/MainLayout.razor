@@ -1,29 +1,24 @@
-﻿@using MudBlazor
+﻿@using Innkeep2.Ui.Shared.Layout
+@using MudBlazor
 @inherits LayoutComponentBase
 
-<MudThemeProvider/>
-<MudPopoverProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
 
-<MudLayout>
-    <MudAppBar Elevation="1" Dense="true" Class="innkeep-app-bar">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
-                       OnClick="@(() => _drawerOpen = !_drawerOpen)"/>
-        <MudText Typo="Typo.h5" Class="ml-3">Innkeep2.Server</MudText>
-    </MudAppBar>
-    <StatusBar/>
-    <MudDrawer Open="_drawerOpen" ClipMode="DrawerClipMode.Always">
+<ManagementLayout @bind-IsDrawerOpen="_drawerOpen">
+    <TopContent>
+        <MudAppBar Elevation="1" Dense="true" Class="innkeep-app-bar">
+            <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                           OnClick="@(() => _drawerOpen = !_drawerOpen)"/>
+            <MudText Typo="Typo.h5" Class="ml-3">Innkeep2.Server</MudText>
+        </MudAppBar>
+        <StatusBar/>
+    </TopContent>
+    <DrawerContent>
         <NavMenu/>
-    </MudDrawer>
-    <MudMainContent>
-        <div class="main-content">
-            <MudStack Class="p-3">
-                @Body
-            </MudStack>
-        </div>
-    </MudMainContent>
-</MudLayout>
+    </DrawerContent>
+    <MainContent>
+        @Body
+    </MainContent>
+</ManagementLayout>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.

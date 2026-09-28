@@ -1,17 +1,15 @@
 @using MudBlazor
 
-<MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
-    <MudGrid Class="@GridClass" Justify="Justify.Center">
-        <MudItem xs="@MainContentSize">
-            <MudPaper Class="p-2">
-                <MudText Typo="Typo.h4">
-                    @Title
-                </MudText>
-                <MudText Typo="Typo.h6">
-                    @SubTitle
-                </MudText>
-            </MudPaper>
-        </MudItem>
+<MudStack Class="w-100 config-page" AlignItems="AlignItems.Center">
+    <MudPaper Class="@($"p-2 {GridClass}")">
+        <MudText Typo="Typo.h4">
+            @Title
+        </MudText>
+        <MudText Typo="Typo.h6">
+            @SubTitle
+        </MudText>
+    </MudPaper>
+    <MudGrid Class="@($"{GridClass} fill-remaining")" Justify="Justify.Center">
         @ChildContent
     </MudGrid>
 </MudStack>
