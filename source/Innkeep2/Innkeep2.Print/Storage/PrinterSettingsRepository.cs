@@ -14,7 +14,7 @@ public sealed class PrinterSettingsRepository(string databasePath)
         if (settings is not null)
             return settings;
 
-        settings = new PrinterSettings { VendorId = 0x04B8, ProductId = 0x0202 };
+        settings = new PrinterSettings { IpAddress = "", Port = 9100 };
         collection.Insert(settings);
 
         return settings;

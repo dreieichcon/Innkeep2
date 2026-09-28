@@ -2,7 +2,8 @@
 @using Innkeep2.Requests.Cloud
 @using Innkeep2.Models.Internal.Receipt
 @using Innkeep2.Models.Shared
-@using Innkeep2.Requests.Client
+@using Innkeep2.Print.Formatter
+@using Innkeep2.Print.Printer
 @using Innkeep2.Ui.Shared.Components.Core
 @using Innkeep2.Ui.Shared.Components.Receipt
 @using MudBlazor
@@ -34,11 +35,11 @@
 
                 <MudStack Row="true" Spacing="2">
                     <MudButton Color="Color.Error"
-                               Disabled="@(Receipt.TransactionType != TransactionType.Sale || Receipt.IsRefunded || _isBusy)"
+                               Disabled="@(Receipt.TransactionType != TransactionType.Sale || Receipt.IsRefunded)"
                                OnClick="@CancelOrderAsync">
                         Storno
                     </MudButton>
-                    <MudButton Color="Color.Primary" Disabled="@_isBusy" OnClick="@ReprintAsync">
+                    <MudButton Color="Color.Primary" OnClick="@ReprintAsync">
                         Erneut Drucken
                     </MudButton>
                     <MudButton OnClick="@(() => Navigation.NavigateTo("/Transactions/Overview", true))">
@@ -65,7 +66,7 @@
     public CloudTransactionClient TransactionClient { get; set; } = null!;
 
     [Inject]
-    public ClientPrintClient PrintClient { get; set; } = null!;
+    public NetworkPrinterService PrinterService { get; set; } = null!;
 
     [Inject]
     public NavigationManager Navigation { get; set; } = null!;
@@ -77,7 +78,6 @@
     public IDialogService DialogService { get; set; } = null!;
 
     private TransactionReceipt? Receipt { get; set; }
-    private bool _isBusy;
     
     protected override async Task OnParametersSetAsync()
     {
@@ -97,20 +97,27 @@
         if (confirmed is not true)
             return;
 
-        _isBusy = true;
-
         var result = await TransactionClient.RefundAsync(RequestId);
 
-        if (result.IsSuccess)
-        {
-            Snackbar.Add("Bestellung storniert", Severity.Success);
-            Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
-        }
-        else
+        if (!result.IsSuccess)
         {
             Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
-            _isBusy = false;
+            return;
         }
+
+        Snackbar.Add("Bestellung storniert", Severity.Success);
+
+        try
+        {
+            var bytes = ReceiptDocumentBuilder.Build(result.Value!);
+            await Task.Run(() => PrinterService.Print(bytes));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Druckfehler: {ex.Message}", Severity.Error);
+        }
+
+        Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
     }
 
     private async Task ReprintAsync()
@@ -118,13 +125,16 @@
         if (Receipt is null)
             return;
 
-        _isBusy = true;
-
-        var result = await PrintClient.PrintReceiptAsync(Receipt with { IsCopy = true });
-
-        Snackbar.Add(result.IsSuccess ? "An Drucker gesendet" : $"Fehler: {result.Error!.Message}", result.IsSuccess ? Severity.Error : Severity.Success);
-
-        _isBusy = false;
+        try
+        {
+            var bytes = ReceiptDocumentBuilder.Build(Receipt with { IsCopy = true });
+            await Task.Run(() => PrinterService.Print(bytes));
+            Snackbar.Add("An Drucker gesendet", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+        }
     }
 
 }

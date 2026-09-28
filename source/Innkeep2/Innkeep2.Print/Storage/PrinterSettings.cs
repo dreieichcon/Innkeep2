@@ -7,6 +7,6 @@ public sealed record PrinterSettings
     [BsonId]
     public int Id { get; init; } = 1;
 
-    public required int VendorId { get; set; }
-    public required int ProductId { get; set; }
+    public required string IpAddress { get; set; }
+    public int Port { get; set; } = 9100;
 }

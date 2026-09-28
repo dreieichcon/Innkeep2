@@ -7,15 +7,15 @@ using Innkeep2.Print.Storage;
 namespace Innkeep2.Printer.Tests;
 
 [TestClass]
-public class ReceiptPrinterTests
+public class NetworkPrinterIntegrationTests
 {
-    // Adjust to the actual VID/PID of the connected printer for local testing.
-    private const int TestVendorId = 0x04B8;
-    private const int TestProductId = 0x0202;
+    // Adjust to the printer's actual IP address for local testing.
+    private const string TestIpAddress = "192.168.1.100";
+    private const int TestPort = 9100;
 
     private static string _dbPath = null!;
     private static PrinterSettingsRepository _repository = null!;
-    private static UsbPrinterService _printerService = null!;
+    private static NetworkPrinterService _printerService = null!;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context)
@@ -23,9 +23,9 @@ public class ReceiptPrinterTests
         _dbPath = Path.Combine(Path.GetTempPath(), $"printertest-{Guid.NewGuid()}.db");
 
         _repository = new PrinterSettingsRepository(_dbPath);
-        _repository.Save(new PrinterSettings { VendorId = TestVendorId, ProductId = TestProductId });
+        _repository.Save(new PrinterSettings { IpAddress = TestIpAddress, Port = TestPort });
 
-        _printerService = new UsbPrinterService(_repository);
+        _printerService = new NetworkPrinterService(_repository);
     }
 
     [ClassCleanup]

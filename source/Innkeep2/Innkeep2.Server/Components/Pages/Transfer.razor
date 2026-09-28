@@ -1,7 +1,8 @@
 @page "/Transactions/Transfer"
 @using Innkeep2.Requests.Cloud
-@using Innkeep2.Requests.Client
 @using Innkeep2.Models.Internal
+@using Innkeep2.Print.Formatter
+@using Innkeep2.Print.Printer
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
@@ -16,7 +17,7 @@
             <MudNumericField T="decimal" @bind-Value="_amount" Label="Betrag" Variant="Variant.Outlined" Min="0"
                              Format="N2"/>
 
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_amount <= 0 || _isBusy)"
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_amount <= 0)"
                        OnClick="SubmitAsync">
                 Buchen
             </MudButton>
@@ -30,7 +31,7 @@
     public CloudTransactionClient TransactionClient { get; set; } = null!;
 
     [Inject]
-    public ClientPrintClient PrintClient { get; set; } = null!;
+    public NetworkPrinterService PrinterService { get; set; } = null!;
 
     [Inject]
     public NavigationManager Navigation { get; set; } = null!;
@@ -40,12 +41,9 @@
 
     private bool _isInbound = true;
     private decimal _amount;
-    private bool _isBusy;
 
     private async Task SubmitAsync()
     {
-        _isBusy = true;
-
         var request = new TransferRequest
         {
             RequestId = Guid.NewGuid(),
@@ -58,13 +56,20 @@
         if (!result.IsSuccess)
         {
             Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
-            _isBusy = false;
             return;
         }
 
         Snackbar.Add("Buchung erfolgreich", Severity.Success);
 
-        await PrintClient.PrintReceiptAsync(result.Value!);
+        try
+        {
+            var bytes = ReceiptDocumentBuilder.Build(result.Value!);
+            await Task.Run(() => PrinterService.Print(bytes));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Druckfehler: {ex.Message}", Severity.Error);
+        }
 
         Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
     }

@@ -56,6 +56,6 @@ public static class ServiceCollectionExtensions
         const string databasePath = "./db/printerconfig.db";
 
         services.AddSingleton(new PrinterSettingsRepository(databasePath));
-        services.AddSingleton<UsbPrinterService>();
+        services.AddSingleton<NetworkPrinterService>();
     }
 }
