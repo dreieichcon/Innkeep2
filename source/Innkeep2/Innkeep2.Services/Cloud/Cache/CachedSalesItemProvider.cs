@@ -33,6 +33,7 @@ public sealed class CachedSalesItemProvider(
 
 		var items = itemsResult.Value!.Results
 			.Where(x => x.AllSalesChannels || x.LimitSalesChannels.Contains("pretixpos"))
+			.Where(x => x.Active)
 			.SelectMany(SalesItem.FromPretix)
 			.ToList();
 
