@@ -15,7 +15,6 @@ public static class ServiceCollectionExtensions
 {
     public static void RegisterServerServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddClientCredential(configuration);
         services.AddCloudCredential(configuration);
         services.AddCloudClients();
         services.RegisterPrinterServices();
@@ -32,14 +31,6 @@ public static class ServiceCollectionExtensions
     {
         var credential = configuration.GetSection("Cloud").Get<CloudCredential>()
                          ?? throw new InvalidOperationException("Missing 'Cloud' section in configuration.");
-
-        services.AddSingleton(credential);
-    }
-    
-    public static void AddClientCredential(this IServiceCollection services, IConfiguration configuration)
-    {
-        var credential = configuration.GetSection("Client").Get<ClientCredential>()
-                         ?? throw new InvalidOperationException("Missing 'Client' section in configuration.");
 
         services.AddSingleton(credential);
     }
