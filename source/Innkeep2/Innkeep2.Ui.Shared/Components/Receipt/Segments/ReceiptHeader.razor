@@ -1,0 +1,28 @@
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Print.Formatter
+@using MudBlazor
+
+<div class="whitespace double center">@Receipt.Title</div>
+
+@foreach (var line in Receipt.Header.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+{
+    <div class="whitespace center">@line</div>
+}
+
+<MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+
+<div class="whitespace plusfifty">@ReceiptFormatter.FormatReceiptTypeLabel(Receipt)</div>
+
+@foreach (var line in ReceiptFormatter.FormatSubheading(Receipt))
+{
+    <div class="whitespace center">@line</div>
+}
+
+<MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public required TransactionReceipt Receipt { get; set; }
+
+}

@@ -1,5 +1,8 @@
 @using Innkeep2.Client.Components.Dialogs
 @using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Models.Shared
+@using Innkeep2.Print.Formatter
+@using Innkeep2.Print.Printer
 @using Innkeep2.Services.Client
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton 
@@ -28,6 +31,9 @@
     public ClientCartService ClientCartService { get; set; } = null!;
     
     [Inject]
+    public NetworkPrinterService NetworkPrinterService { get; set; } = null!;
+    
+    [Inject]
     public ISnackbar Snackbar { get; set; } = null!;
 
     private bool TransactionDisabled => !TransactionService.EnoughGiven;
@@ -45,6 +51,19 @@
         {
             Snackbar.Add(transactionReceipt.Error!.Message, Severity.Error);
             return;
+        }
+
+        if (transactionReceipt.Value is not { } receipt)
+            return;
+        
+        if (receipt.Vouchers.Any())
+        {
+            NetworkPrinterService.Print(ReceiptDocumentBuilder.Build(receipt));
+        }
+
+        if (receipt.PaymentType == PaymentType.Cash)
+        {
+            NetworkPrinterService.OpenDrawer();
         }
         
         var parameters = new DialogParameters<PaymentCompleteDialog>()

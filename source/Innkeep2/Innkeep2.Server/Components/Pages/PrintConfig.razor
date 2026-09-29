@@ -1,12 +1,10 @@
-@page "/Config/Print"
-
 @page "/Config/Printer"
 @using Innkeep2.Print.Printer
 @using Innkeep2.Print.Storage
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
-<ConfigPage Title="Drucker Einstellungen">
+<ListPage Title="Drucker Einstellungen">
     <PaperItem Xs="12">
         <MudStack Spacing="3" Style="max-width: 400px;">
             <MudTextField T="string" @bind-Value="_ipAddress" Label="IP-Adresse" Variant="Variant.Outlined"/>
@@ -21,7 +19,7 @@
             </MudStack>
         </MudStack>
     </PaperItem>
-</ConfigPage>
+</ListPage>
 
 @code {
 

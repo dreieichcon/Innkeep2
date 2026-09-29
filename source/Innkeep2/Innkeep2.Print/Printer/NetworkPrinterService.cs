@@ -26,7 +26,7 @@ public sealed class NetworkPrinterService(PrinterSettingsRepository settingsRepo
             .AddTitle("Testdruck")
             .AddLine(new string('-', 42))
             .AddLine("Drucker erfolgreich verbunden.")
-            .AddEmptyLine()
+            .AddEmptyLines(10)
             .Cut();
 
         Print(builder.GetBytes());

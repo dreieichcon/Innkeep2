@@ -55,7 +55,7 @@
 @code {
 
     [CascadingParameter]
-    private IMudDialogInstance MudDialog { get; set; }
+    private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter]
     public required TransactionReceipt TransactionReceipt { get; set; }

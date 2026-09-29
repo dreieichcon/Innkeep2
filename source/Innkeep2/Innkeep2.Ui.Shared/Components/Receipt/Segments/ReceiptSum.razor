@@ -1,0 +1,15 @@
+@using Innkeep2.Models.Internal.Receipt
+@using Innkeep2.Print.Formatter
+@using MudBlazor
+
+@foreach (var line in ReceiptFormatter.FormatSum(Receipt))
+{
+    <div class="whitespace center">@line</div>
+}
+
+<MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+
+@code {
+    [Parameter, EditorRequired]
+    public required TransactionReceipt Receipt { get; set; }
+}

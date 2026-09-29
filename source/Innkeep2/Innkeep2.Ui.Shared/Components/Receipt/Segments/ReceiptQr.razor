@@ -1,0 +1,21 @@
+@using Innkeep2.Models.Internal.Receipt
+@using QRCoder
+
+@if (Receipt.HasFiskalyQrCode)
+{
+    <div class="d-flex justify-center my-2">
+        @((MarkupString)BuildQrSvg(Receipt.FiskalyQrCode!))
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public required TransactionReceipt Receipt { get; set; }
+
+    private static string BuildQrSvg(string content)
+    {
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M);
+        return new SvgQRCode(data).GetGraphic(5);
+    }
+}

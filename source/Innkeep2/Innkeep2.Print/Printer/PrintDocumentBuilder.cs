@@ -68,6 +68,26 @@ public sealed class PrintDocumentBuilder
        return this;
     }
 
+    public PrintDocumentBuilder PartialCut()
+    {
+       for (var i = 0; i < 5; i++)
+          Append(Commands.LF);
+
+       Append(Commands.PaperCut);
+       return this;
+    }
+    
+    public PrintDocumentBuilder AddEmphasizedLine(string text, Justification justification = Justification.Center)
+    {
+       Append(Commands.SelectJustification(justification));
+       Append(Commands.SelectCharSize(CharSizeWidth.Normal, CharSizeHeight.Double));
+       Append(text);
+       Append(Commands.SelectCharSize(CharSizeWidth.Normal, CharSizeHeight.Normal));
+       Append(Commands.LF);
+       Append(Commands.SelectJustification(Justification.Left));
+       return this;
+    }
+
     public PrintDocumentBuilder OpenDrawer()
     {
        Append(Commands.OpenDrawer);

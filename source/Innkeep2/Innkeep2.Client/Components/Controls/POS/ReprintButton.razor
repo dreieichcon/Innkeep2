@@ -1,10 +1,12 @@
+@using Innkeep2.Print.Formatter
+@using Innkeep2.Print.Printer
 @using Innkeep2.Services.Client
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton
         Variant="Variant.Outlined"
         Color="Color.Secondary"
         Class="h-100 w-100"
-        @onclick=""
+        @onclick="ReprintAsync"
         Disabled="@(TransactionService.LastReceipt is null)">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
             <MudIcon Icon="@Icons.Material.Filled.Print" Size="Size.Large"/>
@@ -20,10 +22,37 @@
     [Inject]
     public ClientTransactionService TransactionService { get; set; } = null!;
 
-    protected override async Task OnInitializedAsync()
+    [Inject]
+    public NetworkPrinterService PrinterService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    protected override void OnInitialized()
     {
-        TransactionService.Changed += async (_, _) => await InvokeAsync(StateHasChanged);
+        TransactionService.Changed += OnTransactionChanged;
     }
+
+    private void OnTransactionChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    private async Task ReprintAsync()
+    {
+        if (TransactionService.LastReceipt is not { } receipt)
+            return;
+
+        try
+        {
+            var bytes = ReceiptDocumentBuilder.Build(receipt with { IsCopy = true });
+            await Task.Run(() => PrinterService.Print(bytes));
+            Snackbar.Add("An Drucker gesendet", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+        }
+    }
+
     
 
 }

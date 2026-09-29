@@ -1,8 +1,7 @@
 @using Innkeep2.Models.Internal.Receipt
-@using Innkeep2.Print
-@using Innkeep2.Print.Formatter
+@using Innkeep2.Models.Shared
+@using Innkeep2.Ui.Shared.Components.Receipt.Segments
 @using MudBlazor
-@using QRCoder
 @preservewhitespace true
 
 <style>
@@ -33,74 +32,50 @@
       justify-content: center;
       box-sizing: border-box;
    }
-   
-   .receipt-wrapper{
+
+   .receipt-wrapper {
       font-size: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
+       overflow-y: scroll;
+       overflow-x: hidden;
+       max-height: 80vh !important;
    }
-
 
 </style>
 
 <MudPaper Class="receipt-wrapper" Elevation="0">
-   <div class="receipt border">
-      <div class="whitespace double center">@Receipt.Title</div>
-      @foreach (var line in Receipt.Header.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
-      {
-         <div class="whitespace center">@line</div>
-      }
-      <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
-      <div class="whitespace plusfifty">@ReceiptFormatter.FormatReceiptTypeLabel(Receipt)</div>
-      @foreach (var line in ReceiptFormatter.FormatSubheading(Receipt))
-      {
-         <div class="whitespace center">@line</div>
-      }
-      <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
-      @foreach (var line in Receipt.Lines)
-      {
-         @foreach (var printLine in ReceiptFormatter.FormatLines(line))
-         {
-            <div class="whitespace">@printLine</div>
-         }
-      }
-      <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+    <div class="receipt border">
+        <ReceiptHeader Receipt="Receipt"/>
 
-      @foreach (var line in ReceiptFormatter.FormatSum(Receipt))
-      {
-         <div class="whitespace center">@line</div>
-      }
+        @switch (Receipt.TransactionType)
+        {
+            case TransactionType.Sale:
+                <ReceiptProducts Receipt="Receipt"/>
+                <ReceiptSum Receipt="Receipt"/>
+                <ReceiptTax Receipt="Receipt"/>
+                <ReceiptQr Receipt="Receipt"/>
+                <ReceiptVouchers Receipt="Receipt"/>
+                break;
 
-      <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
+            case TransactionType.Refund:
+                <ReceiptSum Receipt="Receipt"/>
+                <ReceiptQr Receipt="Receipt"/>
+                break;
 
-      @foreach (var tax in ReceiptFormatter.FormatTaxInformation(Receipt.TaxInformation))
-      {
-         <div class="whitespace">@tax</div>
-      }
-
-      <MudDivider Class="my-2" DividerType="DividerType.FullWidth" Light="true"/>
-
-      @if (Receipt.HasFiskalyQrCode)
-      {
-         <div class="d-flex justify-center my-2">
-            @((MarkupString)BuildQrSvg(Receipt.FiskalyQrCode!))
-         </div>
-      }
-      
-   </div>
+            case TransactionType.Transfer:
+                <ReceiptSum Receipt="Receipt"/>
+                <ReceiptQr Receipt="Receipt"/>
+                <ReceiptSignature/>
+                break;
+        }
+    </div>
 </MudPaper>
 
 @code {
 
-   [Parameter, EditorRequired]
-   public TransactionReceipt Receipt { get; set; }
-
-   private static string BuildQrSvg(string content)
-   {
-      using var generator = new QRCodeGenerator();
-      using var data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M);
-      return new SvgQRCode(data).GetGraphic(5);
-   }
+    [Parameter, EditorRequired]
+    public required TransactionReceipt Receipt { get; set; }
 
 }
