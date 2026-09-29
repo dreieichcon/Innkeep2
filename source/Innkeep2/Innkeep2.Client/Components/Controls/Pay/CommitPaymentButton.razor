@@ -4,6 +4,7 @@
 @using Innkeep2.Print.Formatter
 @using Innkeep2.Print.Printer
 @using Innkeep2.Services.Client
+@using Innkeep2.Services.Shared
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton 
         Variant="Variant.Outlined" 
@@ -35,6 +36,9 @@
     
     [Inject]
     public ISnackbar Snackbar { get; set; } = null!;
+    
+    [Inject]
+    public LoadingService LoadingService { get; set; } = null!;
 
     private bool TransactionDisabled => !TransactionService.EnoughGiven;
 
@@ -45,6 +49,8 @@
 
     private async Task StartTransaction()
     {
+        LoadingService.IsLoading = true;
+        
         var transactionReceipt = await TransactionService.SubmitOrderAsync();
 
         if (!transactionReceipt.IsSuccess)
@@ -52,6 +58,8 @@
             Snackbar.Add(transactionReceipt.Error!.Message, Severity.Error);
             return;
         }
+        
+        TransactionService.SetAmountGiven(0, true);
 
         if (transactionReceipt.Value is not { } receipt)
             return;
@@ -70,6 +78,8 @@
         {
             { x => x.TransactionReceipt, transactionReceipt.Value }
         };
+        
+        LoadingService.IsLoading = false;
         
         var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
         

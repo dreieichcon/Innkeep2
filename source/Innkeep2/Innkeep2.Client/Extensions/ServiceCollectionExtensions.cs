@@ -6,6 +6,7 @@ using Innkeep2.Requests.Server;
 using Innkeep2.Requests.Server.Auth;
 using Innkeep2.Services.Client;
 using Innkeep2.Services.Extensions;
+using Innkeep2.Services.Shared;
 
 namespace Innkeep2.Client.Extensions;
 
@@ -13,6 +14,7 @@ public static class ServiceCollectionExtensions
 {
     public static void RegisterClientServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddSingleton<LoadingService>();
         services.AddServerCredential(configuration);
         services.AddServerClients();
         services.RegisterPrinterServices();

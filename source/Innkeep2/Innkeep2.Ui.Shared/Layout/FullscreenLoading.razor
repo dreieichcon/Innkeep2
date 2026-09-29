@@ -1,0 +1,39 @@
+@using Innkeep2.Services.Shared
+@using MudBlazor
+
+<style>
+    .loading{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 100000 !important;
+        backdrop-filter: blur(10px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+</style>
+
+@if (LoadingService.IsLoading)
+{
+    <div class="loading">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" Color="Color.Primary" StrokeWidth="12" Class="spinner"/>
+    </div>
+}
+
+
+@code {
+
+    [Inject]
+    public LoadingService LoadingService { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        LoadingService.LoadingChanged += async(_, _) => await InvokeAsync(StateHasChanged);
+    }
+
+}

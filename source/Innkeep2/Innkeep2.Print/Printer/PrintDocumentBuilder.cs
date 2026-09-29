@@ -33,7 +33,7 @@ public sealed class PrintDocumentBuilder
        return this;
     }
 
-    public PrintDocumentBuilder AddLine(string lineText, Justification justification = Justification.Left)
+    public PrintDocumentBuilder AddLine(string lineText, Justification justification = Justification.Center)
     {
        Append(Commands.SelectJustification(justification));
        Append(lineText);
