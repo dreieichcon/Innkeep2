@@ -2,6 +2,7 @@ using Innkeep2.Cloud.Api;
 using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
+using Innkeep2.Credentials.Models;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Shared;
 using Microsoft.AspNetCore.Authentication;
@@ -13,16 +14,13 @@ using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-	.MinimumLevel.Debug()
-	.WriteTo.Console()
-	.WriteTo.Trace()
-	.CreateLogger();
-
 var builder = WebApplication.CreateBuilder(args);
 
 var credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", "credentials.json");
 builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
+
+var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
+AppSetup.SetupLogging("Innkeep2.Cloud", discordCredential?.WebhookUrl);
 
 builder.Services.AddDataProtection()
 	.PersistKeysToFileSystem(new DirectoryInfo("./dataprotection-keys"))

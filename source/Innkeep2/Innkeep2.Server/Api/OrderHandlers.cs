@@ -15,6 +15,7 @@ public static class OrderHandlers
         OrderRequest request,
         CloudTransactionClient cloudClient,
         ServerEventProvider eventProvider,
+        ServerSalesItemProvider salesItemProvider,
         RequestQueueRepository queue,
         CancellationToken ct
     )
@@ -22,7 +23,10 @@ public static class OrderHandlers
         var result = await cloudClient.CreateOrderAsync(request, ct);
 
         if (result.IsSuccess)
+        {
+            _ = salesItemProvider.ForceRefreshAsync(ct);
             return Results.Ok(result.Value);
+        }
 
         EnqueuePending(queue, request.RequestId, QueuedRequestType.Order, request);
 

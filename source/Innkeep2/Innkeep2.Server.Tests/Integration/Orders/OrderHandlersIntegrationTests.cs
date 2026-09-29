@@ -19,21 +19,21 @@ public class OrderHandlersIntegrationTests
     [TestInitialize]
     public void TestInitialize()
     {
-       var credentialsPath = CredentialsPathResolver.ResolveCredentialsPath("server.");
+        var credentialsPath = CredentialsPathResolver.ResolveCredentialsPath("server.");
 
-       var configuration = new ConfigurationBuilder()
-          .AddJsonFile(credentialsPath, optional: false)
-          .AddEnvironmentVariables()
-          .Build();
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile(credentialsPath, optional: false)
+            .AddEnvironmentVariables()
+            .Build();
 
-       var services = new ServiceCollection();
-       services.AddCloudCredential(configuration);
-       services.AddCloudClients();
-       services.AddMemoryCache();
-       services.AddSingleton<ServerEventProvider>();
-       services.AddSingleton<ServerSalesItemProvider>();
+        var services = new ServiceCollection();
+        services.AddCloudCredential(configuration);
+        services.AddCloudClients();
+        services.AddMemoryCache();
+        services.AddSingleton<ServerEventProvider>();
+        services.AddSingleton<ServerSalesItemProvider>();
 
-       _serviceProvider = services.BuildServiceProvider();
+        _serviceProvider = services.BuildServiceProvider();
     }
 
     [TestCleanup]
@@ -42,33 +42,34 @@ public class OrderHandlersIntegrationTests
     [TestMethod]
     public async Task CreateOrderAsync_CloudReachable_ReturnsRealReceipt()
     {
-       var cloudClient = _serviceProvider.GetRequiredService<CloudTransactionClient>();
-       var eventProvider = _serviceProvider.GetRequiredService<ServerEventProvider>();
-       var queue = new FakeRequestQueueRepository();
+        var cloudClient = _serviceProvider.GetRequiredService<CloudTransactionClient>();
+        var eventProvider = _serviceProvider.GetRequiredService<ServerEventProvider>();
+        var salesItemProvider = _serviceProvider.GetRequiredService<ServerSalesItemProvider>();
+        var queue = new FakeRequestQueueRepository();
 
-       var eventResult = await eventProvider.GetCachedEventAsync();
-       Assert.IsTrue(eventResult.IsSuccess);
+        var eventResult = await eventProvider.GetCachedEventAsync();
+        Assert.IsTrue(eventResult.IsSuccess);
 
-       var salesItemProvider = _serviceProvider.GetRequiredService<ServerSalesItemProvider>();
-       var salesItemsResult = await salesItemProvider.GetCachedItemsAsync();
-       var item = salesItemsResult.Value!.First();
-       item.Quantity = 1;
+        var salesItemsResult = await salesItemProvider.GetCachedItemsAsync();
+        var item = salesItemsResult.Value!.First();
+        item.Quantity = 1;
 
-       var request = new OrderRequest
-       {
-          RequestId = Guid.NewGuid(),
-          Items = [item],
-          PaymentType = PaymentType.Cash,
-          AmountGiven = item.Price,
-          Currency = "EUR"
-       };
+        var request = new OrderRequest
+        {
+            RequestId = Guid.NewGuid(),
+            Items = [item],
+            PaymentType = PaymentType.Cash,
+            AmountGiven = item.Price,
+            Currency = "EUR"
+        };
 
-       var result = await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, queue, CancellationToken.None);
+        var result = await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, salesItemProvider, queue,
+            CancellationToken.None);
 
-       var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<TransactionReceipt>;
-       Assert.IsNotNull(okResult);
-       Assert.AreNotEqual("PRETIX OFFLINE", okResult.Value!.PretixOrderCode);
-       Assert.AreNotEqual("TSS OFFLINE", okResult.Value!.FiskalyQrCode);
-       Assert.IsFalse(queue.WasEnqueued(request.RequestId));
+        var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<TransactionReceipt>;
+        Assert.IsNotNull(okResult);
+        Assert.AreNotEqual("PRETIX OFFLINE", okResult.Value!.PretixOrderCode);
+        Assert.AreNotEqual("TSS OFFLINE", okResult.Value!.FiskalyQrCode);
+        Assert.IsFalse(queue.WasEnqueued(request.RequestId));
     }
 }

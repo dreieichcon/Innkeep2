@@ -6,12 +6,15 @@ using Innkeep2.Requests.Server;
 
 namespace Innkeep2.Services.Client;
 
-public sealed class ClientTransactionService(ServerTransactionClient transactionClient, ClientCartService cartService)
+public sealed class ClientTransactionService(
+    ServerTransactionClient transactionClient,
+    ClientCartService cartService,
+    ClientSalesItemProvider salesItemProvider)
 {
     public decimal AmountGiven { get; private set; }
 
     public decimal AmountBack => AmountGiven - cartService.Total;
-    
+
     public bool EnoughGiven => AmountGiven >= cartService.Total;
 
     public TransactionReceipt? LastReceipt { get; private set; }
@@ -22,7 +25,7 @@ public sealed class ClientTransactionService(ServerTransactionClient transaction
     {
         if (overwrite)
             AmountGiven = amount;
-        
+
         else
             AmountGiven += amount;
         Changed?.Invoke(this, EventArgs.Empty);
@@ -42,7 +45,10 @@ public sealed class ClientTransactionService(ServerTransactionClient transaction
         var result = await transactionClient.CreateOrderAsync(request, ct);
 
         if (result.IsSuccess)
+        {
             LastReceipt = result.Value;
+            _ = salesItemProvider.ForceRefreshAsync(ct);
+        }
 
         return result;
     }

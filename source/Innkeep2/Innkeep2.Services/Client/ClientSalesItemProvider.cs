@@ -43,4 +43,17 @@ public sealed class ClientSalesItemProvider(ServerDataClient client)
 
         return result;
     }
+    
+    public async Task<Result<IReadOnlyList<SalesItem>>> ForceRefreshAsync(CancellationToken ct = default)
+    {
+        var result = await client.GetSalesItemsAsync(ct);
+
+        if (result.IsSuccess)
+        {
+            _cached = result.Value;
+            LastUpdated = DateTimeOffset.UtcNow;
+        }
+
+        return result;
+    }
 }

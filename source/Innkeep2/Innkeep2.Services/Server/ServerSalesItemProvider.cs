@@ -1,7 +1,6 @@
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Internal;
 using Innkeep2.Requests.Cloud;
-using Microsoft.Extensions.Caching.Memory;
 using Serilog;
 
 namespace Innkeep2.Services.Server;
@@ -34,5 +33,18 @@ public sealed class ServerSalesItemProvider(CloudDataClient client)
         }
 
         return Result<IReadOnlyList<SalesItem>>.Failure(result.Error!);
+    }
+    
+    public async Task<Result<IReadOnlyList<SalesItem>>> ForceRefreshAsync(CancellationToken ct = default)
+    {
+        var result = await client.GetSalesItemsAsync(ct);
+
+        if (result.IsSuccess)
+        {
+            _lastKnownGood = result.Value;
+            _lastFetchedAt = DateTimeOffset.UtcNow;
+        }
+
+        return result;
     }
 }

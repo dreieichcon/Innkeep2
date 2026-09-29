@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Innkeep2.Models.Core;
+using Serilog;
 
 namespace Innkeep2.Requests.Core;
 
@@ -14,12 +15,24 @@ public abstract partial class CoreApiClient(HttpClient httpClient, JsonSerialize
 	protected async Task<Result<T>> SendAs<T>(HttpRequestMessage request, CancellationToken ct = default)
 	{
 		var sendResult = await TrySendAsync(request, ct);
-		
+
 		if (!sendResult.IsSuccess)
+		{
+			Log.Error(
+				"Request to {Method} {Uri} failed to send: {Error}",
+				request.Method, request.RequestUri, sendResult.Error!.Message
+			);
 			return Result<T>.Failure(sendResult.Error!);
+		}
 
 		using var response = sendResult.Value!;
 		var content = await response.Content.ReadAsStringAsync(ct);
+
+		if (!response.IsSuccessStatusCode)
+			Log.Error(
+				"Request to {Method} {Uri} returned {StatusCode}: {Body}",
+				request.Method, request.RequestUri, (int)response.StatusCode, content
+			);
 
 		return response.IsSuccessStatusCode
 			? BuildSuccessResult<T>(response, content, request)

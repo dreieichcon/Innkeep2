@@ -1,6 +1,7 @@
 using Innkeep2.Models.Internal;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Server.Queue;
+using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Server;
 
 namespace Innkeep2.Server.Api;
@@ -27,8 +28,9 @@ public static class ApiEndpoints
             OrderRequest request,
             CloudTransactionClient cloudClient,
             ServerEventProvider eventProvider,
+            ServerSalesItemProvider salesItemProvider,
             RequestQueueRepository queue,
             CancellationToken ct
-        ) => await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, queue, ct));
+        ) => await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, salesItemProvider, queue, ct));
     }
 }

@@ -8,6 +8,7 @@ using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Pretix.Order;
 using Innkeep2.Models.Shared;
 using Innkeep2.Services.Cloud;
+using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.Services.Shared;
@@ -19,7 +20,8 @@ public sealed partial class TransactionService(
     PretixOrderService pretixOrderService,
     FiskalyTransactionService fiskalyTransactionService,
     TransactionRepository transactionRepository,
-    IActiveConfigurationService activeConfiguration
+    IActiveConfigurationService activeConfiguration,
+    CachedSalesItemProvider salesItemProvider
 )
 {
     public async Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default)
@@ -54,6 +56,9 @@ public sealed partial class TransactionService(
         var fiskalyTransaction = await TryCreateFiskalyTransactionAsync(order, request, ct);
 
         await transactionRepository.UpdateAsync(order, ct);
+        
+        if (pretixOrder is not null && request.Items.Any(x => x.MaxStock.HasValue))
+            salesItemProvider.Invalidate(new SalesItemKey(organizer.Slug, pretixEvent.Slug));
 
         var receipt = ReceiptBuilder.Build(
             new ReceiptContext(order.RequestId, TransactionType.Sale, order.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),

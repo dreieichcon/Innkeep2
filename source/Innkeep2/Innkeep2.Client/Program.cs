@@ -2,11 +2,10 @@ using Innkeep2.Client.Components;
 using Innkeep2.Client.Extensions;
 using Innkeep2.Client.Services;
 using Innkeep2.Credentials;
+using Innkeep2.Credentials.Models;
 using Innkeep2.Services.Shared;
 using MudBlazor.Services;
 using Serilog;
-
-AppSetup.SetupLogging();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +16,9 @@ if (AppSetup.SetupCredentials("client", CredentialCreator.ClientJsonTemplate, ou
 }
 
 builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
+
+var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
+AppSetup.SetupLogging("Innkeep2.Client", discordCredential?.WebhookUrl);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

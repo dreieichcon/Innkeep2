@@ -42,6 +42,12 @@ public sealed class CachedSalesItemProvider(
 
 		return Result<IReadOnlyList<SalesItem>>.Success(items);
 	}
+	
+	public void Invalidate(SalesItemKey context)
+	{
+		var key = $"pretix_sales_items:{context.OrganizerSlug}:{context.EventSlug}";
+		cache.Remove(key);
+	}
 
 	private static void ApplyStock(List<SalesItem> items, IReadOnlyList<PretixQuota> quotas)
 	{
