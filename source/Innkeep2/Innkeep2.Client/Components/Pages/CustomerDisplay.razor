@@ -1,0 +1,107 @@
+@page "/customer-display"
+@layout CustomerDisplayLayout
+@implements IDisposable
+
+@using Innkeep2.Services.Client
+@using QRCoder
+
+<PageTitle>Kundendisplay</PageTitle>
+
+<div class="display">
+    <div class="header">@_eventName</div>
+
+    @if (DisplayService.CompletedReceipt is { } receipt)
+    {
+        <div class="summary @(HasDigitalReceipt ? "with-qr" : "")">
+            <div class="amounts">
+                <div class="amount">
+                    <span>Summe</span>
+                    <span>@receipt.Sum.TotalAmount.ToString("C")</span>
+                </div>
+                <div class="amount">
+                    <span>Gegeben</span>
+                    <span>@receipt.Sum.AmountGiven.ToString("C")</span>
+                </div>
+                <div class="amount change">
+                    <span>Zurück</span>
+                    <span>@Math.Abs(receipt.Sum.AmountReturned).ToString("C")</span>
+                </div>
+            </div>
+
+            @if (HasDigitalReceipt)
+            {
+                <div class="digital-receipt">
+                    <div class="qr">@((MarkupString)BuildQrSvg(DisplayService.DigitalReceiptUrl!))</div>
+                    <div class="qr-caption">Digitaler Beleg</div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="items">
+            @if (ClientCartService.Items.Count == 0)
+            {
+                <div class="welcome">Willkommen</div>
+            }
+            else
+            {
+                @* column-reverse keeps the newest items visible when the list overflows; reversing the DOM order restores top-to-bottom reading order *@
+                @foreach (var item in ClientCartService.Items.Reverse())
+                {
+                    var quantity = item.Quantity ?? 1;
+
+                    <div class="item" @key="(item.Id, item.VariationId)">
+                        <span class="name">@item.Name</span>
+                        <span class="quantity">@quantity x @item.Price.ToString("C")</span>
+                        <span class="line-total">@((item.Price * quantity).ToString("C"))</span>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="total">
+            <span>Summe</span>
+            <span>@ClientCartService.Total.ToString("C")</span>
+        </div>
+    }
+</div>
+
+@code {
+
+    [Inject]
+    public ClientCartService ClientCartService { get; set; } = null!;
+
+    [Inject]
+    public CustomerDisplayService DisplayService { get; set; } = null!;
+
+    [Inject]
+    public ClientEventProvider EventProvider { get; set; } = null!;
+
+    private string? _eventName;
+
+    private bool HasDigitalReceipt => !string.IsNullOrEmpty(DisplayService.DigitalReceiptUrl);
+
+    protected override async Task OnInitializedAsync()
+    {
+        ClientCartService.Changed += OnStateChanged;
+        DisplayService.Changed += OnStateChanged;
+        _eventName = (await EventProvider.GetCachedEventAsync()).Value?.Name;
+    }
+
+    private void OnStateChanged(object? sender, EventArgs e)
+        => InvokeAsync(StateHasChanged);
+
+    private static string BuildQrSvg(string content)
+    {
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(content, QRCodeGenerator.ECCLevel.M);
+        return new SvgQRCode(data).GetGraphic(10);
+    }
+
+    public void Dispose()
+    {
+        ClientCartService.Changed -= OnStateChanged;
+        DisplayService.Changed -= OnStateChanged;
+    }
+}

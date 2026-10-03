@@ -24,6 +24,18 @@
         </MudStack>
     </PaperItem>
     <PaperItem Xs="12">
+        <MudStack Spacing="3" Style="max-width: 400px;">
+            <MudText Typo="Typo.h6">Kundendisplay</MudText>
+            <MudButton Color="Color.Secondary"
+                       Variant="Variant.Outlined"
+                       Href="/customer-display"
+                       Target="_blank"
+                       UserAttributes="_openDisplayAttributes">
+                Kundendisplay öffnen
+            </MudButton>
+        </MudStack>
+    </PaperItem>
+    <PaperItem Xs="12">
         <MudStack Row="true">
             <MudNavLink Href="/">Zurück</MudNavLink>
         </MudStack>
@@ -40,6 +52,12 @@
 
     [Inject]
     public ISnackbar Snackbar { get; set; } = null!;
+
+    // A plain onclick keeps the browser's user activation so the popup is not blocked; without it the link opens as a new tab.
+    private readonly Dictionary<string, object?> _openDisplayAttributes = new()
+    {
+        ["onclick"] = "window.open(this.href, 'innkeepCustomerDisplay', 'popup,width=1920,height=1080'); return false;"
+    };
 
     private string _ipAddress = "";
     private int _port;

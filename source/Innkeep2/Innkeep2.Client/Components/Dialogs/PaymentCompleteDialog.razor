@@ -22,13 +22,20 @@
     <DialogContent>
         <MudStack Justify="Justify.SpaceBetween" Class="h-100 w-100">
             <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Class="h-100 w-100">
-                <MudStack>
-                    <MudText Typo="Typo.h1">
-                        Gegeben: @TransactionReceipt.Sum.AmountGiven.ToString("C")
-                    </MudText>
-                    <MudText Typo="Typo.h1">
-                        Zurück: @TransactionReceipt.Sum.AmountReturned.ToString("C")
-                    </MudText>
+                <MudStack Spacing="4" Style="width: 80%;">
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline">
+                        <MudText Typo="Typo.h2">Summe</MudText>
+                        <MudText Typo="Typo.h2">@TransactionReceipt.Sum.TotalAmount.ToString("C")</MudText>
+                    </MudStack>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline">
+                        <MudText Typo="Typo.h2">Gegeben</MudText>
+                        <MudText Typo="Typo.h2">@TransactionReceipt.Sum.AmountGiven.ToString("C")</MudText>
+                    </MudStack>
+                    <MudDivider DividerType="DividerType.FullWidth" Light="true" Style="border-width: 3px;"/>
+                    <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Baseline">
+                        <MudText Typo="Typo.h1" Color="Color.Primary" Style="font-weight: 700;">Zurück</MudText>
+                        <MudText Typo="Typo.h1" Color="Color.Primary" Style="font-weight: 700;">@Math.Abs(TransactionReceipt.Sum.AmountReturned).ToString("C")</MudText>
+                    </MudStack>
                 </MudStack>
             </MudStack>
             <MudStack Row="true" Justify="Justify.SpaceBetween" Style="height: 30% !important; min-height: 30% !important">

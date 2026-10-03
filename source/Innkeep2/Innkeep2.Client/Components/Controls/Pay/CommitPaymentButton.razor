@@ -41,6 +41,9 @@
     [Inject]
     public LoadingService LoadingService { get; set; } = null!;
 
+    [Inject]
+    public CustomerDisplayService CustomerDisplayService { get; set; } = null!;
+
     private bool TransactionDisabled => ClientCartService.Items.Count == 0 || !TransactionService.EnoughGiven;
 
     protected override void OnInitialized()
@@ -106,13 +109,23 @@
             { x => x.TransactionReceipt, receipt }
         };
 
-        var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
-        
-        var dialogResult = await dialog.Result;
+        CustomerDisplayService.ShowPaymentComplete(receipt);
+
+        DialogResult? dialogResult;
+
+        try
+        {
+            var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
+            dialogResult = await dialog.Result;
+        }
+        finally
+        {
+            CustomerDisplayService.ShowCart();
+        }
 
         if (dialogResult!.Canceled)
             return;
-        
+
         ClientCartService.Clear();
         NavigationManager.NavigateTo("/");
     }
