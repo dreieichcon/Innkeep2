@@ -19,14 +19,20 @@ public static class AppSetup
             .WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day);
         
         if (webhookUrl is not null)
-            configuration.WriteTo.Discord(
-                LogEventLevel.Warning,
-                config =>
-                {
-                    config.WebhookUrl = webhookUrl;
-                    config.ServiceName = serviceName;
-                }
-            );
+        {
+            var discordLogger = new LoggerConfiguration()
+                .WriteTo.Discord(
+                    LogEventLevel.Warning,
+                    config =>
+                    {
+                        config.WebhookUrl = webhookUrl;
+                        config.ServiceName = serviceName;
+                    }
+                )
+                .CreateLogger();
+
+            configuration.WriteTo.Sink(new BackgroundSink(discordLogger), LogEventLevel.Warning);
+        }
         
         Log.Logger = configuration.CreateLogger();
     }

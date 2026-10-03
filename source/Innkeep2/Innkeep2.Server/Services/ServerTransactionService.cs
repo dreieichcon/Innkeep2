@@ -32,7 +32,7 @@ public sealed class ServerTransactionService(
         Log.Warning("Transfer {RequestId} failed, queueing: {Error}", request.RequestId, result.Error!.Message);
         Enqueue(request.RequestId, QueuedRequestType.Transfer, request);
 
-        return new SubmitOutcome(await BuildOfflineTransferReceiptAsync(request, ct), true);
+        return new SubmitOutcome(BuildOfflineTransferReceipt(request), true);
     }
 
     public async Task<SubmitOutcome> RefundAsync(TransactionReceipt original, CancellationToken ct = default)
@@ -89,7 +89,7 @@ public sealed class ServerTransactionService(
         Log.Warning("Order {RequestId} failed, queueing: {Error}", request.RequestId, result.Error!.Message);
         Enqueue(request.RequestId, QueuedRequestType.Order, request);
 
-        return new SubmitOutcome(await BuildOfflineOrderReceiptAsync(request, ct), true);
+        return new SubmitOutcome(BuildOfflineOrderReceipt(request), true);
     }
     
     public QueuedRequest? FindQueued(Guid transactionId)
@@ -102,10 +102,12 @@ public sealed class ServerTransactionService(
     private QueuedRequest? FindQueuedRefund(Guid originalRequestId)
         => queue.GetAll().FirstOrDefault(x => x.Type == QueuedRequestType.Refund && x.RequestId == originalRequestId);
 
-    private async Task<TransactionReceipt> BuildOfflineOrderReceiptAsync(OrderRequest request, CancellationToken ct)
+    private Event CachedEventOrEmpty()
+        => eventProvider.LastKnownEvent ?? new Event { Name = "", Slug = "", IsTestMode = false };
+
+    private TransactionReceipt BuildOfflineOrderReceipt(OrderRequest request)
     {
-        var eventResult = await eventProvider.GetCachedEventAsync(ct);
-        var pretixEvent = eventResult.Value ?? new Event { Name = "", Slug = "", IsTestMode = false };
+        var pretixEvent = CachedEventOrEmpty();
 
         return ReceiptBuilder.Build(
             new ReceiptContext(request.RequestId, TransactionType.Sale, DateTime.UtcNow, pretixEvent.Name, pretixEvent.Header ?? ""),
@@ -124,11 +126,9 @@ public sealed class ServerTransactionService(
             EnqueuedAt = DateTime.UtcNow
         });
 
-    private async Task<TransactionReceipt> BuildOfflineTransferReceiptAsync(TransferRequest request,
-        CancellationToken ct)
+    private TransactionReceipt BuildOfflineTransferReceipt(TransferRequest request)
     {
-        var eventResult = await eventProvider.GetCachedEventAsync(ct);
-        var pretixEvent = eventResult.Value ?? new Event { Name = "", Slug = "", IsTestMode = false };
+        var pretixEvent = CachedEventOrEmpty();
 
         return ReceiptBuilder.BuildTransfer(
             new ReceiptContext(request.RequestId, TransactionType.Transfer, DateTime.UtcNow, pretixEvent.Name,

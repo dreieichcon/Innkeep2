@@ -51,14 +51,14 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ServerDataClient>((sp, client) =>
             {
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
-                client.Timeout = TimeSpan.FromSeconds(5);
+                client.Timeout = TimeSpan.FromSeconds(10);
             })
             .AddHttpMessageHandler<ServerAuthHandler>();
 
         services.AddHttpClient<ServerTransactionClient>((sp, client) =>
             {
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
-                client.Timeout = TimeSpan.FromSeconds(10);
+                client.Timeout = TimeSpan.FromSeconds(30);
             })
             .AddHttpMessageHandler<ServerAuthHandler>();
     }
