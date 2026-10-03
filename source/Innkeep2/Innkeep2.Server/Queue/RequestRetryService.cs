@@ -16,12 +16,21 @@ public sealed class RequestRetryService(
    ServerSalesItemProvider salesItemProvider
 )
 {
+   private static readonly TimeSpan DelayBetweenRetries = TimeSpan.FromSeconds(2);
+
    private readonly SemaphoreSlim _lock = new(1, 1);
 
    public async Task RetryAllAsync(CancellationToken ct = default)
    {
-      foreach (var entry in queue.GetAll())
-         await RetryAsync(entry.Id, ct);
+      var entries = queue.GetAll();
+
+      for (var i = 0; i < entries.Count; i++)
+      {
+         if (i > 0)
+            await Task.Delay(DelayBetweenRetries, ct);
+
+         await RetryAsync(entries[i].Id, ct);
+      }
    }
 
    public async Task<Result<Unit>> RetryAsync(Guid id, CancellationToken ct = default)

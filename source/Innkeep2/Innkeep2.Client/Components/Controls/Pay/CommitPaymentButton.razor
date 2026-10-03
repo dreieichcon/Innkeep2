@@ -41,15 +41,19 @@
     [Inject]
     public LoadingService LoadingService { get; set; } = null!;
 
-    private bool TransactionDisabled => !TransactionService.EnoughGiven;
+    private bool TransactionDisabled => ClientCartService.Items.Count == 0 || !TransactionService.EnoughGiven;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         TransactionService.Changed += async(_, _) => await InvokeAsync(StateHasChanged);
+        ClientCartService.Changed += async(_, _) => await InvokeAsync(StateHasChanged);
     }
 
     private async Task StartTransaction()
     {
+        if (TransactionDisabled)
+            return;
+
         LoadingService.IsLoading = true;
 
         TransactionReceipt receipt;
