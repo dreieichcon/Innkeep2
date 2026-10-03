@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         
         services.RegisterServerDatabase();
         services.AddSingleton<ServerTransactionService>();
+        services.AddSingleton<RequestRetryService>();
         services.AddSunServices();
         
         services.AddSingleton<ServerStartupService>();
@@ -41,15 +42,24 @@ public static class ServiceCollectionExtensions
         services.AddTransient<CloudAuthHandler>();
 
         services.AddHttpClient<CloudAuthClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
+                client.Timeout = TimeSpan.FromSeconds(5);
+            })
             .AddHttpMessageHandler<CloudAuthHandler>();
 
         services.AddHttpClient<CloudDataClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
+                client.Timeout = TimeSpan.FromSeconds(5);
+            })
             .AddHttpMessageHandler<CloudAuthHandler>();
 
         services.AddHttpClient<CloudTransactionClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
+                client.Timeout = TimeSpan.FromSeconds(10);
+            })
             .AddHttpMessageHandler<CloudAuthHandler>();
     }
 

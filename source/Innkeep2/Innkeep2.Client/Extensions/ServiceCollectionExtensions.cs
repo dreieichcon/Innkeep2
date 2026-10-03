@@ -42,15 +42,24 @@ public static class ServiceCollectionExtensions
         services.AddTransient<ServerAuthHandler>();
         
         services.AddHttpClient<ServerAuthClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/"))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
+                client.Timeout = TimeSpan.FromSeconds(5);
+            })
             .AddHttpMessageHandler<ServerAuthHandler>();
 
         services.AddHttpClient<ServerDataClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/"))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
+                client.Timeout = TimeSpan.FromSeconds(5);
+            })
             .AddHttpMessageHandler<ServerAuthHandler>();
 
         services.AddHttpClient<ServerTransactionClient>((sp, client) =>
-                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/"))
+            {
+                client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
+                client.Timeout = TimeSpan.FromSeconds(10);
+            })
             .AddHttpMessageHandler<ServerAuthHandler>();
     }
 
