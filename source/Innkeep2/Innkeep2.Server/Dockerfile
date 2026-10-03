@@ -22,11 +22,12 @@ RUN dotnet publish "./Innkeep2.Server.csproj" -c $BUILD_CONFIGURATION -o /app/pu
 FROM base AS final
 ENV LC_ALL=de-DE.UTF-8
 ENV LANG=de-DE.UTF-8
+ENV TZ=Europe/Berlin
 WORKDIR /app
 COPY --from=publish /app/publish .
 
 USER root
-RUN mkdir -p /app/logs && chown -R $APP_UID /app/logs
+RUN mkdir -p /app/log && chown -R $APP_UID /app/log
 RUN mkdir -p /app/dataprotection-keys && chown $APP_UID /app/dataprotection-keys
 RUN mkdir -p /app/db && chown $APP_UID /app/db
 

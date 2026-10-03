@@ -11,7 +11,8 @@ services:
     volumes:
       - "./db/:/app/db/"
       - "./credentials/:/credentials/:ro"
-      - "./logs/:/app/logs/"
+      - "./logs/:/app/log/"
+      - "./dataprotection-keys/:/app/dataprotection-keys/"
 
   caddy:
     image: caddy:2

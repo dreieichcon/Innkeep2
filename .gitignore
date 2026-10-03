@@ -22,3 +22,5 @@ credentials.*.json
 *.db-shm
 *.db-wal
 **/log/**
+
+**/dataprotection-keys/*.xml

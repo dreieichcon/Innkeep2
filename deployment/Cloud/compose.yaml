@@ -11,3 +11,5 @@
     volumes:
       - "./db/:/app/db/"
       - "./credentials/:/credentials/:ro"
+      - "./logs/:/app/log/"
+      - "./dataprotection-keys/:/app/dataprotection-keys/"

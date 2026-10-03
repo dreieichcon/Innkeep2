@@ -6,6 +6,7 @@ using Innkeep2.Server.Extensions;
 using Innkeep2.Server.Security;
 using Innkeep2.Server.Services;
 using Innkeep2.Services.Shared;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using MudBlazor.Services;
 using Serilog;
@@ -23,6 +24,10 @@ builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChan
 
 var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
 AppSetup.SetupLogging("Innkeep2.Server", discordCredential?.WebhookUrl);
+
+builder.Services.AddDataProtection()
+	.PersistKeysToFileSystem(new DirectoryInfo("./dataprotection-keys"))
+	.SetApplicationName("Innkeep2.Server");
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

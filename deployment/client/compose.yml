@@ -1,0 +1,20 @@
+services:
+  innkeep2.client:
+    image: hub.bvb-dreieich.de/innkeep/innkeep2.client
+    container_name: innkeep2.client
+    restart: always
+    build:
+      context: ../../source/Innkeep2
+      dockerfile: Innkeep2.Client/Dockerfile
+    ports:
+      # Only reachable from this machine: the client has no login of its own.
+      - "127.0.0.1:5265:8080"
+    environment:
+      # Trusts the root certificate of the server's Caddy instead of the system store, see readme.md.
+      SSL_CERT_FILE: /certs/innkeep2-server-root-ca.crt
+    volumes:
+      - "./db/:/app/db/"
+      - "./credentials/:/credentials/:ro"
+      - "./logs/:/app/log/"
+      - "./dataprotection-keys/:/app/dataprotection-keys/"
+      - "./certs/:/certs/:ro"

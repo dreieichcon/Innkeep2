@@ -18,7 +18,8 @@ public static class AppSetup
             .WriteTo.Trace()
             .WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day);
         
-        if (webhookUrl is not null)
+        // An empty value is what the credentials examples ship with, and means "no Discord".
+        if (!string.IsNullOrWhiteSpace(webhookUrl))
         {
             var discordLogger = new LoggerConfiguration()
                 .WriteTo.Discord(
