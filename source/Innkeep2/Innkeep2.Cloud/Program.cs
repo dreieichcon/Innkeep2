@@ -109,7 +109,6 @@ app.MapGroup("/")
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
 
-var darkModeService = app.Services.GetRequiredService<DarkModeService>();
-Task.Run(async() => await darkModeService.StartPollingAsync(CancellationToken.None));
+await app.Services.GetRequiredService<CloudStartupService>().RunAsync();
 
 await app.RunAsync();

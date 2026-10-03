@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
 		services.AddFiskalyServices();
 
 		services.AddSingleton<ApiKeyValidationService>();
+		services.AddSingleton<CloudStartupService>();
 		services.AddOrderServices();
 		services.AddSunServices();
 	}
