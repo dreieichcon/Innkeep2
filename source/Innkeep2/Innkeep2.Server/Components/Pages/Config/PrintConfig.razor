@@ -1,4 +1,5 @@
 @page "/Config/Printer"
+@using Innkeep2.Print.Formatter
 @using Innkeep2.Print.Printer
 @using Innkeep2.Print.Storage
 @using Innkeep2.Ui.Shared.Components.Core
@@ -9,12 +10,18 @@
         <MudStack Spacing="3" Style="max-width: 400px;">
             <MudTextField T="string" @bind-Value="_ipAddress" Label="IP-Adresse" Variant="Variant.Outlined"/>
             <MudNumericField T="int" @bind-Value="_port" Label="Port" Variant="Variant.Outlined"/>
+            <MudNumericField T="int" @bind-Value="_imageWidthDots" Label="Druckbreite für Bilder (Punkte)"
+                             Variant="Variant.Outlined" Min="64" Max="1024"
+                             HelperText="Üblich: 384 (58 mm), 512 oder 576 (80 mm). Bei abgeschnittenen Bildern verkleinern."/>
             <MudStack Row="true" Spacing="2">
                 <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">
                     Speichern
                 </MudButton>
                 <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="TestPrint">
                     Testdruck
+                </MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="WidthTest">
+                    Breitentest
                 </MudButton>
             </MudStack>
         </MudStack>
@@ -34,18 +41,33 @@
 
     private string _ipAddress = "";
     private int _port;
+    private int _imageWidthDots;
 
     protected override void OnInitialized()
     {
        var settings = SettingsRepository.GetOrCreate();
        _ipAddress = settings.IpAddress;
        _port = settings.Port;
+       _imageWidthDots = settings.ImageWidthDots;
     }
 
     private void Save()
     {
-       SettingsRepository.Save(new PrinterSettings { IpAddress = _ipAddress, Port = _port });
+       SettingsRepository.Save(new PrinterSettings { IpAddress = _ipAddress, Port = _port, ImageWidthDots = _imageWidthDots });
        Snackbar.Add("Drucker-Einstellungen gespeichert", Severity.Success);
+    }
+
+    private void WidthTest()
+    {
+       try
+       {
+          PrinterService.Print(CustomPrintDocumentBuilder.BuildWidthTest(_imageWidthDots));
+          Snackbar.Add("Breitentest gesendet", Severity.Success);
+       }
+       catch (Exception ex)
+       {
+          Snackbar.Add($"Fehler: {ex.Message}", Severity.Error);
+       }
     }
 
     private void TestPrint()

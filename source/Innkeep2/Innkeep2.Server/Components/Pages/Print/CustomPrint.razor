@@ -1,0 +1,130 @@
+@page "/Print"
+@using Innkeep2.Print.Formatter
+@using Innkeep2.Print.Printer
+@using Innkeep2.Print.Storage
+@using Innkeep2.Server.Services
+@using Innkeep2.Ui.Shared.Components.Core
+@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<ListPage Title="Drucken" MainContentSize="4">
+    <PaperItem Xs="4">
+        <MudStack Spacing="3" Class="p-2">
+            <MudText Typo="Typo.h6">Text</MudText>
+
+            <MudTextField T="string"
+                          @bind-Value="_text"
+                          Label="Text"
+                          Variant="Variant.Outlined"
+                          Lines="8"
+                          AutoGrow="true"
+                          Immediate="true"
+                          Style="width: 42ch; font-family: monospace;"/>
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(string.IsNullOrWhiteSpace(_text) || _busy)"
+                       OnClick="PrintTextAsync">
+                Text drucken
+            </MudButton>
+
+            <MudDivider/>
+
+            <MudText Typo="Typo.h6">Bild</MudText>
+
+            <MudTextField T="string"
+                          @bind-Value="_imageUrl"
+                          Label="Link zu einem Bild"
+                          Variant="Variant.Outlined"
+                          Immediate="true"/>
+
+            <MudCheckBox T="bool" @bind-Value="_rotateLandscape" Label="Querformat-Bilder drehen"/>
+
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(string.IsNullOrWhiteSpace(_imageUrl) || _busy)"
+                       OnClick="PrintImageFromLinkAsync">
+                Bild von Link drucken
+            </MudButton>
+
+            <MudFileUpload T="IBrowserFile" Accept="image/*" FilesChanged="OnFileSelected">
+                <CustomContent>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" Disabled="_busy"
+                               OnClick="@(() => context.OpenFilePickerAsync())">
+                        Bild auswählen und drucken
+                    </MudButton>
+                </CustomContent>
+            </MudFileUpload>
+        </MudStack>
+    </PaperItem>
+</ListPage>
+
+@code {
+
+    /// <summary>
+    /// Images are printed this much narrower than the configured printer width, as the printable area is often a bit smaller.
+    /// </summary>
+    private const double WidthBuffer = 0.95;
+
+    private int ImageWidthDots => (int)(SettingsRepository.GetOrCreate().ImageWidthDots * WidthBuffer);
+
+    [Inject]
+    public PrinterSettingsRepository SettingsRepository { get; set; } = null!;
+
+    [Inject]
+    public NetworkPrinterService PrinterService { get; set; } = null!;
+
+    [Inject]
+    public ImageFetchService ImageFetchService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private string _text = "";
+    private string _imageUrl = "";
+    private bool _rotateLandscape = true;
+    private bool _busy;
+
+    private Task PrintTextAsync()
+        => RunAsync(() => Task.FromResult(CustomPrintDocumentBuilder.BuildText(_text)));
+
+    private Task PrintImageFromLinkAsync()
+        => RunAsync(async () =>
+        {
+            var download = await ImageFetchService.FetchAsync(_imageUrl);
+
+            if (!download.IsSuccess)
+                throw new InvalidOperationException(download.Error!.Message);
+
+            using var stream = new MemoryStream(download.Value!);
+            return CustomPrintDocumentBuilder.BuildImage(stream, ImageWidthDots, _rotateLandscape);
+        });
+
+    private Task OnFileSelected(IBrowserFile file)
+        => RunAsync(async () =>
+        {
+            await using var stream = file.OpenReadStream(ImageFetchService.MaxImageBytes);
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+            buffer.Position = 0;
+
+            return CustomPrintDocumentBuilder.BuildImage(buffer, ImageWidthDots, _rotateLandscape);
+        });
+
+    private async Task RunAsync(Func<Task<byte[]>> buildDocument)
+    {
+        _busy = true;
+
+        try
+        {
+            var bytes = await buildDocument();
+            await Task.Run(() => PrinterService.Print(bytes));
+            Snackbar.Add("An Drucker gesendet", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Druckfehler: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+}

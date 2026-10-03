@@ -60,6 +60,30 @@ public sealed class PrintDocumentBuilder
        return this;
     }
 
+    public PrintDocumentBuilder AddRasterImage(RasterImage image)
+    {
+       // GS v 0 raster bit image. Sent in bands, as printers with small buffers choke on very tall single commands.
+       const int bandHeight = 256;
+
+       Append(Commands.SelectJustification(Justification.Center));
+
+       for (var top = 0; top < image.HeightDots; top += bandHeight)
+       {
+          var height = Math.Min(bandHeight, image.HeightDots - top);
+
+          _bytes.AddRange(
+          [
+             0x1D, 0x76, 0x30, 0x00,
+             (byte)(image.WidthBytes & 0xFF), (byte)(image.WidthBytes >> 8),
+             (byte)(height & 0xFF), (byte)(height >> 8)
+          ]);
+          _bytes.AddRange(new ArraySegment<byte>(image.Data, top * image.WidthBytes, height * image.WidthBytes));
+       }
+
+       Append(Commands.SelectJustification(Justification.Left));
+       return this;
+    }
+
     public PrintDocumentBuilder Cut()
     {
        for (var i = 0; i < 5; i++)

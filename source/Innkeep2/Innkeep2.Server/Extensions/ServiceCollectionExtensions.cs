@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.RegisterServerDatabase();
         services.AddSingleton<ServerTransactionService>();
         services.AddSingleton<RequestRetryService>();
+        services.AddHttpClient<ImageFetchService>();
         services.AddSunServices();
         
         services.AddSingleton<ServerStartupService>();
