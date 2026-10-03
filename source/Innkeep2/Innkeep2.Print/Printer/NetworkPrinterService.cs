@@ -5,15 +5,26 @@ namespace Innkeep2.Print.Printer;
 
 public sealed class NetworkPrinterService(PrinterSettingsRepository settingsRepository)
 {
+    private const int ChunkSize = 1024;
+    private static readonly TimeSpan ChunkPause = TimeSpan.FromMilliseconds(10);
+
     public void Print(byte[] data)
     {
         var settings = settingsRepository.GetOrCreate();
 
-        using var client = new TcpClient();
+        using var client = new TcpClient { NoDelay = true, SendTimeout = 10_000 };
         client.Connect(settings.IpAddress, settings.Port);
 
         using var stream = client.GetStream();
-        stream.Write(data, 0, data.Length);
+
+        for (var offset = 0; offset < data.Length; offset += ChunkSize)
+        {
+            if (offset > 0)
+                Thread.Sleep(ChunkPause);
+
+            stream.Write(data, offset, Math.Min(ChunkSize, data.Length - offset));
+        }
+
         stream.Flush();
     }
 
