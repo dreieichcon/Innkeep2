@@ -5,13 +5,15 @@ using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Requests.Core;
 using Innkeep2.Server.Services;
+using Innkeep2.Services.Server;
 using Serilog;
 
 namespace Innkeep2.Server.Queue;
 
 public sealed class RequestRetryService(
    RequestQueueRepository queue,
-   CloudTransactionClient cloudClient
+   CloudTransactionClient cloudClient,
+   ServerSalesItemProvider salesItemProvider
 )
 {
    private readonly SemaphoreSlim _lock = new(1, 1);
@@ -39,6 +41,9 @@ public sealed class RequestRetryService(
          {
             queue.Remove(entry.Id);
             Log.Information("Retried {Type} request {RequestId} successfully", entry.Type, entry.RequestId);
+
+            if (entry.Type is QueuedRequestType.Order or QueuedRequestType.Refund)
+               _ = salesItemProvider.ForceRefreshAsync(CancellationToken.None);
 
             return Result<Unit>.Success(default);
          }

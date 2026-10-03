@@ -18,6 +18,7 @@ public sealed record RefundPayload(Guid OriginalRequestId, Guid RefundRequestId)
 public sealed class ServerTransactionService(
     CloudTransactionClient cloudClient,
     ServerEventProvider eventProvider,
+    ServerSalesItemProvider salesItemProvider,
     RequestQueueRepository queue
 )
 {
@@ -48,6 +49,7 @@ public sealed class ServerTransactionService(
             if (queued is not null)
                 queue.Remove(queued.Id);
 
+            _ = salesItemProvider.ForceRefreshAsync(CancellationToken.None);
             return new SubmitOutcome(result.Value, false);
         }
 
@@ -79,7 +81,10 @@ public sealed class ServerTransactionService(
         var result = await cloudClient.CreateOrderAsync(request, ct);
 
         if (result.IsSuccess)
+        {
+            _ = salesItemProvider.ForceRefreshAsync(CancellationToken.None);
             return new SubmitOutcome(result.Value, false);
+        }
 
         Log.Warning("Order {RequestId} failed, queueing: {Error}", request.RequestId, result.Error!.Message);
         Enqueue(request.RequestId, QueuedRequestType.Order, request);

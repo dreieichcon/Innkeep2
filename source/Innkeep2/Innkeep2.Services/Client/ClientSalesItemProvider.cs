@@ -6,7 +6,7 @@ namespace Innkeep2.Services.Client;
 
 public sealed class ClientSalesItemProvider(ServerDataClient client)
 {
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(60);
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(5);
 
     private IReadOnlyList<SalesItem>? _cached;
 
