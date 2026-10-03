@@ -79,7 +79,7 @@ public static class ReceiptDocumentBuilder
 
        builder.AddLine(Separator);
 
-       builder.AddEmphasizedLine(ReceiptFormatter.FormatReceiptTypeLabel(receipt));
+       builder.AddEmphasizedLine(ReceiptFormatter.FormatReceiptTypeLabel(receipt), Justification.Left);
 
        foreach (var line in ReceiptFormatter.FormatSubheading(receipt))
           builder.AddLine(line, Justification.Center);

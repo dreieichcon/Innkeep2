@@ -76,6 +76,9 @@ public static class ReceiptFormatter
         if (receipt.TransactionType is TransactionType.Sale && receipt.PretixOrderCode is { } code)
             lines.Add(SpaceBetween("Pretix:", code));
 
+        if (receipt.FiskalyTransactionNumber is { } tssCounter)
+            lines.Add(SpaceBetween("TSS Zähler:", tssCounter.ToString()));
+
         if (receipt.RefundRequestId is { } referenceId)
             lines.Add(SpaceBetween("Ref:", referenceId.ToString()));
 

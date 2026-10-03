@@ -56,6 +56,7 @@ public sealed class PrintDocumentBuilder
        Append(Commands.SelectJustification(Justification.Center));
        Append(Commands.QRCode(content, model, qrCodeSize: size));
        Append(Commands.LF);
+       Append(Commands.SelectJustification(Justification.Left));
        return this;
     }
 
