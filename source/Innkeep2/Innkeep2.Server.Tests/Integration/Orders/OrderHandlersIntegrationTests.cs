@@ -47,7 +47,7 @@ public class OrderHandlersIntegrationTests
         var eventProvider = _serviceProvider.GetRequiredService<ServerEventProvider>();
         var salesItemProvider = _serviceProvider.GetRequiredService<ServerSalesItemProvider>();
         var queue = new FakeRequestQueueRepository();
-        var transactionService = new ServerTransactionService(cloudClient, eventProvider, queue);
+        var transactionService = new ServerTransactionService(cloudClient, eventProvider, salesItemProvider, queue);
 
         var salesItemsResult = await salesItemProvider.GetCachedItemsAsync();
         var item = salesItemsResult.Value![0];

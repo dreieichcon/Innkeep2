@@ -33,4 +33,7 @@ internal sealed class FakeTransactionRepository()
             ? Result<Transaction>.Success(entity)
             : Result<Transaction>.Failure(new Error("Db.NotFound", "Entity not found.")));
     }
+    
+    public override Task<Result<bool>> HasRefundAsync(Guid requestId, CancellationToken ct = default)
+        => Task.FromResult(Result<bool>.Success(_orders.Any(x => x.RefundRequestId == requestId)));
 }

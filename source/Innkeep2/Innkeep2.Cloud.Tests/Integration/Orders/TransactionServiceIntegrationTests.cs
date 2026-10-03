@@ -1,4 +1,3 @@
-using Innkeep2.Cloud.Services;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Credentials;
 using Innkeep2.Models.Fiskaly.Client;
@@ -9,6 +8,7 @@ using Innkeep2.Requests.Fiskaly;
 using Innkeep2.Requests.Pretix;
 using Innkeep2.Requests.Pretix.Clients;
 using Innkeep2.Services.Cloud;
+using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.TestBase;
@@ -39,6 +39,8 @@ public class TransactionServiceIntegrationTests
        services.AddSingleton<IConfiguration>(configuration);
        services.AddPretixClients();
        services.AddFiskalyClients();
+       services.AddMemoryCache();
+       services.AddSingleton<CachedSalesItemProvider>();
        services.AddSingleton<PretixOrderService>();
        services.AddSingleton<FiskalyTransactionService>();
        services.AddSingleton<TransactionRepository, FakeTransactionRepository>();
@@ -133,7 +135,12 @@ public class TransactionServiceIntegrationTests
        var saleResult = await transactionService.CreateOrderAsync(request);
        Assert.IsTrue(saleResult.IsSuccess);
 
-       var refundResult = await transactionService.RefundTransactionAsync(request.RequestId);
+       var refundId = Guid.NewGuid();
+       var refundResult = await transactionService.RefundTransactionAsync(request.RequestId, refundId);
+
+       Assert.IsTrue(refundResult.IsSuccess);
+       Assert.AreEqual(refundId, refundResult.Value!.OrderId);
+       Assert.AreEqual(request.RequestId, refundResult.Value!.RefundRequestId);
 
        Assert.IsTrue(refundResult.IsSuccess);
        Assert.AreEqual(0, refundResult.Value!.Sum.AmountGiven);
