@@ -20,7 +20,7 @@ public class FiskalyDecimalConverter : JsonConverter<decimal>
     }
 
     public override void Write(Utf8JsonWriter writer, decimal value, JsonSerializerOptions options)
-        => writer.WriteStringValue(value.ToString(CultureInfo.InvariantCulture));
+        => writer.WriteStringValue(value.ToString("0.00###", CultureInfo.InvariantCulture));
 
     public static decimal Parse(string? raw)
     {

@@ -58,10 +58,10 @@ public static class ReceiptDocumentBuilder
        AddQrSection(builder, receipt);
 
        builder
-          .AddEmptyLines(4)
+          .AddEmptyLines(7)
           .AddLine(Separator)
           .AddLine("Kassenwart", Justification.Center)
-          .AddEmptyLines(4)
+          .AddEmptyLines(7)
           .AddLine(Separator)
           .AddLine("Empfänger", Justification.Center);
 
@@ -116,6 +116,8 @@ public static class ReceiptDocumentBuilder
     {
        if (receipt.HasFiskalyQrCode)
           builder.AddQrCode(receipt.FiskalyQrCode!);
+       else
+          builder.AddEmphasizedLine(ReceiptFormatter.TssOffline);
     }
 
     private static byte[] BuildVouchers(TransactionReceipt receipt)

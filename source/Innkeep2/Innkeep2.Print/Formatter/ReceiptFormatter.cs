@@ -6,6 +6,8 @@ namespace Innkeep2.Print.Formatter;
 public static class ReceiptFormatter
 {
     private const int MaxLineWidth = 42;
+
+    public const string TssOffline = "TSS OFFLINE";
     
     public static string[] FormatLines(ReceiptLine line)
     {
@@ -76,8 +78,7 @@ public static class ReceiptFormatter
         if (receipt.TransactionType is TransactionType.Sale && receipt.PretixOrderCode is { } code)
             lines.Add(SpaceBetween("Pretix:", code));
 
-        if (receipt.FiskalyTransactionNumber is { } tssCounter)
-            lines.Add(SpaceBetween("TSS Zähler:", tssCounter.ToString()));
+        lines.Add(SpaceBetween("TSS Zähler:", receipt.FiskalyTransactionNumber?.ToString() ?? TssOffline));
 
         if (receipt.RefundRequestId is { } referenceId)
             lines.Add(SpaceBetween("Ref:", referenceId.ToString()));
