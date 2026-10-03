@@ -19,6 +19,9 @@
 
 @code {
 
+    [Parameter]
+    public bool IsCopy { get; set; } = true;
+
     [Inject]
     public ClientTransactionService TransactionService { get; set; } = null!;
 
@@ -43,7 +46,7 @@
 
         try
         {
-            var bytes = ReceiptDocumentBuilder.Build(receipt with { IsCopy = true });
+            var bytes = ReceiptDocumentBuilder.Build(receipt with { IsCopy = IsCopy });
             await Task.Run(() => PrinterService.Print(bytes));
             Snackbar.Add("An Drucker gesendet", Severity.Success);
         }
