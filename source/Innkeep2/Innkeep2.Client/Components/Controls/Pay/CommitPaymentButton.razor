@@ -1,4 +1,5 @@
 @using Innkeep2.Client.Components.Dialogs
+@using Innkeep2.Models.Internal.Receipt
 @using Innkeep2.Models.Shared
 @using Innkeep2.Print.Formatter
 @using Innkeep2.Print.Printer
@@ -50,37 +51,57 @@
     private async Task StartTransaction()
     {
         LoadingService.IsLoading = true;
-        
-        var transactionReceipt = await TransactionService.SubmitOrderAsync();
 
-        if (!transactionReceipt.IsSuccess)
+        TransactionReceipt receipt;
+
+        try
         {
-            Snackbar.Add(transactionReceipt.Error!.Message, Severity.Error);
+            var transactionReceipt = await TransactionService.SubmitOrderAsync();
+
+            if (!transactionReceipt.IsSuccess)
+            {
+                var error = transactionReceipt.Error!;
+                var message = error.Code == "Http.Timeout"
+                    ? "Keine Antwort vom Server. Bitte Status prüfen, bevor die Bestellung erneut abgeschickt wird."
+                    : error.Message;
+
+                Snackbar.Add(message, Severity.Error);
+                return;
+            }
+
+            TransactionService.SetAmountGiven(0, true);
+
+            if (transactionReceipt.Value is not { } submitted)
+                return;
+
+            receipt = submitted;
+
+            if (receipt.Vouchers.Any())
+            {
+                NetworkPrinterService.Print(ReceiptDocumentBuilder.Build(receipt));
+            }
+
+            if (receipt.PaymentType == PaymentType.Cash)
+            {
+                NetworkPrinterService.OpenDrawer();
+            }
+        }
+        catch (Exception ex)
+        {
+            Serilog.Log.Error(ex, "Submitting order failed unexpectedly");
+            Snackbar.Add("Bestellung konnte nicht abgeschickt werden.", Severity.Error);
             return;
         }
-        
-        TransactionService.SetAmountGiven(0, true);
-
-        if (transactionReceipt.Value is not { } receipt)
-            return;
-        
-        if (receipt.Vouchers.Any())
+        finally
         {
-            NetworkPrinterService.Print(ReceiptDocumentBuilder.Build(receipt));
+            LoadingService.IsLoading = false;
         }
 
-        if (receipt.PaymentType == PaymentType.Cash)
-        {
-            NetworkPrinterService.OpenDrawer();
-        }
-        
         var parameters = new DialogParameters<PaymentCompleteDialog>()
         {
-            { x => x.TransactionReceipt, transactionReceipt.Value }
+            { x => x.TransactionReceipt, receipt }
         };
-        
-        LoadingService.IsLoading = false;
-        
+
         var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
         
         var dialogResult = await dialog.Result;
