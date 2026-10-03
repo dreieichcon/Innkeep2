@@ -1,6 +1,7 @@
 using Innkeep2.Models.Internal;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Server.Queue;
+using Innkeep2.Server.Services;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Server;
 
@@ -26,11 +27,8 @@ public static class ApiEndpoints
         
         app.MapPost("/orders/create", async (
             OrderRequest request,
-            CloudTransactionClient cloudClient,
-            ServerEventProvider eventProvider,
-            ServerSalesItemProvider salesItemProvider,
-            RequestQueueRepository queue,
+            ServerTransactionService transactionService,
             CancellationToken ct
-        ) => await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, salesItemProvider, queue, ct));
+        ) => await OrderHandlers.CreateOrderAsync(request, transactionService, ct));
     }
 }

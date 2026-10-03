@@ -4,6 +4,7 @@ using Innkeep2.Models.Shared;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Server.Api;
 using Innkeep2.Server.Extensions;
+using Innkeep2.Server.Services;
 using Innkeep2.Services.Server;
 using Innkeep2.TestBase;
 using Microsoft.Extensions.Configuration;
@@ -46,12 +47,10 @@ public class OrderHandlersIntegrationTests
         var eventProvider = _serviceProvider.GetRequiredService<ServerEventProvider>();
         var salesItemProvider = _serviceProvider.GetRequiredService<ServerSalesItemProvider>();
         var queue = new FakeRequestQueueRepository();
-
-        var eventResult = await eventProvider.GetCachedEventAsync();
-        Assert.IsTrue(eventResult.IsSuccess);
+        var transactionService = new ServerTransactionService(cloudClient, eventProvider, queue);
 
         var salesItemsResult = await salesItemProvider.GetCachedItemsAsync();
-        var item = salesItemsResult.Value!.First();
+        var item = salesItemsResult.Value![0];
         item.Quantity = 1;
 
         var request = new OrderRequest
@@ -63,8 +62,7 @@ public class OrderHandlersIntegrationTests
             Currency = "EUR"
         };
 
-        var result = await OrderHandlers.CreateOrderAsync(request, cloudClient, eventProvider, salesItemProvider, queue,
-            CancellationToken.None);
+        var result = await OrderHandlers.CreateOrderAsync(request, transactionService, CancellationToken.None);
 
         var okResult = result as Microsoft.AspNetCore.Http.HttpResults.Ok<TransactionReceipt>;
         Assert.IsNotNull(okResult);

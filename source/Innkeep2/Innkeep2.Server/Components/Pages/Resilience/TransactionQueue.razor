@@ -1,0 +1,96 @@
+@using Innkeep2.Server.Queue
+@using Innkeep2.Ui.Shared.Components.Core
+@using MudBlazor
+
+@page "/Queue"
+
+<ListPage Title="Warteschlange">
+    <PaperItem Xs="12">
+        <MudStack Spacing="2">
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       Disabled="@(_items.Count == 0 || _isBusy)"
+                       OnClick="RetryAllAsync">
+                Alle erneut senden
+            </MudButton>
+
+            @if (_isBusy)
+            {
+                <MudProgressLinear Color="Color.Primary" Indeterminate="true"/>
+            }
+
+            <MudDataGrid T="QueuedRequest" Items="_items" Dense="true">
+                <NoRecordsContent>
+                    <MudText>Keine Anfragen in der Warteschlange</MudText>
+                </NoRecordsContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.Type" Title="Typ"/>
+                    <PropertyColumn Property="x => x.RequestId" Title="Id"/>
+                    <TemplateColumn Title="Eingereiht">
+                        <CellTemplate>@context.Item.EnqueuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="x => x.Attempts" Title="Versuche"/>
+                    <TemplateColumn Title="Letzter Versuch">
+                        <CellTemplate>@context.Item.LastAttemptAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</CellTemplate>
+                    </TemplateColumn>
+                    <PropertyColumn Property="x => x.LastError" Title="Letzter Fehler"/>
+                    <TemplateColumn Title="Aktionen">
+                        <CellTemplate>
+                            <MudButton Disabled="_isBusy" OnClick="() => RetryAsync(context.Item)">Erneut senden</MudButton>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+        </MudStack>
+    </PaperItem>
+</ListPage>
+
+@code {
+
+    [Inject]
+    public RequestQueueRepository Queue { get; set; } = null!;
+
+    [Inject]
+    public RequestRetryService RetryService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private IReadOnlyList<QueuedRequest> _items = [];
+    private bool _isBusy;
+
+    protected override void OnInitialized() => Reload();
+
+    private void Reload() => _items = Queue.GetAll();
+
+    private async Task RetryAsync(QueuedRequest entry)
+    {
+        _isBusy = true;
+
+        var result = await RetryService.RetryAsync(entry.Id);
+
+        Snackbar.Add(
+            result.IsSuccess ? "Anfrage erfolgreich gesendet" : $"Fehler: {result.Error!.Message}",
+            result.IsSuccess ? Severity.Success : Severity.Error
+        );
+
+        Reload();
+        _isBusy = false;
+    }
+
+    private async Task RetryAllAsync()
+    {
+        _isBusy = true;
+
+        await RetryService.RetryAllAsync();
+        Reload();
+
+        Snackbar.Add(
+            _items.Count == 0 ? "Alle Anfragen gesendet" : $"{_items.Count} Anfragen weiterhin in der Warteschlange",
+            _items.Count == 0 ? Severity.Success : Severity.Warning
+        );
+
+        _isBusy = false;
+    }
+
+}

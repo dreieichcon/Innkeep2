@@ -14,8 +14,22 @@ namespace Innkeep2.Cloud.Services.Transactions;
 
 public sealed partial class TransactionService
 {
-    public async Task<Result<TransactionReceipt>> RefundTransactionAsync(Guid requestId, CancellationToken ct = default)
+    public async Task<Result<TransactionReceipt>> RefundTransactionAsync(
+        Guid requestId,
+        Guid refundRequestId,
+        CancellationToken ct = default,
+        bool isRetry = false
+    )
     {
+        if (isRetry && await FindExistingReceiptAsync(x => x.RequestId == refundRequestId, ct) is { } existing)
+            return Result<TransactionReceipt>.Success(existing);
+
+        var alreadyRefunded = await transactionRepository.HasRefundAsync(requestId, ct);
+
+        if (alreadyRefunded.Value)
+            return Result<TransactionReceipt>.Failure(
+                new Error("Refund.AlreadyRefunded", $"Transaction '{requestId}' has already been refunded."));
+
         if (activeConfiguration.Organizer is not { } organizer || activeConfiguration.Event is not { } pretixEvent)
             return Result<TransactionReceipt>.Failure(
                 new Error("Refund.NoConfiguration", "No organizer or event is currently selected."));
@@ -37,7 +51,7 @@ public sealed partial class TransactionService
 
         var refund = new Transaction
         {
-            RequestId = Guid.NewGuid(),
+            RequestId = refundRequestId,
             TransactionType = TransactionType.Refund,
             RefundRequestId = original.RequestId,
             Title = pretixEvent.Name,
@@ -60,7 +74,7 @@ public sealed partial class TransactionService
 
         await TryRefundPretixOrderAsync(refund, organizer.Slug, pretixEvent.Slug, pretixOrder.Code,
             original.TotalAmount, ct);
-        
+
         var fiskalyTransaction = await TryCreateFiskalyRefundAsync(refund, originalRequest, ct);
 
         await transactionRepository.UpdateAsync(refund, ct);
@@ -122,7 +136,8 @@ public sealed partial class TransactionService
         if (!startResult.IsSuccess)
         {
             refund.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning<Guid, string>("Fiskaly refund start failed for transaction {RequestId}: {Error}", refund.RequestId,
+            Log.Warning<Guid, string>("Fiskaly refund start failed for transaction {RequestId}: {Error}",
+                refund.RequestId,
                 startResult.Error!.Message);
             return null;
         }
@@ -133,7 +148,8 @@ public sealed partial class TransactionService
         if (!finishResult.IsSuccess)
         {
             refund.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning<Guid, string>("Fiskaly refund finish failed for transaction {RequestId}: {Error}", refund.RequestId,
+            Log.Warning<Guid, string>("Fiskaly refund finish failed for transaction {RequestId}: {Error}",
+                refund.RequestId,
                 finishResult.Error!.Message);
             return null;
         }

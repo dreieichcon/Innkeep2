@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using System.Text.Json;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Cloud.TransactionDb.Repositories;
@@ -24,8 +25,12 @@ public sealed partial class TransactionService(
     CachedSalesItemProvider salesItemProvider
 )
 {
-    public async Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default)
+    public async Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default,
+        bool isRetry = false)
     {
+        if (isRetry && await FindExistingReceiptAsync(x => x.RequestId == request.RequestId, ct) is { } existing)
+            return Result<TransactionReceipt>.Success(existing);
+
         if (activeConfiguration.Organizer is not { } organizer || activeConfiguration.Event is not { } pretixEvent)
             return Result<TransactionReceipt>.Failure(
                 new Error("Order.NoConfiguration", "No organizer or event is currently selected."));
@@ -56,12 +61,13 @@ public sealed partial class TransactionService(
         var fiskalyTransaction = await TryCreateFiskalyTransactionAsync(order, request, ct);
 
         await transactionRepository.UpdateAsync(order, ct);
-        
+
         if (pretixOrder is not null && request.Items.Any(x => x.MaxStock.HasValue))
             salesItemProvider.Invalidate(new SalesItemKey(organizer.Slug, pretixEvent.Slug));
 
         var receipt = ReceiptBuilder.Build(
-            new ReceiptContext(order.RequestId, TransactionType.Sale, order.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
+            new ReceiptContext(order.RequestId, TransactionType.Sale, order.BookingTime, pretixEvent.Name,
+                pretixEvent.Header ?? ""),
             request,
             request.AmountGiven,
             request.AmountBack,
@@ -71,7 +77,19 @@ public sealed partial class TransactionService(
 
         return Result<TransactionReceipt>.Success(receipt);
     }
-    
+
+    private async Task<TransactionReceipt?> FindExistingReceiptAsync(
+        Expression<Func<Transaction, bool>> predicate,
+        CancellationToken ct
+    )
+    {
+        var existing = await transactionRepository.GetCustomAsync(predicate, ct);
+
+        return existing.IsSuccess
+            ? TransactionReceiptFactory.FromTransaction(existing.Value!)
+            : null;
+    }
+
     private async Task<PretixOrderResponse?> TryCreatePretixOrderAsync(
         Transaction transaction,
         string organizerSlug,
@@ -80,12 +98,14 @@ public sealed partial class TransactionService(
         CancellationToken ct
     )
     {
-        var result = await pretixOrderService.CreateOrderAsync(organizerSlug, eventInternal.Slug, eventInternal.IsTestMode, request.Items, ct);
+        var result = await pretixOrderService.CreateOrderAsync(organizerSlug, eventInternal.Slug,
+            eventInternal.IsTestMode, request.Items, ct);
 
         if (!result.IsSuccess)
         {
             transaction.PretixStatus = TransactionStepStatus.Failed;
-            Log.Warning("Pretix order creation failed for order {OrderId}: {Error}", transaction.RequestId, result.Error!.Message);
+            Log.Warning("Pretix order creation failed for order {OrderId}: {Error}", transaction.RequestId,
+                result.Error!.Message);
             return null;
         }
 
@@ -94,7 +114,7 @@ public sealed partial class TransactionService(
 
         return result.Value;
     }
-    
+
     private async Task<FiskalyTransaction?> TryCreateFiskalyTransactionAsync(
         Transaction transaction,
         OrderRequest request,
@@ -106,16 +126,19 @@ public sealed partial class TransactionService(
         if (!startResult.IsSuccess)
         {
             transaction.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning("Fiskaly transaction start failed for order {OrderId}: {Error}", transaction.RequestId, startResult.Error!.Message);
+            Log.Warning("Fiskaly transaction start failed for order {OrderId}: {Error}", transaction.RequestId,
+                startResult.Error!.Message);
             return null;
         }
 
-        var finishResult = await fiskalyTransactionService.FinishAsync(transaction.RequestId, revision: 2, request, ct:ct);
+        var finishResult =
+            await fiskalyTransactionService.FinishAsync(transaction.RequestId, revision: 2, request, ct: ct);
 
         if (!finishResult.IsSuccess)
         {
             transaction.FiskalyStatus = TransactionStepStatus.Failed;
-            Log.Warning("Fiskaly transaction finish failed for order {OrderId}: {Error}", transaction.RequestId, finishResult.Error!.Message);
+            Log.Warning("Fiskaly transaction finish failed for order {OrderId}: {Error}", transaction.RequestId,
+                finishResult.Error!.Message);
             return null;
         }
 

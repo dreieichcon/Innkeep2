@@ -67,6 +67,30 @@ public static class ReceiptBuilder
         FiskalyQrCode = fiskalyTransaction?.QrCodeData ?? "TSS OFFLINE",
         FiskalyTransactionNumber = fiskalyTransaction?.Number
     };
+    
+    public static TransactionReceipt BuildOfflineRefund(
+        ReceiptContext context,
+        decimal refundAmount,
+        PaymentType paymentType,
+        string currency
+    ) => new()
+    {
+        OrderId = context.OrderId,
+        TransactionType = TransactionType.Refund,
+        Title = context.Title,
+        Header = context.Header,
+        BookingTime = context.BookingTime,
+        Currency = currency,
+        PaymentType = paymentType,
+        RefundRequestId = context.RefundRequestId,
+        Lines = [],
+        Sum = new ReceiptSum { TotalAmount = -refundAmount, AmountGiven = 0, AmountReturned = refundAmount },
+        TaxInformation = [],
+        Vouchers = [],
+        PretixOrderCode = null,
+        FiskalyQrCode = "TSS OFFLINE",
+        FiskalyTransactionNumber = null
+    };
 
     private static List<ReceiptTaxInformation> BuildTaxInformation(OrderRequest order)
         => order.Items

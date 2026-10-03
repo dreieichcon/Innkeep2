@@ -87,23 +87,31 @@ public static class ApiEndpoints
         });
 
         app.MapPost("/transactions/create",
-            async (OrderRequest request, TransactionService transactionService, CancellationToken ct) =>
+            async (OrderRequest request, TransactionService transactionService, CancellationToken ct,
+                bool retry = false) =>
             {
-                var result = await transactionService.CreateOrderAsync(request, ct);
+                var result = await transactionService.CreateOrderAsync(request, ct, retry);
                 return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
             });
 
-        app.MapPost("/transactions/{requestId:guid}/refund",
-            async (Guid requestId, TransactionService transactionService, CancellationToken ct) =>
+        app.MapPost("/transactions/{requestId:guid}/refund/{refundRequestId:guid}",
+            async (Guid requestId, Guid refundRequestId, TransactionService transactionService, CancellationToken ct, bool retry = false) =>
             {
-                var result = await transactionService.RefundTransactionAsync(requestId, ct);
-                return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
+                var result = await transactionService.RefundTransactionAsync(requestId, refundRequestId, ct, retry);
+
+                if (result.IsSuccess)
+                    return Results.Ok(result.Value);
+
+                return result.Error!.Code == "Refund.AlreadyRefunded"
+                    ? Results.Conflict(result.Error)
+                    : Results.BadRequest(result.Error);
             });
 
         app.MapPost("/transactions/transfer",
-            async (TransferRequest request, TransactionService transactionService, CancellationToken ct) =>
+            async (TransferRequest request, TransactionService transactionService, CancellationToken ct,
+                bool retry = false) =>
             {
-                var result = await transactionService.CreateTransferAsync(request, ct);
+                var result = await transactionService.CreateTransferAsync(request, ct, retry);
                 return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
             });
     }

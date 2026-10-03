@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddCloudCaches();
         
         services.RegisterServerDatabase();
+        services.AddSingleton<ServerTransactionService>();
         services.AddSunServices();
         
         services.AddSingleton<ServerStartupService>();

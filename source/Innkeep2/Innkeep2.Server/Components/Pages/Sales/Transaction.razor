@@ -4,6 +4,8 @@
 @using Innkeep2.Models.Shared
 @using Innkeep2.Print.Formatter
 @using Innkeep2.Print.Printer
+@using Innkeep2.Server.Queue
+@using Innkeep2.Server.Services
 @using Innkeep2.Ui.Shared.Components.Core
 @using Innkeep2.Ui.Shared.Components.Receipt
 @using MudBlazor
@@ -28,7 +30,8 @@
                 @if (Receipt.RefundRequestId is { } originalId)
                 {
                     <MudText>
-                        Original: <MudLink Href="@($"/Transactions/{originalId}")">@originalId</MudLink>
+                        Original:
+                        <MudLink Href="@($"/Transactions/{originalId}")">@originalId</MudLink>
                     </MudText>
                 }
                 <MudDivider Class="my-2"/>
@@ -49,9 +52,25 @@
             </MudStack>
         </PaperItem>
     }
+    else if (Queued is not null)
+    {
+        <PaperItem Xs="12">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h6">In Warteschlange</MudText>
+                <MudText>Typ: @Queued.Type</MudText>
+                <MudText>Eingereiht: @Queued.EnqueuedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</MudText>
+                <MudText>Versuche: @Queued.Attempts</MudText>
+                @if (Queued.LastError is not null)
+                {
+                    <MudText>Letzter Fehler: @Queued.LastError</MudText>
+                }
+                <MudButton Href="/Queue" Variant="Variant.Outlined">Zur Warteschlange</MudButton>
+            </MudStack>
+        </PaperItem>
+    }
     else
     {
-        <PaperItem Xs="3">
+        <PaperItem Xs="12">
             <MudText>Bestellung nicht gefunden.</MudText>
         </PaperItem>
     }
@@ -66,6 +85,9 @@
     public CloudTransactionClient TransactionClient { get; set; } = null!;
 
     [Inject]
+    public ServerTransactionService TransactionService { get; set; } = null!;
+
+    [Inject]
     public NetworkPrinterService PrinterService { get; set; } = null!;
 
     [Inject]
@@ -78,15 +100,30 @@
     public IDialogService DialogService { get; set; } = null!;
 
     private TransactionReceipt? Receipt { get; set; }
-    
+
+    private QueuedRequest? Queued { get; set; }
+
     protected override async Task OnParametersSetAsync()
     {
+        Receipt = null;
+        Queued = null;
+
         var result = await TransactionClient.GetTransactionAsync(RequestId);
-        Receipt = result.IsSuccess ? result.Value : null;
+
+        if (result.IsSuccess)
+        {
+            Receipt = result.Value;
+            return;
+        }
+
+        Queued = TransactionService.FindQueued(RequestId);
     }
 
     private async Task CancelOrderAsync()
     {
+        if (Receipt is not { } original)
+            return;
+
         var confirmed = await DialogService.ShowMessageBoxAsync(
             "Bestellung stornieren",
             "Dieser Schritt kann nicht rückgängig gemacht werden. Wirklich fortfahren?",
@@ -97,19 +134,22 @@
         if (confirmed is not true)
             return;
 
-        var result = await TransactionClient.RefundAsync(RequestId);
+        var outcome = await TransactionService.RefundAsync(original);
 
-        if (!result.IsSuccess)
+        if (outcome.Receipt is null)
         {
-            Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
+            Snackbar.Add(outcome.Error ?? "Unbekannter Fehler", Severity.Warning);
             return;
         }
 
-        Snackbar.Add("Bestellung storniert", Severity.Success);
+        if (outcome.WasQueued)
+            Snackbar.Add("Cloud nicht erreichbar, Storno vorgemerkt", Severity.Warning);
+        else
+            Snackbar.Add("Bestellung storniert", Severity.Success);
 
         try
         {
-            var bytes = ReceiptDocumentBuilder.Build(result.Value!);
+            var bytes = ReceiptDocumentBuilder.Build(outcome.Receipt);
             await Task.Run(() => PrinterService.Print(bytes));
         }
         catch (Exception ex)
@@ -117,7 +157,7 @@
             Snackbar.Add($"Druckfehler: {ex.Message}", Severity.Error);
         }
 
-        Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
+        Navigation.NavigateTo($"/Transactions/{outcome.Receipt.OrderId}");
     }
 
     private async Task ReprintAsync()

@@ -12,9 +12,14 @@ namespace Innkeep2.Cloud.Services.Transactions;
 
 public sealed partial class TransactionService
 {
-    public async Task<Result<TransactionReceipt>> CreateTransferAsync(TransferRequest request, CancellationToken ct = default)
+    public async Task<Result<TransactionReceipt>> CreateTransferAsync(TransferRequest request,
+        CancellationToken ct = default, bool isRetry = false)
     {
-        if (activeConfiguration.Tss is null || activeConfiguration.Client is null || activeConfiguration.Event is not { } pretixEvent)
+        if (isRetry && await FindExistingReceiptAsync(x => x.RequestId == request.RequestId, ct) is { } existing)
+            return Result<TransactionReceipt>.Success(existing);
+
+        if (activeConfiguration.Tss is null || activeConfiguration.Client is null ||
+            activeConfiguration.Event is not { } pretixEvent)
             return Result<TransactionReceipt>.Failure(
                 new Error("Transfer.NoConfiguration", "No TSS, client, or event is currently selected."));
 
@@ -45,7 +50,8 @@ public sealed partial class TransactionService
         await transactionRepository.UpdateAsync(transfer, ct);
 
         var receipt = ReceiptBuilder.BuildTransfer(
-            new ReceiptContext(transfer.RequestId, TransactionType.Transfer, transfer.BookingTime, pretixEvent.Name, pretixEvent.Header ?? ""),
+            new ReceiptContext(transfer.RequestId, TransactionType.Transfer, transfer.BookingTime, pretixEvent.Name,
+                pretixEvent.Header ?? ""),
             request.Amount,
             transfer.AmountGiven,
             transfer.AmountBack,

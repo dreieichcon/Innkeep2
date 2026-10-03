@@ -3,6 +3,7 @@
 @using Innkeep2.Models.Internal
 @using Innkeep2.Print.Formatter
 @using Innkeep2.Print.Printer
+@using Innkeep2.Server.Services
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
@@ -28,7 +29,7 @@
 @code {
 
     [Inject]
-    public CloudTransactionClient TransactionClient { get; set; } = null!;
+    public ServerTransactionService TransactionService { get; set; } = null!;
 
     [Inject]
     public NetworkPrinterService PrinterService { get; set; } = null!;
@@ -51,19 +52,16 @@
             Currency = "EUR"
         };
 
-        var result = await TransactionClient.TransferAsync(request);
+        var outcome = await TransactionService.TransferAsync(request);
 
-        if (!result.IsSuccess)
-        {
-            Snackbar.Add($"Fehler: {result.Error!.Message}", Severity.Error);
-            return;
-        }
-
-        Snackbar.Add("Buchung erfolgreich", Severity.Success);
+        if (outcome.WasQueued)
+            Snackbar.Add("Cloud nicht erreichbar, Buchung vorgemerkt", Severity.Warning);
+        else
+            Snackbar.Add("Buchung erfolgreich", Severity.Success);
 
         try
         {
-            var bytes = ReceiptDocumentBuilder.Build(result.Value!);
+            var bytes = ReceiptDocumentBuilder.Build(outcome.Receipt!);
             await Task.Run(() => PrinterService.Print(bytes));
         }
         catch (Exception ex)
@@ -71,7 +69,8 @@
             Snackbar.Add($"Druckfehler: {ex.Message}", Severity.Error);
         }
 
-        Navigation.NavigateTo($"/Transactions/{result.Value!.OrderId}");
+        if (!outcome.WasQueued)
+            Navigation.NavigateTo($"/Transactions/{outcome.Receipt!.OrderId}");
     }
 
 }

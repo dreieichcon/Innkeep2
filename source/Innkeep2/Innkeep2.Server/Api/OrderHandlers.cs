@@ -1,11 +1,6 @@
-using System.Text.Json;
 using Innkeep2.Models.Internal;
-using Innkeep2.Models.Internal.Receipt;
-using Innkeep2.Models.Shared;
-using Innkeep2.Requests.Cloud;
-using Innkeep2.Server.Queue;
-using Innkeep2.Services.Server;
-using Innkeep2.Services.Shared;
+using Innkeep2.Server.Services;
+
 
 namespace Innkeep2.Server.Api;
 
@@ -13,51 +8,11 @@ public static class OrderHandlers
 {
     public static async Task<IResult> CreateOrderAsync(
         OrderRequest request,
-        CloudTransactionClient cloudClient,
-        ServerEventProvider eventProvider,
-        ServerSalesItemProvider salesItemProvider,
-        RequestQueueRepository queue,
+        ServerTransactionService transactionService,
         CancellationToken ct
     )
     {
-        var result = await cloudClient.CreateOrderAsync(request, ct);
-
-        if (result.IsSuccess)
-        {
-            _ = salesItemProvider.ForceRefreshAsync(ct);
-            return Results.Ok(result.Value);
-        }
-
-        EnqueuePending(queue, request.RequestId, QueuedRequestType.Order, request);
-
-        var receipt = await BuildOfflineReceiptAsync(request, eventProvider, ct);
-
-        return Results.Ok(receipt);
-    }
-
-    private static void EnqueuePending(RequestQueueRepository queue, Guid requestId, QueuedRequestType type, object payload)
-        => queue.Enqueue(new QueuedRequest
-        {
-            RequestId = requestId,
-            Type = type,
-            PayloadJson = JsonSerializer.Serialize(payload),
-            EnqueuedAt = DateTime.UtcNow
-        });
-
-    private static async Task<TransactionReceipt> BuildOfflineReceiptAsync(
-        OrderRequest request,
-        ServerEventProvider eventProvider,
-        CancellationToken ct
-    )
-    {
-        var eventResult = await eventProvider.GetCachedEventAsync(ct);
-        var pretixEvent = eventResult.Value ?? new Event { Name = "", Slug = "", IsTestMode = false };
-
-        return ReceiptBuilder.Build(
-            new ReceiptContext(request.RequestId, TransactionType.Sale, DateTime.UtcNow, pretixEvent.Name, pretixEvent.Header ?? ""),
-            request,
-            request.AmountGiven,
-            request.AmountBack
-        );
+        var outcome = await transactionService.CreateOrderAsync(request, ct);
+        return Results.Ok(outcome.Receipt);
     }
 }
