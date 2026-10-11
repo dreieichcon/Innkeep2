@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Demolite.Http.Extensions;
 using Innkeep2.Models.Serialization.Fiskaly;
 using Innkeep2.Requests.Fiskaly.Auth;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,18 +21,12 @@ public static class FiskalyServiceCollectionExtensions
     public static void AddFiskalyClients(this IServiceCollection services)
     {
         services.AddFiskalySerializerOptions();
-        services.AddTransient<FiskalyAuthHandler>();
         
-        services.AddHttpClient<FiskalyAuthClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl));
+        services.AddApiClient<FiskalyAuthClient>(FiskalyUrls.BaseUrl);
         services.AddSingleton<FiskalyTokenProvider>();
         
-        services.AddHttpClient<FiskalyTssClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
-            .AddHttpMessageHandler<FiskalyAuthHandler>();
-        
-        services.AddHttpClient<FiskalyClientClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
-            .AddHttpMessageHandler<FiskalyAuthHandler>();
-        
-        services.AddHttpClient<FiskalyTransactionClient>(client => client.BaseAddress = new Uri(FiskalyUrls.BaseUrl))
-            .AddHttpMessageHandler<FiskalyAuthHandler>();
+        services.AddApiClient<FiskalyTssClient>(FiskalyUrls.BaseUrl).AddAuth<FiskalyTokenProvider>();
+        services.AddApiClient<FiskalyClientClient>(FiskalyUrls.BaseUrl).AddAuth<FiskalyTokenProvider>();
+        services.AddApiClient<FiskalyTransactionClient>(FiskalyUrls.BaseUrl).AddAuth<FiskalyTokenProvider>();
     }
 }

@@ -1,4 +1,6 @@
 using System.Text.Json;
+using Demolite.Http.Client;
+using Demolite.Http.Extensions;
 using Innkeep2.Credentials;
 using Innkeep2.Credentials.Models;
 using Innkeep2.Models.Serialization.Pretix;
@@ -22,31 +24,21 @@ public static class PretixServiceCollectionExtensions
 	public static void AddPretixClients(this IServiceCollection services)
 	{
 		services.AddPretixSerializerOptions();
-		services.AddTransient<PretixAuthHandler>();
 
-		services.AddHttpClient<PretixOrganizerClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
-		
-		services.AddHttpClient<PretixEventClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
-		
-		services.AddHttpClient<PretixEventSettingsClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
-			
-		services.AddHttpClient<PretixSalesItemClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
-		
-		services.AddHttpClient<PretixQuotaClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
-		
-		services.AddHttpClient<PretixOrderClient>(ConfigureClient())
-			.AddHttpMessageHandler<PretixAuthHandler>();
+		services.AddPretixClient<PretixOrganizerClient>();
+		services.AddPretixClient<PretixEventClient>();
+		services.AddPretixClient<PretixEventSettingsClient>();
+		services.AddPretixClient<PretixSalesItemClient>();
+		services.AddPretixClient<PretixQuotaClient>();
+		services.AddPretixClient<PretixOrderClient>();
 	}
 
-	private static Action<IServiceProvider,HttpClient> ConfigureClient()
-		=> (sp, client) =>
-		{
-			var credentials = sp.GetRequiredService<ActiveCredentialsProvider<PretixCredential>>();
-			client.BaseAddress = new Uri(credentials.GetActive().BaseUrl);
-		};
+	private static void AddPretixClient<TClient>(this IServiceCollection services)
+		where TClient : ApiClient
+		=> services
+			.AddApiClient<TClient>(sp => GetCredentials(sp).GetActive().BaseUrl)
+			.AddStaticAuth("Token", sp => GetCredentials(sp).GetActive().ApiKey);
+
+	private static ActiveCredentialsProvider<PretixCredential> GetCredentials(IServiceProvider sp)
+		=> sp.GetRequiredService<ActiveCredentialsProvider<PretixCredential>>();
 }

@@ -1,9 +1,9 @@
+using Demolite.Http.Extensions;
 using Innkeep2.Client.Services;
 using Innkeep2.Credentials.Models;
 using Innkeep2.Print.Printer;
 using Innkeep2.Print.Storage;
 using Innkeep2.Requests.Server;
-using Innkeep2.Requests.Server.Auth;
 using Innkeep2.Services.Client;
 using Innkeep2.Services.Extensions;
 using Innkeep2.Services.Shared;
@@ -40,28 +40,26 @@ public static class ServiceCollectionExtensions
     
     private static void AddServerClients(this IServiceCollection services)
     {
-        services.AddTransient<ServerAuthHandler>();
-        
         services.AddHttpClient<ServerAuthClient>((sp, client) =>
             {
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(5);
             })
-            .AddHttpMessageHandler<ServerAuthHandler>();
+            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<ServerCredential>().ApiKey);
 
         services.AddHttpClient<ServerDataClient>((sp, client) =>
             {
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(10);
             })
-            .AddHttpMessageHandler<ServerAuthHandler>();
+            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<ServerCredential>().ApiKey);
 
         services.AddHttpClient<ServerTransactionClient>((sp, client) =>
             {
                 client.BaseAddress = new Uri(sp.GetRequiredService<ServerCredential>().ServerUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             })
-            .AddHttpMessageHandler<ServerAuthHandler>();
+            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<ServerCredential>().ApiKey);
     }
 
     private static void RegisterPrinterServices(this IServiceCollection services)

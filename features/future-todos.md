@@ -21,4 +21,3 @@
 
 ## Technical
 - Quality refactoring: analyze the code and make it more compact.
-- Code extraction: move database and HttpClient boilerplate into separate NuGet packages for reuse (repos: `DemoliteDb`, `DemoliteHttp`).

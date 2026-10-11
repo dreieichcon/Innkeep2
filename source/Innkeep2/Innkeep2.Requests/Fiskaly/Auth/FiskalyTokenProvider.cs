@@ -1,4 +1,5 @@
 using Demolite.Core.Models;
+using Demolite.Http.Auth;
 using Innkeep2.Credentials;
 using Innkeep2.Credentials.Models;
 
@@ -7,38 +8,16 @@ namespace Innkeep2.Requests.Fiskaly.Auth;
 public sealed class FiskalyTokenProvider(
     FiskalyAuthClient authClient,
     ActiveCredentialsProvider<FiskalyCredential> credentials
-)
+) : CachedTokenProvider
 {
-    private readonly SemaphoreSlim _lock = new(1, 1);
-    private string? _token;
-    private DateTimeOffset _expiresAt = DateTimeOffset.MinValue;
-
-    public async Task<Result<string>> GetTokenAsync(CancellationToken ct = default)
+    protected override async Task<Result<AccessToken>> RequestTokenAsync(CancellationToken ct)
     {
-        if (_token is not null && DateTimeOffset.UtcNow < _expiresAt)
-            return Result<string>.Success(_token);
+        var active = credentials.GetActive();
+        var result = await authClient.AuthenticateAsync(active.ApiKey, active.ApiSecret, ct);
 
-        await _lock.WaitAsync(ct);
-
-        try
-        {
-            if (_token is not null && DateTimeOffset.UtcNow < _expiresAt)
-                return Result<string>.Success(_token);
-
-            var active = credentials.GetActive();
-            var result = await authClient.AuthenticateAsync(active.ApiKey, active.ApiSecret, ct);
-
-            if (!result.IsSuccess)
-                return Result<string>.Failure(result.Error!);
-
-            _token = result.Value!.AccessToken;
-            _expiresAt = DateTimeOffset.UtcNow.AddSeconds(result.Value!.AccessTokenExpiresIn - 60);
-
-            return Result<string>.Success(_token);
-        }
-        finally
-        {
-            _lock.Release();
-        }
+        return result.IsSuccess
+            ? Result<AccessToken>.Success(
+                new AccessToken(result.Value!.AccessToken, TimeSpan.FromSeconds(result.Value.AccessTokenExpiresIn)))
+            : Result<AccessToken>.Failure(result.Error!);
     }
 }
