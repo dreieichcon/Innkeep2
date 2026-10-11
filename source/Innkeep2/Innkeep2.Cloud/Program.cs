@@ -21,6 +21,7 @@ builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChan
 
 var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
 AppSetup.SetupLogging("Innkeep2.Cloud", discordCredential?.WebhookUrl);
+builder.Logging.UseSerilogOnly();
 
 builder.Services.AddDataProtection()
 	.PersistKeysToFileSystem(new DirectoryInfo("./dataprotection-keys"))
