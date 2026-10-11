@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using Demolite.Db.Models;
 using Innkeep2.Credentials.Interfaces;
-using Innkeep2.Database.Model;
 
 namespace Innkeep2.Cloud.AppDb.Models;
 

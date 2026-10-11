@@ -1,4 +1,4 @@
-using Innkeep2.Database.Model;
+using Demolite.Db.Models;
 using Innkeep2.Models.Shared;
 
 namespace Innkeep2.Cloud.TransactionDb.Models;

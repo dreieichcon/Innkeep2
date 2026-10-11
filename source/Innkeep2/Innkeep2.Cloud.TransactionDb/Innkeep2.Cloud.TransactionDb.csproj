@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Innkeep2.Database\Innkeep2.Database.csproj" />
       <ProjectReference Include="..\Innkeep2.Services\Innkeep2.Services.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Demolite.Db" Version="0.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.10" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10" />
       <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />

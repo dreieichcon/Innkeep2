@@ -11,7 +11,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Innkeep2.Cloud.AppDb\Innkeep2.Cloud.AppDb.csproj" />
       <ProjectReference Include="..\Innkeep2.Cloud.TransactionDb\Innkeep2.Cloud.TransactionDb.csproj" />
-      <ProjectReference Include="..\Innkeep2.Database\Innkeep2.Database.csproj" />
       <ProjectReference Include="..\Innkeep2.Services\Innkeep2.Services.csproj" />
       <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
       <ProjectReference Include="..\Innkeep2.Requests\Innkeep2.Requests.csproj" />

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Innkeep2.Database.Model;
+using Demolite.Db.Models;
 using JetBrains.Annotations;
 
 namespace Innkeep2.Cloud.AppDb.Models;

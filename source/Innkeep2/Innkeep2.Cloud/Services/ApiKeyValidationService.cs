@@ -4,7 +4,6 @@ using Demolite.Core.Models;
 using Innkeep2.Cloud.AppDb.Models;
 using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Credentials.ApiKeys;
-using Innkeep2.Database.Model;
 
 namespace Innkeep2.Cloud.Services;
 
@@ -19,7 +18,6 @@ public class ApiKeyValidationService(InnkeepCloudApiKeyRepository repository)
             Name = name,
             KeyHash = ApiKeyHasher.Hash(key),
             CreatedAt = DateTime.UtcNow,
-            Operation = Operation.Create,
         };
 
         var result = await repository.CreateAsync(model);

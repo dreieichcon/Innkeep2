@@ -1,7 +1,6 @@
 using Demolite.Core.Models;
 using Innkeep2.Cloud.AppDb.Models;
 using Innkeep2.Cloud.AppDb.Repositories;
-using Innkeep2.Database.Model;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
@@ -52,7 +51,6 @@ public sealed class ActiveConfigurationService(
         settings.SelectedClientId = clientId;
         settings.UseTestMode = useTestMode;
         settings.SelectedOrderDatabasePath = databasePath;
-        settings.Operation = Operation.Update;
 
         var updateResult = await settingsRepository.UpdateAsync(settings, ct);
 

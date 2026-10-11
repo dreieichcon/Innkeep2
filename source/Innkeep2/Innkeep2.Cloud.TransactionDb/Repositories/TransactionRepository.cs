@@ -1,13 +1,13 @@
 using Demolite.Core.Models;
+using Demolite.Db.Repositories;
 using Innkeep2.Cloud.TransactionDb.Models;
-using Innkeep2.Database.Repository;
 using Innkeep2.Models.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Cloud.TransactionDb.Repositories;
 
 public class TransactionRepository(IDbContextFactory<InnkeepTransactionDbContext> contextFactory)
-    : AbstractRepository<Transaction, InnkeepTransactionDbContext>(contextFactory)
+    : AbstractRepository<Transaction, int, InnkeepTransactionDbContext>(contextFactory)
 {
     public virtual async Task<Result<PagedResult<Transaction>>> GetPagedAsync(
         int skip,
