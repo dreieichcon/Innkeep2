@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
+using Demolite.Core.Models;
 using Innkeep2.Database.Model;
-using Innkeep2.Models.Core;
 using Microsoft.EntityFrameworkCore;
 
 namespace Innkeep2.Database.Repository;

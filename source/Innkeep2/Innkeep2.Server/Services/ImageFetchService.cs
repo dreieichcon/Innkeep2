@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 
 namespace Innkeep2.Server.Services;
 

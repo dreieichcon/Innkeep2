@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 using Serilog;
 
 namespace Innkeep2.Requests.Core;

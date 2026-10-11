@@ -1,6 +1,6 @@
 using System.Text.Json;
+using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb.Models;
-using Innkeep2.Models.Core;
 using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;

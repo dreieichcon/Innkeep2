@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Models.Core;

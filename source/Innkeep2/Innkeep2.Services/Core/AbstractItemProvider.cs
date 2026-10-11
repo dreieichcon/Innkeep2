@@ -1,3 +1,4 @@
+using Demolite.Core.Models;
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Pretix.Core;
 using Microsoft.Extensions.Caching.Memory;

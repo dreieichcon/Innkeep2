@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 using Innkeep2.Models.Pretix;
 using Innkeep2.Requests.Core;
 using Microsoft.Extensions.DependencyInjection;

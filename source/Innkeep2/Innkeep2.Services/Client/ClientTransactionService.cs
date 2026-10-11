@@ -1,4 +1,4 @@
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Models.Shared;

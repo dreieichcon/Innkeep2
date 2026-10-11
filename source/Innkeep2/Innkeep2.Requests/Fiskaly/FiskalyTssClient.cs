@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 using Innkeep2.Models.Fiskaly;
 using Innkeep2.Models.Fiskaly.Core;
 using Innkeep2.Models.Fiskaly.Tss;

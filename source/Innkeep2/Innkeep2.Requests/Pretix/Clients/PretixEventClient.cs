@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Demolite.Core.Models;
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Pretix;
 using Innkeep2.Models.Pretix.Core;

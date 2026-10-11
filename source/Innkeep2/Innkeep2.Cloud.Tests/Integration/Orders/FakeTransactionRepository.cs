@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
+using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Cloud.TransactionDb.Repositories;
-using Innkeep2.Models.Core;
 
 namespace Innkeep2.Cloud.Tests.Integration.Orders;
 

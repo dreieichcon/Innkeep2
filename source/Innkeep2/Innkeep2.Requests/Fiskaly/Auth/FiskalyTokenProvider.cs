@@ -1,6 +1,6 @@
+using Demolite.Core.Models;
 using Innkeep2.Credentials;
 using Innkeep2.Credentials.Models;
-using Innkeep2.Models.Core;
 
 namespace Innkeep2.Requests.Fiskaly.Auth;
 

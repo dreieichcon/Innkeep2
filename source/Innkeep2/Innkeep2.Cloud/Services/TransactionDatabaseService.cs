@@ -1,5 +1,5 @@
+using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb;
-using Innkeep2.Models.Core;
 using Innkeep2.Requests.Core;
 using Innkeep2.Services.Cloud;
 using Microsoft.EntityFrameworkCore;

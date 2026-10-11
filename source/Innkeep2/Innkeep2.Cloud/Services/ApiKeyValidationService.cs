@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
+using Demolite.Core.Models;
 using Innkeep2.Cloud.AppDb.Models;
 using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Credentials.ApiKeys;
 using Innkeep2.Database.Model;
-using Innkeep2.Models.Core;
 
 namespace Innkeep2.Cloud.Services;
 

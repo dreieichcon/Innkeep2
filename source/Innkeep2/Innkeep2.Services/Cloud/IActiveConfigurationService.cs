@@ -1,4 +1,4 @@
-using Innkeep2.Models.Core;
+using Demolite.Core.Models;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;

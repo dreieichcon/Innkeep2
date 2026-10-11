@@ -1,3 +1,4 @@
+using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Database.Repository;
 using Innkeep2.Models.Core;
