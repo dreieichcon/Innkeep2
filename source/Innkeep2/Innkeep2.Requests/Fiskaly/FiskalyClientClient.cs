@@ -1,16 +1,18 @@
 using System.Text.Json;
 using Demolite.Core.Models;
+using Demolite.Http.Client;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Core;
-using Innkeep2.Requests.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Innkeep2.Requests.Fiskaly;
 
 public sealed class FiskalyClientClient(
     HttpClient httpClient,
-    [FromKeyedServices("fiskaly")] JsonSerializerOptions serializerOptions)
-    : CoreApiClient(httpClient, serializerOptions)
+    [FromKeyedServices("fiskaly")] JsonSerializerOptions serializerOptions,
+    ILogger<FiskalyClientClient> logger)
+    : ApiClient(httpClient, serializerOptions, logger)
 {
     public Task<Result<FiskalyListResponse<FiskalyClient>>> GetAllAsync(CancellationToken ct = default)
         => GetAsync<FiskalyListResponse<FiskalyClient>>("client", ct);

@@ -1,14 +1,15 @@
 using System.Text.Json;
 using Demolite.Core.Models;
-using Innkeep2.Requests.Core;
+using Demolite.Http.Client;
+using Microsoft.Extensions.Logging;
 
 namespace Innkeep2.Requests.Server;
 
-public sealed class ServerAuthClient(HttpClient httpClient)
-    : CoreApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+public sealed class ServerAuthClient(HttpClient httpClient, ILogger<ServerAuthClient> logger)
+    : ApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, logger)
 {
-    public Task<Result<Unit>> CheckAsync(CancellationToken ct = default)
+    public Task<Result> CheckAsync(CancellationToken ct = default)
     {
-        return GetAsync<Unit>("auth", ct);
+        return GetAsync("auth", ct);
     }
 }

@@ -1,5 +1,4 @@
 using Demolite.Core.Models;
-using Innkeep2.Requests.Core;
 using MudBlazor;
 
 namespace Innkeep2.Cloud.Services;
@@ -28,12 +27,17 @@ public sealed class UiResultHandler(ISnackbar snackbar)
 		return fallback;
 	}
 
-	public async Task<bool> TryExecuteAsync(Func<Task<Result<Unit>>> operation, string? errorPrefix = null)
+	public async Task<bool> TryExecuteAsync(Func<Task<Result>> operation, string? errorPrefix = null, string? successMessage = null)
 	{
 		var result = await operation();
 
 		if (result.IsSuccess)
+		{
+			if (successMessage is not null)
+				snackbar.Add(successMessage, Severity.Success);
+
 			return true;
+		}
 
 		snackbar.Add(FormatError(result.Error!, errorPrefix), Severity.Error);
 		return false;

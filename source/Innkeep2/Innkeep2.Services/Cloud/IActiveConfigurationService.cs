@@ -2,7 +2,6 @@ using Demolite.Core.Models;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
-using Innkeep2.Requests.Core;
 
 namespace Innkeep2.Services.Cloud;
 
@@ -17,7 +16,7 @@ public interface IActiveConfigurationService
 
     public event EventHandler? Changed;
 
-    public Task<Result<Unit>> SaveAsync(
+    public Task<Result> SaveAsync(
         string? organizerSlug,
         string? eventSlug,
         Guid? tssId,
@@ -27,9 +26,9 @@ public interface IActiveConfigurationService
         CancellationToken ct = default
     );
 
-    public Task<Result<Unit>> SaveAsync(CancellationToken ct = default);
+    public Task<Result> SaveAsync(CancellationToken ct = default);
 
-    public Task<Result<Unit>> RefreshAsync(CancellationToken ct = default);
+    public Task<Result> RefreshAsync(CancellationToken ct = default);
     
     public Task SetTss(FiskalyTss tss);
     
@@ -37,7 +36,7 @@ public interface IActiveConfigurationService
     
     public Task SetOrderDatabasePath(string? path);
     
-    public Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default);
+    public Task<Result> ReloadSettingsForEventAsync(CancellationToken ct = default);
 
     public Task ChangedFromOutside();
 }

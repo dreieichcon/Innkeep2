@@ -1,6 +1,5 @@
 using Demolite.Core.Models;
 using Innkeep2.Cloud.TransactionDb;
-using Innkeep2.Requests.Core;
 using Innkeep2.Services.Cloud;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +36,7 @@ public sealed class TransactionDatabaseService(IActiveConfigurationService activ
         return Result<string>.Success(path);
     }
 
-    public async Task<Result<Unit>> SetAsync(string? path, CancellationToken ct = default)
+    public async Task<Result> SetAsync(string? path, CancellationToken ct = default)
     {
         await activeConfiguration.SetOrderDatabasePath(path);
         return await activeConfiguration.SaveAsync(ct);

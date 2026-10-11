@@ -1,16 +1,18 @@
 using System.Text.Json;
 using Demolite.Core.Models;
+using Demolite.Http.Client;
 using Innkeep2.Models.Pretix.Order;
 using Innkeep2.Models.Pretix.Refund;
-using Innkeep2.Requests.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Innkeep2.Requests.Pretix.Clients;
 
 public sealed class PretixOrderClient(
     HttpClient httpClient,
-    [FromKeyedServices("pretix")] JsonSerializerOptions serializerOptions)
-    : CoreApiClient(httpClient, serializerOptions)
+    [FromKeyedServices("pretix")] JsonSerializerOptions serializerOptions,
+    ILogger<PretixOrderClient> logger)
+    : ApiClient(httpClient, serializerOptions, logger)
 {
     public Task<Result<PretixOrderResponse>> CreateAsync(
         string organizerSlug,

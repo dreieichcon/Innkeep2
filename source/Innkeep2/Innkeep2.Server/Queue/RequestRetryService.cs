@@ -3,7 +3,6 @@ using Demolite.Core.Models;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
 using Innkeep2.Requests.Cloud;
-using Innkeep2.Requests.Core;
 using Innkeep2.Server.Services;
 using Innkeep2.Services.Server;
 using Serilog;
@@ -33,7 +32,7 @@ public sealed class RequestRetryService(
       }
    }
 
-   public async Task<Result<Unit>> RetryAsync(Guid id, CancellationToken ct = default)
+   public async Task<Result> RetryAsync(Guid id, CancellationToken ct = default)
    {
       await _lock.WaitAsync(ct);
 
@@ -42,7 +41,7 @@ public sealed class RequestRetryService(
          var entry = queue.Get(id);
 
          if (entry is null)
-            return Result<Unit>.Failure(new Error("Queue.NotFound", $"Queued request '{id}' not found."));
+            return Result.Failure(new Error("Queue.NotFound", $"Queued request '{id}' not found."));
 
          var result = await SendAsync(entry, ct);
 
@@ -54,7 +53,7 @@ public sealed class RequestRetryService(
             if (entry.Type is QueuedRequestType.Order or QueuedRequestType.Refund)
                _ = salesItemProvider.ForceRefreshAsync(CancellationToken.None);
 
-            return Result<Unit>.Success(default);
+            return Result.Success();
          }
 
          entry.Attempts++;
@@ -62,7 +61,7 @@ public sealed class RequestRetryService(
          entry.LastError = result.Error!.Message;
          queue.Update(entry);
 
-         return Result<Unit>.Failure(result.Error!);
+         return Result.Failure(result.Error!);
       }
       finally
       {
@@ -70,7 +69,7 @@ public sealed class RequestRetryService(
       }
    }
 
-   private async Task<Result<Unit>> SendAsync(QueuedRequest entry, CancellationToken ct)
+   private async Task<Result> SendAsync(QueuedRequest entry, CancellationToken ct)
    {
       var result = entry.Type switch
       {
@@ -81,8 +80,8 @@ public sealed class RequestRetryService(
       };
 
       return result.IsSuccess
-         ? Result<Unit>.Success(default)
-         : Result<Unit>.Failure(result.Error!);
+         ? Result.Success()
+         : Result.Failure(result.Error!);
    }
 
    private Task<Result<TransactionReceipt>> SendRefundAsync(QueuedRequest entry, CancellationToken ct)
@@ -94,6 +93,6 @@ public sealed class RequestRetryService(
    private static T Deserialize<T>(QueuedRequest entry)
       => JsonSerializer.Deserialize<T>(entry.PayloadJson)!;
    
-   private static bool IsAlreadyRefunded(QueuedRequest entry, Result<Unit> result)
+   private static bool IsAlreadyRefunded(QueuedRequest entry, Result result)
       => entry.Type == QueuedRequestType.Refund && result.Error?.Code == "Http.409";
 }

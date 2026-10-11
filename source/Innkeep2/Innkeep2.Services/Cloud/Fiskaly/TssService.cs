@@ -1,7 +1,6 @@
 using Demolite.Core.Models;
 using Innkeep2.Models.Fiskaly.Core;
 using Innkeep2.Models.Fiskaly.Tss;
-using Innkeep2.Requests.Core;
 using Innkeep2.Requests.Fiskaly;
 using Serilog;
 
@@ -47,7 +46,7 @@ public sealed class TssService(FiskalyTssClient client)
         return result;
     }
 
-    public async Task<Result<Unit>> SetAdminPinAsync(
+    public async Task<Result> SetAdminPinAsync(
         Guid tssId,
         string adminPuk,
         string newAdminPin,

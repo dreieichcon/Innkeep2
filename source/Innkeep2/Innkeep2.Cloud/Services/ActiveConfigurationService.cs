@@ -4,7 +4,6 @@ using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
-using Innkeep2.Requests.Core;
 using Innkeep2.Requests.Pretix.Clients;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Cloud.Cache;
@@ -30,7 +29,7 @@ public sealed class ActiveConfigurationService(
 
     public event EventHandler? Changed;
 
-    public async Task<Result<Unit>> SaveAsync(
+    public async Task<Result> SaveAsync(
         string? organizerSlug,
         string? eventSlug,
         Guid? tssId,
@@ -43,7 +42,7 @@ public sealed class ActiveConfigurationService(
         var settingsResult = await settingsRepository.GetOrCreateAsync(() => new InnkeepCloudSettings(), ct);
 
         if (settingsResult.Value is not { } settings)
-            return Result<Unit>.Failure(settingsResult.Error!);
+            return Result.Failure(settingsResult.Error!);
 
         settings.PretixOrganizerSlug = organizerSlug;
         settings.PretixEventSlug = eventSlug;
@@ -55,21 +54,21 @@ public sealed class ActiveConfigurationService(
         var updateResult = await settingsRepository.UpdateAsync(settings, ct);
 
         if (!updateResult.IsSuccess)
-            return Result<Unit>.Failure(updateResult.Error!);
+            return Result.Failure(updateResult.Error!);
 
         return await RefreshAsync(ct);
     }
 
-    public Task<Result<Unit>> SaveAsync(CancellationToken ct = default)
+    public Task<Result> SaveAsync(CancellationToken ct = default)
         => SaveAsync(Organizer?.Slug, Event?.Slug, Tss?.Id, Client?.Id, UseTestMode, OrderDatabasePath, ct);
 
 
-    public async Task<Result<Unit>> RefreshAsync(CancellationToken ct = default)
+    public async Task<Result> RefreshAsync(CancellationToken ct = default)
     {
         var settingsResult = await settingsRepository.GetOrCreateAsync(() => new InnkeepCloudSettings(), ct);
 
         if (settingsResult.Value is not { } settings)
-            return Result<Unit>.Failure(settingsResult.Error!);
+            return Result.Failure(settingsResult.Error!);
 
         Organizer = await ResolveOrganizerAsync(settings.PretixOrganizerSlug, ct);
         Event = await ResolveEventAsync(settings.PretixOrganizerSlug, settings.PretixEventSlug, ct);
@@ -82,7 +81,7 @@ public sealed class ActiveConfigurationService(
 
         await NotifyChangedAsync();
 
-        return Result<Unit>.Success(default);
+        return Result.Success();
     }
 
     public async Task SetTss(FiskalyTss tss)
@@ -106,21 +105,21 @@ public sealed class ActiveConfigurationService(
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public async Task<Result<Unit>> ReloadSettingsForEventAsync(CancellationToken ct = default)
+    public async Task<Result> ReloadSettingsForEventAsync(CancellationToken ct = default)
     {
         if (Organizer is not { } organizer || Event is not { } currentEvent)
-            return Result<Unit>.Failure(new Error("Configuration.NoEvent", "No event is currently selected."));
+            return Result.Failure(new Error("Configuration.NoEvent", "No event is currently selected."));
 
         var result = await eventSettingsClient.GetAsync(organizer.Slug, currentEvent.Slug, ct);
 
         if (!result.IsSuccess)
-            return Result<Unit>.Failure(result.Error!);
+            return Result.Failure(result.Error!);
 
         Event = currentEvent with { Header = Event.BuildHeader(result.Value!) };
 
         await NotifyChangedAsync();
 
-        return Result<Unit>.Success(default);
+        return Result.Success();
     }
 
     public async Task ChangedFromOutside() => await NotifyChangedAsync();

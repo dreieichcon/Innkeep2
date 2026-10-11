@@ -1,14 +1,15 @@
 using System.Text.Json;
 using Demolite.Core.Models;
+using Demolite.Http.Client;
 using Innkeep2.Models.Core;
 using Innkeep2.Models.Internal;
 using Innkeep2.Models.Internal.Receipt;
-using Innkeep2.Requests.Core;
+using Microsoft.Extensions.Logging;
 
 namespace Innkeep2.Requests.Cloud;
 
-public sealed class CloudTransactionClient(HttpClient httpClient)
-    : CoreApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+public sealed class CloudTransactionClient(HttpClient httpClient, ILogger<CloudTransactionClient> logger)
+    : ApiClient(httpClient, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }, logger)
 {
     public Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default, bool isRetry = false)
         => PostAsync<TransactionReceipt>($"transactions/create{RetryQuery(isRetry)}", request, ct);
