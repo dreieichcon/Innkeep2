@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Demolite.Http.Client;
 using Demolite.Http.Extensions;
-using Innkeep2.Credentials;
-using Innkeep2.Credentials.Models;
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Models.Serialization.Pretix;
 using Innkeep2.Requests.Pretix.Clients;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,9 +36,9 @@ public static class PretixServiceCollectionExtensions
 	private static void AddPretixClient<TClient>(this IServiceCollection services)
 		where TClient : ApiClient
 		=> services
-			.AddApiClient<TClient>(sp => GetCredentials(sp).GetActive().BaseUrl)
-			.AddStaticAuth("Token", sp => GetCredentials(sp).GetActive().ApiKey);
+			.AddApiClient<TClient>(sp => GetCredential(sp).BaseUrl)
+			.AddStaticAuth("Token", sp => GetCredential(sp).ApiKey);
 
-	private static ActiveCredentialsProvider<PretixCredential> GetCredentials(IServiceProvider sp)
-		=> sp.GetRequiredService<ActiveCredentialsProvider<PretixCredential>>();
+	private static PretixCredential GetCredential(IServiceProvider sp)
+		=> sp.GetRequiredService<ActiveCredentialProvider<CredentialPair>>().GetActive().Pretix;
 }
