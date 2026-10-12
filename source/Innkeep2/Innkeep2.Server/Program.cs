@@ -1,5 +1,5 @@
-using Innkeep2.Credentials;
-using Innkeep2.Credentials.Models;
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Server.Api;
 using Innkeep2.Server.Components;
 using Innkeep2.Server.Extensions;
@@ -14,16 +14,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-if (AppSetup.SetupCredentials("server", CredentialCreator.ServerJsonTemplate, out var credentialsPath))
-{
-	Log.Warning("No credentials file found. A template was created at {Path}. Fill it in and restart.", credentialsPath);
-	return;
-}
-
-builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
-
-var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
-AppSetup.SetupLogging("Innkeep2.Server", discordCredential?.WebhookUrl);
+AppSetup.SetupLogging("Innkeep2.Server");
 builder.Logging.UseSerilogOnly();
 
 builder.Services.AddDataProtection()
@@ -36,9 +27,11 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddMudServices();
 
-builder.Services.RegisterServerServices(builder.Configuration);
+builder.Services.RegisterServerServices();
 
 var app = builder.Build();
+
+await app.Services.LoadCredentialsAsync<InnkeepApiKey>(AppSetup.ConfigureDiscord);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

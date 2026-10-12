@@ -1,5 +1,6 @@
 using Demolite.Http.Extensions;
-using Innkeep2.Credentials.Models;
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Print.Printer;
 using Innkeep2.Print.Storage;
 using Innkeep2.Requests.Cloud;
@@ -13,9 +14,9 @@ namespace Innkeep2.Server.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static void RegisterServerServices(this IServiceCollection services, IConfiguration configuration)
+    public static void RegisterServerServices(this IServiceCollection services)
     {
-        services.AddCloudCredential(configuration);
+        services.AddApiKeyCredentialsDb();
         services.AddCloudClients();
         services.RegisterPrinterServices();
         
@@ -30,37 +31,24 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ServerStartupService>();
     }
     
-    public static void AddCloudCredential(this IServiceCollection services, IConfiguration configuration)
-    {
-        var credential = configuration.GetSection("Cloud").Get<CloudCredential>()
-                         ?? throw new InvalidOperationException("Missing 'Cloud' section in configuration.");
-
-        services.AddSingleton(credential);
-    }
-    
     public static void AddCloudClients(this IServiceCollection services)
     {
-        services.AddHttpClient<CloudAuthClient>((sp, client) =>
-            {
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
-                client.Timeout = TimeSpan.FromSeconds(5);
-            })
-            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<CloudCredential>().ApiKey);
-
-        services.AddHttpClient<CloudDataClient>((sp, client) =>
-            {
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
-                client.Timeout = TimeSpan.FromSeconds(5);
-            })
-            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<CloudCredential>().ApiKey);
-
-        services.AddHttpClient<CloudTransactionClient>((sp, client) =>
-            {
-                client.BaseAddress = new Uri(sp.GetRequiredService<CloudCredential>().CloudUrl);
-                client.Timeout = TimeSpan.FromSeconds(10);
-            })
-            .AddHeader("X-Api-Key", sp => sp.GetRequiredService<CloudCredential>().ApiKey);
+        services.AddCloudClient<CloudAuthClient>(timeoutSeconds: 5);
+        services.AddCloudClient<CloudDataClient>(timeoutSeconds: 5);
+        services.AddCloudClient<CloudTransactionClient>(timeoutSeconds: 10);
     }
+
+    private static void AddCloudClient<TClient>(this IServiceCollection services, int timeoutSeconds)
+        where TClient : class
+        => services.AddHttpClient<TClient>((sp, client) =>
+            {
+                client.BaseAddress = new Uri(GetCloudApiKey(sp).Url);
+                client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            })
+            .AddHeader("X-Api-Key", sp => GetCloudApiKey(sp).ApiKey);
+
+    private static InnkeepApiKey GetCloudApiKey(IServiceProvider sp)
+        => sp.GetRequiredService<ActiveCredentialProvider<InnkeepApiKey>>().GetActive();
 
     private static void AddCloudCaches(this IServiceCollection services)
     {
