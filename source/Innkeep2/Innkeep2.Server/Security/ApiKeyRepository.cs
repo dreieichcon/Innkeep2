@@ -1,5 +1,5 @@
 using Demolite.Core.Models;
-using Innkeep2.Credentials.ApiKeys;
+using Innkeep2.Security.ApiKeys;
 using LiteDB;
 
 namespace Innkeep2.Server.Security;

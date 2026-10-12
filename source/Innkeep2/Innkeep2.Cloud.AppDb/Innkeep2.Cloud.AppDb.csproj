@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
+      <ProjectReference Include="..\Innkeep2.Security\Innkeep2.Security.csproj" />
     </ItemGroup>
 
 </Project>

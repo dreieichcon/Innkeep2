@@ -1,4 +1,4 @@
-namespace Innkeep2.Credentials.Interfaces;
+namespace Innkeep2.Security.Interfaces;
 
 public interface IApiKey
 {

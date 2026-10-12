@@ -1,4 +1,4 @@
-using Innkeep2.Credentials.Interfaces;
+using Innkeep2.Security.Interfaces;
 using LiteDB;
 
 namespace Innkeep2.Server.Security;

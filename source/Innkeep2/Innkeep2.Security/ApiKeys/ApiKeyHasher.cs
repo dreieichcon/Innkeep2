@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Innkeep2.Credentials.ApiKeys;
+namespace Innkeep2.Security.ApiKeys;
 
 public static class ApiKeyHasher
 {

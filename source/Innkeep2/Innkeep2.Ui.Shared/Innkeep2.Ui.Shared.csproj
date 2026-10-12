@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
+      <ProjectReference Include="..\Innkeep2.Security\Innkeep2.Security.csproj" />
       <ProjectReference Include="..\Innkeep2.CredentialsDb\Innkeep2.CredentialsDb.csproj" />
       <ProjectReference Include="..\Innkeep2.Models\Innkeep2.Models.csproj" />
       <ProjectReference Include="..\Innkeep2.Print\Innkeep2.Print.csproj" />

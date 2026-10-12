@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C260F067
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Innkeep2.Requests.Tests", "Innkeep2.Requests.Tests\Innkeep2.Requests.Tests.csproj", "{AFEB5767-8962-4416-A54C-67215D762BA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Innkeep2.Credentials", "Innkeep2.Credentials\Innkeep2.Credentials.csproj", "{94DA5D28-D90F-404C-BE8A-BC1FC1CF3940}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Innkeep2.Security", "Innkeep2.Security\Innkeep2.Security.csproj", "{94DA5D28-D90F-404C-BE8A-BC1FC1CF3940}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{CF10E41F-E666-4903-B6B8-B6623C5D8992}"
 EndProject

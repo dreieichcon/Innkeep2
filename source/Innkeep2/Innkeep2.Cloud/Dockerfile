@@ -8,7 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Innkeep2.Cloud/Innkeep2.Cloud.csproj", "Innkeep2.Cloud/"]
-COPY ["Innkeep2.Credentials/Innkeep2.Credentials.csproj", "Innkeep2.Credentials/"]
+COPY ["Innkeep2.Security/Innkeep2.Security.csproj", "Innkeep2.Security/"]
 COPY ["Innkeep2.Requests/Innkeep2.Requests.csproj", "Innkeep2.Requests/"]
 COPY ["Innkeep2.Models/Innkeep2.Models.csproj", "Innkeep2.Models/"]
 COPY ["Innkeep2.Services/Innkeep2.Services.csproj", "Innkeep2.Services/"]

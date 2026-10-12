@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 
-namespace Innkeep2.Credentials.Transformers;
+namespace Innkeep2.Security.Transformers;
 
 public class KeycloakRoleClaimsTransformation(IConfiguration configuration) : IClaimsTransformation
 {
