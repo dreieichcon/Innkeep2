@@ -1,6 +1,4 @@
-using Demolite.Http.Extensions;
 using Innkeep2.CredentialsDb;
-using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Print.Printer;
 using Innkeep2.Print.Storage;
 using Innkeep2.Requests.Cloud;
@@ -33,22 +31,10 @@ public static class ServiceCollectionExtensions
     
     public static void AddCloudClients(this IServiceCollection services)
     {
-        services.AddCloudClient<CloudAuthClient>(timeoutSeconds: 5);
-        services.AddCloudClient<CloudDataClient>(timeoutSeconds: 5);
-        services.AddCloudClient<CloudTransactionClient>(timeoutSeconds: 10);
+        services.AddInnkeepApiClient<CloudAuthClient>(timeoutSeconds: 5);
+        services.AddInnkeepApiClient<CloudDataClient>(timeoutSeconds: 5);
+        services.AddInnkeepApiClient<CloudTransactionClient>(timeoutSeconds: 10);
     }
-
-    private static void AddCloudClient<TClient>(this IServiceCollection services, int timeoutSeconds)
-        where TClient : class
-        => services.AddHttpClient<TClient>((sp, client) =>
-            {
-                client.BaseAddress = new Uri(GetCloudApiKey(sp).Url);
-                client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
-            })
-            .AddHeader("X-Api-Key", sp => GetCloudApiKey(sp).ApiKey);
-
-    private static InnkeepApiKey GetCloudApiKey(IServiceProvider sp)
-        => sp.GetRequiredService<ActiveCredentialProvider<InnkeepApiKey>>().GetActive();
 
     private static void AddCloudCaches(this IServiceCollection services)
     {

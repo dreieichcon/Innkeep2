@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Innkeep2.CredentialsDb\Innkeep2.CredentialsDb.csproj" />
       <ProjectReference Include="..\Innkeep2.Models\Innkeep2.Models.csproj" />
       <ProjectReference Include="..\Innkeep2.Requests\Innkeep2.Requests.csproj" />
     </ItemGroup>
