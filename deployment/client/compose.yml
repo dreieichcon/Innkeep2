@@ -14,7 +14,6 @@ services:
       SSL_CERT_FILE: /certs/innkeep2-server-root-ca.crt
     volumes:
       - "./db/:/app/db/"
-      - "./credentials/:/credentials/:ro"
       - "./logs/:/app/log/"
       - "./dataprotection-keys/:/app/dataprotection-keys/"
       - "./certs/:/certs/:ro"

@@ -5,9 +5,6 @@
 - Client: digital receipt link as QR code on the customer display.
 - Client: remove keypad; move buttons to the right for different functions (see force pull).
 - Stack: multiple POS clients; transactions carry a client id (format to be defined).
-- Cloud: credential sets stored in DB, edited via UI (not a JSON file at startup).
-  - A set has a free name and a Pretix + Fiskaly credential pair (one per organizer).
-  - Switch the active set easily; Fiskaly is offered as a service to several organizers.
 - Force pull of sales items: Client or Server can trigger; invalidates all caches up to Cloud and reloads all items.
 - Sales items: order by category, then by position within the category.
 
