@@ -4,6 +4,7 @@ using Demolite.Http.Extensions;
 using Innkeep2.CredentialsDb;
 using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Models.Serialization.Pretix;
+using Innkeep2.Requests.Http;
 using Innkeep2.Requests.Pretix.Clients;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,10 +38,10 @@ public static class PretixServiceCollectionExtensions
 		where TClient : ApiClient
 		=> services
 			.AddHttpClient<TClient>((sp, client) =>
-			{
-				if (GetCredential(sp) is { } credential)
-					client.BaseAddress = new Uri(credential.BaseUrl);
-			})
+				client.BaseAddress = GetCredential(sp) is { } credential
+					? new Uri(credential.BaseUrl)
+					: MissingCredentialHandler.PlaceholderAddress)
+			.AddMissingCredentialHandler(sp => GetCredential(sp) is not null)
 			.AddStaticAuth("Token", sp => GetCredential(sp)?.ApiKey ?? string.Empty);
 
 	private static PretixCredential? GetCredential(IServiceProvider sp)

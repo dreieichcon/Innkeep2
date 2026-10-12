@@ -19,7 +19,9 @@ public sealed class FiskalyTokenProvider : CachedTokenProvider
 
     protected override async Task<Result<AccessToken>> RequestTokenAsync(CancellationToken ct)
     {
-        var fiskaly = _credentials.GetActive().Fiskaly;
+        if (_credentials.Active?.Fiskaly is not { } fiskaly)
+            return Result<AccessToken>.Failure(new Error("Credentials.NoActive", "No active Fiskaly credential configured."));
+
         var result = await _authClient.AuthenticateAsync(fiskaly.ApiKey, fiskaly.ApiSecret, ct);
 
         return result.IsSuccess
