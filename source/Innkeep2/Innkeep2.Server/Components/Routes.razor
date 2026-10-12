@@ -1,6 +1,11 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.Default.NotFound)">
-    <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="routeData" Selector="h1"/>
-    </Found>
-</Router>
+@using Innkeep2.CredentialsDb.Models
+@using Innkeep2.Ui.Shared.Components.Config
+
+<CredentialGuard T="InnkeepApiKey">
+    <Router AppAssembly="typeof(Program).Assembly" NotFoundPage="typeof(Pages.Default.NotFound)">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)"/>
+            <FocusOnNavigate RouteData="routeData" Selector="h1"/>
+        </Found>
+    </Router>
+</CredentialGuard>

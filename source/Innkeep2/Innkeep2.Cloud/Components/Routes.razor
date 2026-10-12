@@ -1,14 +1,18 @@
-﻿@using Innkeep2.Cloud.Components.Pages
+@using Innkeep2.Cloud.Components.Pages
+@using Innkeep2.CredentialsDb.Models
+@using Innkeep2.Ui.Shared.Components.Config
 @using Microsoft.AspNetCore.Components.Authorization
 
 <CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(NotFound)">
-        <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                <NotAuthorized>
-                    <RedirectToAccessDenied />
-                </NotAuthorized>
-            </AuthorizeRouteView>
-        </Found>
-    </Router>
+    <CredentialGuard T="CredentialPair">
+        <Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(NotFound)">
+            <Found Context="routeData">
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                    <NotAuthorized>
+                        <RedirectToAccessDenied />
+                    </NotAuthorized>
+                </AuthorizeRouteView>
+            </Found>
+        </Router>
+    </CredentialGuard>
 </CascadingAuthenticationState>
