@@ -1,4 +1,3 @@
-using Innkeep2.Credentials;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Discord;
@@ -36,12 +35,6 @@ public static class AppSetup
     /// </summary>
     public static void ConfigureDiscord(string? webhookUrl)
         => DiscordSink.Replace(string.IsNullOrWhiteSpace(webhookUrl) ? null : CreateDiscordSink(webhookUrl));
-
-    public static bool SetupCredentials(string appType, string templateJson, out string credentialsPath)
-    {
-        credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", $"credentials.{appType}.json");
-        return CredentialCreator.EnsureExists(credentialsPath, templateJson);
-    }
 
     private static BackgroundSink CreateDiscordSink(string webhookUrl)
     {
