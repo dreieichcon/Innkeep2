@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Innkeep2.Credentials\Innkeep2.Credentials.csproj" />
+      <ProjectReference Include="..\Innkeep2.CredentialsDb\Innkeep2.CredentialsDb.csproj" />
       <ProjectReference Include="..\Innkeep2.Models\Innkeep2.Models.csproj" />
       <ProjectReference Include="..\Innkeep2.Print\Innkeep2.Print.csproj" />
       <ProjectReference Include="..\Innkeep2.Services\Innkeep2.Services.csproj" />
