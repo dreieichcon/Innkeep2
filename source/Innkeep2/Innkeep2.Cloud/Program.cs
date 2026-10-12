@@ -2,6 +2,8 @@ using Innkeep2.Cloud.Api;
 using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Shared;
 using Microsoft.AspNetCore.Authentication;
@@ -41,7 +43,7 @@ builder.Services.AddSingleton<StatusBarService>();
 
 var app = builder.Build();
 
-await app.Services.LoadCredentialsAsync();
+await app.Services.LoadCredentialsAsync<CredentialPair>(AppSetup.ConfigureDiscord);
 
 var options = new ForwardedHeadersOptions
 {

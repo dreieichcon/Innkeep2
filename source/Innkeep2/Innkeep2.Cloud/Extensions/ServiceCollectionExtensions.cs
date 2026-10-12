@@ -5,14 +5,12 @@ using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Credentials.Transformers;
 using Innkeep2.CredentialsDb;
-using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Requests.Fiskaly;
 using Innkeep2.Requests.Pretix;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.Services.Extensions;
-using Innkeep2.Services.Shared;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -61,18 +59,6 @@ public static class ServiceCollectionExtensions
 		var factory = services.GetRequiredService<IDbContextFactory<InnkeepCloudDbContext>>();
 		await using var context = await factory.CreateDbContextAsync();
 		await context.Database.MigrateAsync();
-	}
-
-	/// <summary>
-	/// Loads the active credentials into their providers and keeps Discord logging in sync with the active webhook.
-	/// </summary>
-	public static async Task LoadCredentialsAsync(this IServiceProvider services)
-	{
-		var discord = services.GetRequiredService<ActiveCredentialProvider<DiscordCredential>>();
-		discord.Changed += (_, _) => AppSetup.ConfigureDiscord(discord.HasActive ? discord.GetActive().WebhookUrl : null);
-
-		await discord.ReloadAsync();
-		await services.GetRequiredService<ActiveCredentialProvider<CredentialPair>>().ReloadAsync();
 	}
 
 	private static void AddPretixCaches(this IServiceCollection services)
