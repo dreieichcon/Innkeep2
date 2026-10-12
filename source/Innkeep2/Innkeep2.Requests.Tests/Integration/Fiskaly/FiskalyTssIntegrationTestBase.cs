@@ -1,5 +1,4 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+using Innkeep2.TestBase;
 
 namespace Innkeep2.Requests.Tests.Integration.Fiskaly;
 
@@ -13,9 +12,9 @@ public abstract class FiskalyTssIntegrationTestBase : FiskalyIntegrationTestBase
     {
         base.BaseTestInitialize();
 
-        var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
+        var testData = TestData.Load();
 
-        TssId = Guid.Parse(configuration["fiskalyTest:tssId"]!);
-        ClientId = Guid.Parse(configuration["fiskalyTest:clientId"]!);
+        TssId = testData.FiskalyTssId;
+        ClientId = testData.FiskalyClientId;
     }
 }

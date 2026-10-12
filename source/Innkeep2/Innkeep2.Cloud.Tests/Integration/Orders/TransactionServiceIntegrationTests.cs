@@ -1,5 +1,4 @@
 using Innkeep2.Cloud.TransactionDb.Repositories;
-using Innkeep2.Credentials;
 using Innkeep2.Models.Fiskaly.Client;
 using Innkeep2.Models.Fiskaly.Tss;
 using Innkeep2.Models.Internal;
@@ -12,7 +11,6 @@ using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
 using Innkeep2.TestBase;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TransactionService = Innkeep2.Cloud.Services.Transactions.TransactionService;
 
@@ -27,16 +25,9 @@ public class TransactionServiceIntegrationTests
     [TestInitialize]
     public async Task TestInitialize()
     {
-       var credentialsPath = CredentialsPathResolver.ResolveCredentialsPath();
-
-       var configuration = new ConfigurationBuilder()
-          .AddJsonFile(credentialsPath, optional: false)
-          .AddEnvironmentVariables()
-          .Build();
 
        var services = new ServiceCollection();
-       services.AddCredentialsConfiguration(configuration);
-       services.AddSingleton<IConfiguration>(configuration);
+       services.AddDevCredentialPair();
        services.AddPretixClients();
        services.AddFiskalyClients();
        services.AddMemoryCache();
@@ -52,7 +43,7 @@ public class TransactionServiceIntegrationTests
 
        _serviceProvider = services.BuildServiceProvider();
 
-       ResolveActiveConfiguration(configuration);
+       ResolveActiveConfiguration(TestData.Load());
     }
 
     [TestCleanup]
@@ -189,24 +180,24 @@ public class TransactionServiceIntegrationTests
        Assert.AreNotEqual("TSS OFFLINE", result.Value!.FiskalyQrCode);
     }
 
-    private void ResolveActiveConfiguration(IConfiguration configuration)
+    private void ResolveActiveConfiguration(TestData testData)
     {
        _activeConfiguration.Organizer = new Organizer
        {
           Name = "",
-          Slug = configuration["pretixTest:organizerSlug"]!
+          Slug = testData.PretixOrganizerSlug
        };
 
        _activeConfiguration.Event = new Event
        {
           Name = "",
-          Slug = configuration["pretixTest:eventSlug"]!,
+          Slug = testData.PretixEventSlug,
           IsTestMode = true
        };
 
        _activeConfiguration.Tss = new FiskalyTss
        {
-          Id = Guid.Parse(configuration["fiskalyTest:tssId"]!),
+          Id = testData.FiskalyTssId,
           Environment = "TEST",
           State = TssState.Initialized,
           Certificate = "",
@@ -219,7 +210,7 @@ public class TransactionServiceIntegrationTests
 
        _activeConfiguration.Client = new FiskalyClient
        {
-          Id = Guid.Parse(configuration["fiskalyTest:clientId"]!),
+          Id = testData.FiskalyClientId,
           TssId = _activeConfiguration.Tss.Id,
           SerialNumber = "",
           State = ClientState.Registered,
