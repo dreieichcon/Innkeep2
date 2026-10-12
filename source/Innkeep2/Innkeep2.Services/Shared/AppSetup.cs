@@ -21,6 +21,9 @@ public static class AppSetup
 
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+            .MinimumLevel.Override("System", LogEventLevel.Warning)
             .WriteTo.Console()
             .WriteTo.Trace()
             .WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day)
