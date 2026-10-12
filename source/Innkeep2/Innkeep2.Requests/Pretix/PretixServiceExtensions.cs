@@ -36,9 +36,13 @@ public static class PretixServiceCollectionExtensions
 	private static void AddPretixClient<TClient>(this IServiceCollection services)
 		where TClient : ApiClient
 		=> services
-			.AddApiClient<TClient>(sp => GetCredential(sp).BaseUrl)
-			.AddStaticAuth("Token", sp => GetCredential(sp).ApiKey);
+			.AddHttpClient<TClient>((sp, client) =>
+			{
+				if (GetCredential(sp) is { } credential)
+					client.BaseAddress = new Uri(credential.BaseUrl);
+			})
+			.AddStaticAuth("Token", sp => GetCredential(sp)?.ApiKey ?? string.Empty);
 
-	private static PretixCredential GetCredential(IServiceProvider sp)
-		=> sp.GetRequiredService<ActiveCredentialProvider<CredentialPair>>().GetActive().Pretix;
+	private static PretixCredential? GetCredential(IServiceProvider sp)
+		=> sp.GetRequiredService<ActiveCredentialProvider<CredentialPair>>().Active?.Pretix;
 }

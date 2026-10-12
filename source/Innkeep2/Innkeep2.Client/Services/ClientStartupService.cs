@@ -1,3 +1,5 @@
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Requests.Server;
 using Innkeep2.Services.Client;
 using Innkeep2.Services.Shared;
@@ -5,11 +7,22 @@ using Serilog;
 
 namespace Innkeep2.Client.Services;
 
-public class ClientStartupService(ServerAuthClient authClient, ClientEventProvider eventProvider, ClientSalesItemProvider salesItemProvider, DarkModeService darkModeService)
+public class ClientStartupService(
+    ServerAuthClient authClient,
+    ClientEventProvider eventProvider,
+    ClientSalesItemProvider salesItemProvider,
+    DarkModeService darkModeService,
+    ActiveCredentialProvider<InnkeepApiKey> credentials)
 {
     public async Task<bool> RunAsync(CancellationToken ct = default)
     {
         _ = Task.Run(() => darkModeService.StartPollingAsync(ct), ct);
+
+        if (!credentials.HasActive)
+        {
+            Log.Warning("No active Server API key configured. Set it up at /Config/Credentials and restart.");
+            return true;
+        }
 
         Log.Debug("Authenticating against Innkeep2.Server");
         var authStatus = await authClient.CheckAsync(ct);

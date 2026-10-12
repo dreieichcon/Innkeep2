@@ -1,3 +1,5 @@
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Requests.Cloud;
 using Innkeep2.Services.Server;
 using Innkeep2.Services.Shared;
@@ -9,12 +11,19 @@ public class ServerStartupService(
     CloudAuthClient authClient,
     ServerEventProvider eventProvider,
     ServerSalesItemProvider salesItemProvider,
-    DarkModeService darkModeService)
+    DarkModeService darkModeService,
+    ActiveCredentialProvider<InnkeepApiKey> credentials)
 {
     public async Task<bool> RunAsync(CancellationToken ct = default)
     {
         Task.Run(async () => await darkModeService.StartPollingAsync(ct));
-        
+
+        if (!credentials.HasActive)
+        {
+            Log.Warning("No active Cloud API key configured. Set it up at /Config/Credentials and restart.");
+            return true;
+        }
+
         Log.Debug("Authenticating against Innkeep2.Cloud");
         var authStatus = await authClient.CheckAsync(ct);
 

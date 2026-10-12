@@ -25,16 +25,19 @@ public static class SharedServiceExtensions
     /// <summary>
     /// Registers a typed HTTP client for the API of another Innkeep application,
     /// using the URL and key of the active API key credential.
+    /// Without an active credential the client is still created, but has no base address.
     /// </summary>
     public static void AddInnkeepApiClient<TClient>(this IServiceCollection services, int timeoutSeconds)
         where TClient : class
         => services.AddHttpClient<TClient>((sp, client) =>
             {
-                client.BaseAddress = new Uri(GetActiveApiKey(sp).Url.TrimEnd('/') + "/");
+                if (GetActiveApiKey(sp) is { } apiKey)
+                    client.BaseAddress = new Uri(apiKey.Url.TrimEnd('/') + "/");
+
                 client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
             })
-            .AddHeader("X-Api-Key", sp => GetActiveApiKey(sp).ApiKey);
+            .AddHeader("X-Api-Key", sp => GetActiveApiKey(sp)?.ApiKey ?? string.Empty);
 
-    private static InnkeepApiKey GetActiveApiKey(IServiceProvider sp)
-        => sp.GetRequiredService<ActiveCredentialProvider<InnkeepApiKey>>().GetActive();
+    private static InnkeepApiKey? GetActiveApiKey(IServiceProvider sp)
+        => sp.GetRequiredService<ActiveCredentialProvider<InnkeepApiKey>>().Active;
 }

@@ -8,6 +8,8 @@ public sealed class ActiveCredentialProvider<T>(ICredentialRepository<T> reposit
 {
     private volatile T? _active;
 
+    public T? Active => _active;
+
     public bool HasActive => _active is not null;
 
     public event EventHandler? Changed;

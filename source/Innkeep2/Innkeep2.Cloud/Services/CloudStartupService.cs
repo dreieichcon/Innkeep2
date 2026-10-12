@@ -1,14 +1,25 @@
+using Innkeep2.CredentialsDb;
+using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Shared;
 using Serilog;
 
 namespace Innkeep2.Cloud.Services;
 
-public class CloudStartupService(IActiveConfigurationService activeConfiguration, DarkModeService darkModeService)
+public class CloudStartupService(
+    IActiveConfigurationService activeConfiguration,
+    DarkModeService darkModeService,
+    ActiveCredentialProvider<CredentialPair> credentials)
 {
     public async Task RunAsync(CancellationToken ct = default)
     {
         _ = Task.Run(() => darkModeService.StartPollingAsync(ct), ct);
+
+        if (!credentials.HasActive)
+        {
+            Log.Warning("No active Pretix/Fiskaly credentials configured. Set them up at /Config/Credentials and restart.");
+            return;
+        }
 
         Log.Debug("Loading active configuration");
 
