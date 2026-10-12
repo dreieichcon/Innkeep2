@@ -1,0 +1,17 @@
+@using Innkeep2.CredentialsDb.Models
+@using MudBlazor
+
+<CredentialManager T="InnkeepApiKey" Title="@Title" CreateNew="CreateNew" Clone="Clone">
+    <ExtraColumns>
+        <PropertyColumn T="InnkeepApiKey" TProperty="string" Property="x => x.Url" Title="URL"/>
+    </ExtraColumns>
+    <Fields Context="credential">
+        <MudTextField T="string"
+                      Label="URL"
+                      Variant="Variant.Outlined"
+                      Required="true"
+                      Validation="@UrlValidator.Validation"
+                      @bind-Value="credential.Url"/>
+        <SecretField Label="API Key" Required="true" @bind-Value="credential.ApiKey"/>
+    </Fields>
+</CredentialManager>
