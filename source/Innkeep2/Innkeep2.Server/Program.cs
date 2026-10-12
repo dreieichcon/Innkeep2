@@ -71,9 +71,6 @@ app.MapGroup("/api/v1")
 
 var startupService = app.Services.GetRequiredService<ServerStartupService>();
 
-var startupResult = await startupService.RunAsync();
-
-if (!startupResult)
-	return;
+await startupService.RunAsync();
 
 await app.RunAsync();

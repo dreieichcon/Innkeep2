@@ -47,9 +47,6 @@ app.MapRazorComponents<App>()
 
 var startupService = app.Services.GetRequiredService<ClientStartupService>();
 
-var startupResult = await startupService.RunAsync();
-
-if (!startupResult)
-    return;
+await startupService.RunAsync();
 
 await app.RunAsync();

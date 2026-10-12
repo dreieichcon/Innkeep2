@@ -14,50 +14,65 @@ public class ServerStartupService(
     DarkModeService darkModeService,
     ActiveCredentialProvider<InnkeepApiKey> credentials)
 {
-    public async Task<bool> RunAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Runs the startup checks against Cloud. Failures are logged and never stop the application.
+    /// </summary>
+    public async Task RunAsync(CancellationToken ct = default)
     {
         Task.Run(async () => await darkModeService.StartPollingAsync(ct));
 
         if (!credentials.HasActive)
         {
             Log.Warning("No active Cloud API key configured. Set it up at /Config/Credentials and restart.");
-            return true;
+            return;
         }
 
+        await AuthenticateAsync(ct);
+        await LoadEventAsync(ct);
+        await LoadSalesItemsAsync(ct);
+    }
+
+    private async Task AuthenticateAsync(CancellationToken ct)
+    {
         Log.Debug("Authenticating against Innkeep2.Cloud");
         var authStatus = await authClient.CheckAsync(ct);
 
-        if (!authStatus.IsSuccess)
+        if (authStatus.IsSuccess)
         {
-            var error = authStatus.Error!;
-
-            if (error.Exception is not null)
-                Log.Error(error.Exception, "Startup failed: could not authenticate with Cloud ({Code}): {Message}",
-                    error.Code, error.Message);
-            else
-                Log.Error("Startup failed: could not authenticate with Cloud ({Code}): {Message}", error.Code,
-                    error.Message);
-
-            return false;
+            Log.Debug("Innkeep2.Cloud Authentication Successful");
+            return;
         }
-        Log.Debug("Innkeep2.Cloud Authentication Successful");
 
+        var error = authStatus.Error!;
+
+        if (error.Exception is not null)
+            Log.Warning(error.Exception, "Could not authenticate with Cloud yet ({Code}): {Message}", error.Code,
+                error.Message);
+        else
+            Log.Warning("Could not authenticate with Cloud yet ({Code}): {Message}", error.Code, error.Message);
+    }
+
+    private async Task LoadEventAsync(CancellationToken ct)
+    {
         Log.Debug("Fetching registered Event");
         var eventResult = await eventProvider.GetCachedEventAsync(ct);
 
         if (!eventResult.IsSuccess)
-            Log.Error("Startup failed: could not fetch event ({Code}): {Message}", eventResult.Error!.Code, eventResult.Error!.Message);
+            Log.Warning("Could not fetch event yet ({Code}): {Message}", eventResult.Error!.Code,
+                eventResult.Error!.Message);
+        else
+            Log.Debug("Registered Event: {Event}", eventResult.Value!.Name);
+    }
 
-        Log.Debug("Registered Event: {Event}", eventResult.Value!.Name);
-        
+    private async Task LoadSalesItemsAsync(CancellationToken ct)
+    {
         Log.Debug("Fetching registered SalesItems");
         var salesItemsResult = await salesItemProvider.GetCachedItemsAsync(ct);
-        
-        if (!salesItemsResult.IsSuccess)
-            Log.Error("Startup failed: could not fetch sales items ({Code}): {Message}", salesItemsResult.Error!.Code, salesItemsResult.Error!.Message);
 
-        Log.Debug("Fetched {Count} Items", salesItemsResult.Value!.Count);
-        
-        return true;
+        if (!salesItemsResult.IsSuccess)
+            Log.Warning("Could not fetch sales items yet ({Code}): {Message}", salesItemsResult.Error!.Code,
+                salesItemsResult.Error!.Message);
+        else
+            Log.Debug("Fetched {Count} Items", salesItemsResult.Value!.Count);
     }
 }
