@@ -7,40 +7,55 @@ namespace Innkeep2.Services.Shared;
 
 public static class AppSetup
 {
+    private static readonly SwitchableSink DiscordSink = new();
+    private static string _serviceName = string.Empty;
+
+    /// <summary>
+    /// Configures the global logger. Warnings are forwarded to Discord once a webhook is configured.
+    /// </summary>
     public static void SetupLogging(string serviceName, string? webhookUrl = null)
     {
         if (!Directory.Exists("./log"))
             Directory.CreateDirectory("./log");
 
-        var configuration = new LoggerConfiguration()
+        _serviceName = serviceName;
+
+        Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.Console()
             .WriteTo.Trace()
-            .WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day);
-        
-        // An empty value is what the credentials examples ship with, and means "no Discord".
-        if (!string.IsNullOrWhiteSpace(webhookUrl))
-        {
-            var discordLogger = new LoggerConfiguration()
-                .WriteTo.Discord(
-                    LogEventLevel.Warning,
-                    config =>
-                    {
-                        config.WebhookUrl = webhookUrl;
-                        config.ServiceName = serviceName;
-                    }
-                )
-                .CreateLogger();
+            .WriteTo.File("./log/log-.txt", rollingInterval: RollingInterval.Day)
+            .WriteTo.Sink(DiscordSink, LogEventLevel.Warning)
+            .CreateLogger();
 
-            configuration.WriteTo.Sink(new BackgroundSink(discordLogger), LogEventLevel.Warning);
-        }
-        
-        Log.Logger = configuration.CreateLogger();
+        ConfigureDiscord(webhookUrl);
     }
+
+    /// <summary>
+    /// Sets or removes the Discord webhook of the running logger. An empty value disables Discord logging.
+    /// </summary>
+    public static void ConfigureDiscord(string? webhookUrl)
+        => DiscordSink.Replace(string.IsNullOrWhiteSpace(webhookUrl) ? null : CreateDiscordSink(webhookUrl));
 
     public static bool SetupCredentials(string appType, string templateJson, out string credentialsPath)
     {
         credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", $"credentials.{appType}.json");
         return CredentialCreator.EnsureExists(credentialsPath, templateJson);
+    }
+
+    private static BackgroundSink CreateDiscordSink(string webhookUrl)
+    {
+        var discordLogger = new LoggerConfiguration()
+            .WriteTo.Discord(
+                LogEventLevel.Warning,
+                config =>
+                {
+                    config.WebhookUrl = webhookUrl;
+                    config.ServiceName = _serviceName;
+                }
+            )
+            .CreateLogger();
+
+        return new BackgroundSink(discordLogger);
     }
 }

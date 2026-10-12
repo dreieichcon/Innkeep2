@@ -2,7 +2,6 @@ using Innkeep2.Cloud.Api;
 using Innkeep2.Cloud.Components;
 using Innkeep2.Cloud.Extensions;
 using Innkeep2.Cloud.Services;
-using Innkeep2.Credentials.Models;
 using Innkeep2.Services.Cloud;
 using Innkeep2.Services.Shared;
 using Microsoft.AspNetCore.Authentication;
@@ -19,8 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 var credentialsPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "credentials", "credentials.json");
 builder.Configuration.AddJsonFile(credentialsPath, optional: false, reloadOnChange: true);
 
-var discordCredential = builder.Configuration.GetSection("Discord").Get<DiscordCredential>();
-AppSetup.SetupLogging("Innkeep2.Cloud", discordCredential?.WebhookUrl);
+AppSetup.SetupLogging("Innkeep2.Cloud");
 builder.Logging.UseSerilogOnly();
 
 builder.Services.AddDataProtection()
@@ -42,6 +40,8 @@ builder.Services.AddSingleton<TransactionDatabaseService>();
 builder.Services.AddSingleton<StatusBarService>();
 
 var app = builder.Build();
+
+await app.Services.LoadCredentialsAsync();
 
 var options = new ForwardedHeadersOptions
 {
