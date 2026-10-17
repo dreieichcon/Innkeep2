@@ -13,11 +13,14 @@
     
     [Parameter] 
     public bool FullHeight { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
     
     [Parameter] 
     public RenderFragment? ChildContent { get; set; }
 
-    private string? ItemClass => FullHeight ? "h-100" : null;
+    private string? ItemClass => FullHeight ? $"paper-fill-item {Class}".Trim() : Class;
     private string PaperClass => FullHeight ? "p-2 h-100 overflow-hidden" : "p-2";
     private string? StackClass => FullHeight ? "h-100" : null;
 }

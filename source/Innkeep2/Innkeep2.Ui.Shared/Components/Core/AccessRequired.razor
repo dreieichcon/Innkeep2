@@ -1,0 +1,32 @@
+@using MudBlazor
+
+<MudStack Class="management-page" AlignItems="AlignItems.Center">
+    <MudPaper Class="p-4">
+        <MudStack AlignItems="AlignItems.Center">
+            @if (IsAuthenticated)
+            {
+                <MudText Typo="Typo.h4">Keine Berechtigung</MudText>
+                <MudText Typo="Typo.body1">Dein Konto hat keinen Zugriff auf diese Anwendung.</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.h4">Bitte anmelden</MudText>
+                <MudText Typo="Typo.body1">Melde dich an, um fortzufahren.</MudText>
+                <MudButton Href="@LoginUrl" Variant="Variant.Filled" Color="Color.Primary"
+                           EndIcon="@Icons.Material.Filled.Login">
+                    Anmelden
+                </MudButton>
+            }
+        </MudStack>
+    </MudPaper>
+</MudStack>
+
+@code {
+
+    [Parameter]
+    public bool IsAuthenticated { get; set; }
+
+    [Parameter]
+    public string LoginUrl { get; set; } = "/Account/Login";
+
+}

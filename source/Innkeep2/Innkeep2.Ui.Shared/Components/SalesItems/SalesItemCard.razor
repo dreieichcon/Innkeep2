@@ -1,9 +1,9 @@
 @using Innkeep2.Models.Internal
 @using MudBlazor
 
-<MudItem Xs="4">
-    <MudPaper Class="p-2">
-        <MudStack>
+<MudItem xs="12" sm="6" lg="4">
+    <MudPaper Class="p-2 h-100">
+        <MudStack Class="h-100" Justify="Justify.SpaceBetween">
             <MudStack Row="true" Justify="Justify.SpaceBetween">
                 <MudText Typo="Typo.h6">@SalesItem.Name</MudText>
                 @if (SalesItem.PrintCheckInVoucher)

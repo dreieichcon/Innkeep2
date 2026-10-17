@@ -1,13 +1,4 @@
-﻿@page "/"
-@using Microsoft.AspNetCore.Components.Authorization
+@page "/"
 
-<AuthorizeView Roles="innkeep2-admin">
-    <Authorized>
-        <MudText Typo="Typo.h4">Welcome to Innkeep2 Cloud!</MudText>
-        <MudText Typo="Typo.body1">You are logged in as an administrator.</MudText>
-    </Authorized>
-    <NotAuthorized>
-        <MudText Typo="Typo.h4">Welcome to Innkeep2 Cloud!</MudText>
-        <MudText Typo="Typo.body1">Please <MudLink Href="/Account/Login">log in</MudLink> with an admin account to continue.</MudText>
-    </NotAuthorized>
-</AuthorizeView>
+<MudText Typo="Typo.h4">Willkommen bei Innkeep2 Cloud!</MudText>
+<MudText Typo="Typo.body1">Du bist als Administrator angemeldet.</MudText>

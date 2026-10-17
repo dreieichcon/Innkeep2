@@ -4,7 +4,7 @@
 
 @inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractUiPage
 
-<ConfigPage Title="Dashboard für Bestellungen">
+<ManagementPage Title="Dashboard für Bestellungen">
     <PaperItem Xs="6">
         <MudText>Bestellungen Gesamt:</MudText>
         <MudText Typo="Typo.h4">@OrderCount</MudText>
@@ -21,7 +21,7 @@
         <MudText>Aktueller Stand Kasse:</MudText>
         <MudText Typo="Typo.h4">@RegisterBalance.ToString("C")</MudText>
     </PaperItem>
-</ConfigPage>
+</ManagementPage>
 
 @code {
 

@@ -4,7 +4,7 @@
 
 @inherits Innkeep2.Cloud.Components.Pages.Abstract.AbstractUiPage
 
-<ConfigPage Title="Einstellungen für aktive Tss:" SubTitle="@ActiveTss?.DisplayName">
+<ManagementPage Title="Einstellungen für aktive Tss:" SubTitle="@ActiveTss?.DisplayName">
     <MudItem xs="12">
         @if (_isLoading)
         {
@@ -92,4 +92,4 @@
             </MudExpansionPanel>
         </MudPaper>
     </MudItem>
-</ConfigPage>
+</ManagementPage>

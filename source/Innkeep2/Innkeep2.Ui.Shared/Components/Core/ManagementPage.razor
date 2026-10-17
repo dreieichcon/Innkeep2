@@ -1,7 +1,7 @@
 @using MudBlazor
 
-<MudStack Class="w-100 config-page" AlignItems="AlignItems.Center">
-    <MudPaper Class="@($"p-2 {GridClass}")">
+<MudStack Class="@PageClass">
+    <MudPaper Class="p-2">
         <MudText Typo="Typo.h4">
             @Title
         </MudText>
@@ -9,7 +9,7 @@
             @SubTitle
         </MudText>
     </MudPaper>
-    <MudGrid Class="@($"{GridClass} fill-remaining")" Justify="Justify.Center">
+    <MudGrid Class="management-page-grid" Justify="Justify.Center">
         @ChildContent
     </MudGrid>
 </MudStack>
@@ -23,12 +23,11 @@
     public string? SubTitle { get; set; }
 
     [Parameter]
+    public bool FullWidth { get; set; }
+
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-    [Parameter]
-    public int MainContentSize { get; set; } = 12;
-
-    [Parameter]
-    public string GridClass { get; set; } = "w-75";
+    private string PageClass => FullWidth ? "management-page management-page--full" : "management-page";
 
 }

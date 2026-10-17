@@ -1,0 +1,20 @@
+@using MudBlazor
+
+<MudNavMenu>
+    @foreach (var section in Sections)
+    {
+        <MudNavGroup Title="@section.Title" Icon="@section.Icon" Expanded="true">
+            @foreach (var entry in section.Entries)
+            {
+                <MudNavLink Href="@entry.Href">@entry.Title</MudNavLink>
+            }
+        </MudNavGroup>
+    }
+</MudNavMenu>
+
+@code {
+
+    [Parameter]
+    public IReadOnlyList<NavSection> Sections { get; set; } = [];
+
+}

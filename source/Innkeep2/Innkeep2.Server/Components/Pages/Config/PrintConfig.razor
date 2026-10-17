@@ -5,7 +5,7 @@
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
-<ListPage Title="Drucker Einstellungen">
+<ManagementPage Title="Drucker Einstellungen">
     <PaperItem Xs="12">
         <MudStack Spacing="3" Style="max-width: 400px;">
             <MudTextField T="string" @bind-Value="_ipAddress" Label="IP-Adresse" Variant="Variant.Outlined"/>
@@ -26,7 +26,7 @@
             </MudStack>
         </MudStack>
     </PaperItem>
-</ListPage>
+</ManagementPage>
 
 @code {
 

@@ -1,13 +1,15 @@
-﻿@using Innkeep2.Ui.Shared.Layout
+@using Innkeep2.Ui.Shared.Layout
 @inherits LayoutComponentBase
 
-<ManagementLayout @bind-IsDrawerOpen="_drawerOpen">
-    <TopContent>
+<ManagementLayout @bind-IsDrawerOpen="_drawerOpen" Roles="innkeep2-admin">
+    <AppBarContent>
         <AppBar @bind-DrawerOpen="_drawerOpen"/>
+    </AppBarContent>
+    <StatusBarContent>
         <StatusBar/>
-    </TopContent>
+    </StatusBarContent>
     <DrawerContent>
-        <Navbar/>
+        <AdminNavMenu Sections="NavigationSections.All"/>
     </DrawerContent>
     <MainContent>
         @Body

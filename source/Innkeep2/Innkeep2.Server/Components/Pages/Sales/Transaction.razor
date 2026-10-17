@@ -10,7 +10,7 @@
 @using Innkeep2.Ui.Shared.Components.Receipt
 @using MudBlazor
 
-<ListPage Title="Bestellung: Details">
+<ManagementPage Title="Bestellung: Details">
     @if (Receipt is not null)
     {
         <PaperItem Xs="3">
@@ -74,7 +74,7 @@
             <MudText>Bestellung nicht gefunden.</MudText>
         </PaperItem>
     }
-</ListPage>
+</ManagementPage>
 
 @code {
 

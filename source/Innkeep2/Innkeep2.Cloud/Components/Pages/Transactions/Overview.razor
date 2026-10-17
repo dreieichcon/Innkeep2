@@ -7,9 +7,9 @@
 @using Innkeep2.Ui.Shared.Components.Receipt
 @using Microsoft.EntityFrameworkCore
 
-<ConfigPage Title="Bestellungen: Übersicht" GridClass="w-100">
-    <PaperItem Xs="9" FullHeight="true">
-        <MudDataGrid T="Transaction" ServerData="ServerData" RowsPerPage="50" Dense="false"
+<ManagementPage Title="Bestellungen: Übersicht" FullWidth="true">
+    <PaperItem Xs="12" FullHeight="true" Class="item-grow">
+        <MudDataGrid T="Transaction" ServerData="ServerData" RowsPerPage="50" Dense="true"
                      FixedHeader="true" Height="100%" Class="h-100 d-flex flex-column"
                      RowClick="e => SelectedTransaction = e.Item">
             <PagerContent>
@@ -33,13 +33,13 @@
             </Columns>
         </MudDataGrid>
     </PaperItem>
-    <PaperItem Xs="3">
+    <PaperItem Xs="12" Class="item-fit">
         @if (Receipt is not null)
         {
             <ReceiptWebDisplay Receipt="Receipt"/>
         }
     </PaperItem>
-</ConfigPage>
+</ManagementPage>
 
 @code {
 

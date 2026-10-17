@@ -4,9 +4,9 @@
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
-<ListPage Title="Bestellungen: Übersicht" GridClass="w-100">
+<ManagementPage Title="Bestellungen: Übersicht" FullWidth="true">
     <PaperItem Xs="12" FullHeight="true">
-        <MudDataGrid T="TransactionSummary" Virtualize="true" ServerData="ServerData" RowsPerPage="50" Dense="false"
+        <MudDataGrid T="TransactionSummary" Virtualize="true" ServerData="ServerData" RowsPerPage="50" Dense="true"
                      FixedHeader="true" Height="100%" Class="h-100 d-flex flex-column">
             <PagerContent>
                 <MudDataGridPager/>
@@ -35,7 +35,7 @@
             </Columns>
         </MudDataGrid>
     </PaperItem>
-</ListPage>
+</ManagementPage>
 
 @code {
 

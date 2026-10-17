@@ -7,7 +7,7 @@
 @using Innkeep2.Ui.Shared.Components.Core
 @using MudBlazor
 
-<ListPage Title="Geld Buchen" MainContentSize="4">
+<ManagementPage Title="Geld Buchen">
     <PaperItem Xs="4">
         <MudStack Spacing="3" Class="p-2">
             <MudToggleGroup T="bool" @bind-Value="_isInbound">
@@ -24,7 +24,7 @@
             </MudButton>
         </MudStack>
     </PaperItem>
-</ListPage>
+</ManagementPage>
 
 @code {
 

@@ -1,11 +1,6 @@
 :root{
     --app-bar-height: 48px;
-}
-
-html, body{
-    height: 100vh !important;
-    width: 100vw !important;
-    overflow: hidden;
+    --page-max-width: 1400px;
 }
 
 .innkeep-status-bar{
@@ -14,29 +9,55 @@ html, body{
     background-color: var(--mud-palette-background) !important;
 }
 
-.config-page {
-    height: calc(100vh - 3 * var(--app-bar-height));
-    min-height: 0;
-}
-
-.fill-remaining {
-    flex: 1 1 0;
-    min-height: 0;
-    align-content: flex-start;
-    overflow-x: hidden;
-    overflow-y: auto;
-    /* clipping on header row was broken, fixed */
-    clip-path: inset(24px 0 0 0);
-}
-
-.limit-height{
-    max-height: 100% !important;
+.innkeep-status-bar .mud-toolbar{
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .management-layout .mud-main-content {
     padding-top: calc(2 * var(--app-bar-height)) !important;
 }
 
+.management-layout--locked .mud-main-content {
+    padding-top: var(--app-bar-height) !important;
+}
+
 .management-layout .mud-drawer {
     top: calc(2 * var(--app-bar-height)) !important;
+}
+
+.management-page {
+    width: 100%;
+    max-width: var(--page-max-width);
+    margin-inline: auto;
+}
+
+.management-page--full {
+    max-width: none;
+}
+
+.management-page-grid {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+.paper-fill-item {
+    height: calc(100dvh - 2 * var(--app-bar-height) - 11rem);
+    min-height: 24rem;
+}
+
+.item-grow {
+    flex: 1 1 22rem !important;
+    max-width: none !important;
+    min-width: 0;
+}
+
+.item-fit {
+    flex: 0 0 auto !important;
+    width: fit-content;
+    max-width: 100% !important;
+}
+
+.management-layout .mud-table-dense .mud-table-cell {
+    padding: 4px 12px;
 }
