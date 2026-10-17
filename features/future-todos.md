@@ -9,9 +9,7 @@
 - Sales items: order by category, then by position within the category.
 
 ## Bugs
-- Cloud: Pretix request culture code must come from Pretix and only allow cultures enabled in the event.
 - Cloud/Server: UI only works at 1440p. Make it percentage-based so it scales with screen size.
-- Server/Client: hide items with stock 0 and items not currently active (e.g. time-limited).
 
 ## To decide
 - Cloud: how to fix transactions where the Pretix order or Fiskaly transaction failed (currently no way).

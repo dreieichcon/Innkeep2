@@ -12,9 +12,12 @@ One active setup at a time, stored in Cloud:
 
 ## Data (API)
 - Serves the active event and its sales items (cached from Pretix, stock refreshed after sales and refunds).
+- Hidden items and variations: inactive, not on the POS sales channel, outside their sales window, or sold out.
+- Stock is the lowest remaining stock of all quotas of an item.
 
 ## Order
 - Stores the transaction first, then creates the Pretix order and the Fiskaly transaction.
+- Pretix order language: default language of the event if enabled, otherwise the first enabled one. Falls back to "de" if the event settings cannot be loaded.
 - Pretix or Fiskaly failing does not fail the order: the step is marked Failed, the receipt shows "PRETIX OFFLINE" / "TSS OFFLINE".
 - Returns the receipt.
 - Failed steps are not retried or repaired.
@@ -37,7 +40,7 @@ One active setup at a time, stored in Cloud:
 - Dashboard: order count, total income, cash income, current register balance.
 
 ## Config (UI)
-- Pretix: connection, organizer, event.
+- Pretix: connection, organizer, event, order language in use.
 - Fiskaly: credentials, TSS lifecycle (deploy, set admin PIN, initialize, deactivate), fiscal client (create, deactivate).
 - Database: select or create.
 - API keys: create (named) and revoke.

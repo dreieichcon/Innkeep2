@@ -31,13 +31,12 @@ public sealed class CachedSalesItemProvider(
 		if (!quotasResult.IsSuccess)
 			return Result<IReadOnlyList<SalesItem>>.Failure(quotasResult.Error!);
 
-		var items = itemsResult.Value!.Results
-			.Where(x => x.AllSalesChannels || x.LimitSalesChannels.Contains("pretixpos"))
-			.Where(x => x.Active)
+		var items = SalesItemAvailability.FilterSellable(itemsResult.Value!.Results, DateTimeOffset.UtcNow)
 			.SelectMany(SalesItem.FromPretix)
 			.ToList();
 
-		ApplyStock(items, quotasResult.Value!.Results);
+		SalesItemAvailability.ApplyStock(items, quotasResult.Value!.Results);
+		SalesItemAvailability.RemoveSoldOut(items);
 
 		cache.Set(key, items, CacheDuration);
 
@@ -50,21 +49,6 @@ public sealed class CachedSalesItemProvider(
 		cache.Remove(key);
 	}
 
-	private static void ApplyStock(List<SalesItem> items, IReadOnlyList<PretixQuota> quotas)
-	{
-		foreach (var item in items)
-		{
-			var quota = quotas.FirstOrDefault(q =>
-				q.Items.Contains(item.Id) &&
-				(item.VariationId == 0 || q.Variations.Contains(item.VariationId)));
-
-			if (quota is null)
-				continue;
-
-			item.MaxStock = quota.Size;
-			item.ItemsInStock = quota.AvailableNumber;
-		}
-	}
 }
 
 public sealed record SalesItemKey(string OrganizerSlug, string EventSlug);
