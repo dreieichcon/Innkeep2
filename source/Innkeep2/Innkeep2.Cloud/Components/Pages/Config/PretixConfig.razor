@@ -38,7 +38,10 @@
     </MudItem>
     <MudItem xs="12">
         <MudPaper Class="p-2">
-            <MudText>@SalesItems.Length Sales Items geladen</MudText>
+            <MudStack>
+                <MudText>@SalesItems.Length Sales Items geladen</MudText>
+                <MudText>Bestellsprache: @(ActiveConfiguration.Event?.OrderLocale ?? "Keine Veranstaltung aktiv")</MudText>
+            </MudStack>
         </MudPaper>
     </MudItem>
     <MudItem xs="12">

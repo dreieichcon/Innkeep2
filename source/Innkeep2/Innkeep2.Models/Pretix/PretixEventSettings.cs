@@ -23,4 +23,10 @@ public sealed record PretixEventSettings
 
     [JsonPropertyName("invoice_address_from_vat_id")]
     public string InvoiceVatId { get; init; } = "";
+
+    [JsonPropertyName("locale")]
+    public string Locale { get; init; } = "";
+
+    [JsonPropertyName("locales")]
+    public IReadOnlyList<string> Locales { get; init; } = [];
 }

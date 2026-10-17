@@ -115,7 +115,11 @@ public sealed class ActiveConfigurationService(
         if (!result.IsSuccess)
             return Result.Failure(result.Error!);
 
-        Event = currentEvent with { Header = Event.BuildHeader(result.Value!) };
+        Event = currentEvent with
+        {
+            Header = Event.BuildHeader(result.Value!),
+            OrderLocale = Event.ResolveOrderLocale(result.Value!)
+        };
 
         await NotifyChangedAsync();
 

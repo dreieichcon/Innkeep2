@@ -98,8 +98,7 @@ public sealed partial class TransactionService(
         CancellationToken ct
     )
     {
-        var result = await pretixOrderService.CreateOrderAsync(organizerSlug, eventInternal.Slug,
-            eventInternal.IsTestMode, request.Items, ct);
+        var result = await pretixOrderService.CreateOrderAsync(organizerSlug, eventInternal, request.Items, ct);
 
         if (!result.IsSuccess)
         {

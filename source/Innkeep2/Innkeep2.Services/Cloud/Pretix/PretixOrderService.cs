@@ -12,20 +12,19 @@ public sealed class PretixOrderService(PretixOrderClient client)
 {
     public Task<Result<PretixOrderResponse>> CreateOrderAsync(
         string organizerSlug,
-        string eventSlug,
-        bool isTestMode,
+        Event pretixEvent,
         IReadOnlyList<SalesItem> items,
         CancellationToken ct = default
     )
     {
         var order = new PretixOrderCreate
         {
-            Locale = "de",
-            IsTestMode = isTestMode,
+            Locale = pretixEvent.OrderLocale,
+            IsTestMode = pretixEvent.IsTestMode,
             Positions = BuildPositions(items)
         };
 
-        return client.CreateAsync(organizerSlug, eventSlug, order, ct);
+        return client.CreateAsync(organizerSlug, pretixEvent.Slug, order, ct);
     }
     
     public Task<Result<PretixRefund>> CreateRefundAsync(
