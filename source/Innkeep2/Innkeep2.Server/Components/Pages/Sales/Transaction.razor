@@ -13,10 +13,10 @@
 <ManagementPage Title="Bestellung: Details">
     @if (Receipt is not null)
     {
-        <PaperItem Xs="3">
+        <PaperItem Xs="12" Class="item-fit">
             <ReceiptWebDisplay Receipt="Receipt"/>
         </PaperItem>
-        <PaperItem Xs="9">
+        <PaperItem Xs="12" Class="item-grow">
             <MudStack Spacing="2">
                 <MudText Typo="Typo.h6">Übersicht</MudText>
                 <MudText>Typ: @Receipt.TransactionType</MudText>

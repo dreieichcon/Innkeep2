@@ -24,3 +24,4 @@ credentials.*.json
 **/log/**
 
 **/dataprotection-keys/*.xml
+source/Innkeep2/debug/**
