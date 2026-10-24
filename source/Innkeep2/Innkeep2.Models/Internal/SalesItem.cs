@@ -37,12 +37,12 @@ public sealed record SalesItem
 					Name = item.Name.German,
 					Price = item.DefaultPrice,
 					TaxRate = item.TaxRate,
-					PrintCheckInVoucher =  printVoucher
+					PrintCheckInVoucher = printVoucher
 				}
 			];
 		}
 
-		return item.Variations.Select(x => new SalesItem
+		return item.Variations.OrderBy(x => x.Position).ThenBy(x => x.Id).Select(x => new SalesItem
 				{
 					Id = item.Id,
 					VariationId = x.Id,

@@ -4,7 +4,6 @@
 - Client: NonCash (card) payment.
 - Client: digital receipt link as QR code on the customer display.
 - Stack: multiple POS clients; transactions carry a client id (format to be defined).
-- Sales items: order by category, then by position within the category.
 
 ## Bugs
 

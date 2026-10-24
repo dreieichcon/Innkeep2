@@ -72,6 +72,9 @@ public sealed class CachedSalesItemProvider(
 			return Result<IReadOnlyList<SalesItem>>.Failure(quotasResult.Error!);
 
 		var items = SalesItemAvailability.FilterSellable(itemsResult.Value!.Results, DateTimeOffset.UtcNow)
+			.OrderBy(x => x.Category ?? int.MinValue)
+			.ThenBy(x => x.Position)
+			.ThenBy(x => x.Id)
 			.SelectMany(SalesItem.FromPretix)
 			.ToList();
 
