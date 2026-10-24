@@ -1,0 +1,98 @@
+@page "/Transactions/Payments"
+@using Innkeep2.Cloud.Services.Payments
+@using Innkeep2.Cloud.TransactionDb.Models
+@using Innkeep2.Models.Shared
+@using Innkeep2.Ui.Shared.Components.Core
+
+<ManagementPage Title="Kartenzahlungen" FullWidth="true">
+    <PaperItem Xs="12" FullHeight="true" Class="item-grow paper-fill-item--roomy">
+        <MudDataGrid T="PaymentOverviewRow" @ref="_grid" ServerData="LoadAsync" RowsPerPage="25" Dense="true"
+                     FixedHeader="true" Class="table-fill"
+                     RowClick="e => Selected = e.Item">
+            <ToolBarContent>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="w-100">
+                    <MudSelect T="PaymentRequestStatus?" Label="Status" Variant="Variant.Outlined" Margin="Margin.Dense"
+                               Clearable="true" Style="max-width: 240px;"
+                               Value="_status" ValueChanged="OnStatusChangedAsync">
+                        @foreach (var status in Enum.GetValues<PaymentRequestStatus>())
+                        {
+                            <MudSelectItem T="PaymentRequestStatus?" Value="@status">@status</MudSelectItem>
+                        }
+                    </MudSelect>
+                    <MudSwitch T="bool" Label="Nur auffällige" Color="Color.Warning"
+                               Value="_onlyNeedingAttention" ValueChanged="OnAttentionChangedAsync"/>
+                    <MudSpacer/>
+                    <MudButton Variant="Variant.Outlined" OnClick="ReloadAsync" Disabled="_isBusy">Aktualisieren</MudButton>
+                </MudStack>
+            </ToolBarContent>
+            <PagerContent>
+                <MudDataGridPager/>
+            </PagerContent>
+            <Columns>
+                <TemplateColumn Title="Erstellt">
+                    <CellTemplate>@context.Item.Payment.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Betrag">
+                    <CellTemplate>@context.Item.Payment.TotalAmount.ToString("N2") @context.Item.Payment.Currency</CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Status">
+                    <CellTemplate>
+                        <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Item.Payment.Status)" Variant="Variant.Filled">
+                            @context.Item.Payment.Status
+                        </MudChip>
+                    </CellTemplate>
+                </TemplateColumn>
+                <TemplateColumn Title="Hinweis">
+                    <CellTemplate>
+                        @if (AttentionText(context.Item) is { } text)
+                        {
+                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@text</MudChip>
+                        }
+                    </CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="x => x.Payment.SumupTransactionCode" Title="SumUp Nr."/>
+                <TemplateColumn Title="Bestellung">
+                    <CellTemplate>@OrderText(context.Item)</CellTemplate>
+                </TemplateColumn>
+                <PropertyColumn Property="x => x.Payment.RequestId" Title="Anfrage-ID"/>
+                <TemplateColumn Title="Aktionen">
+                    <CellTemplate>
+                        <MudStack Row="true" Spacing="1">
+                            @if (CanRecheck(context.Item))
+                            {
+                                <MudButton Size="Size.Small" Variant="Variant.Outlined" Disabled="_isBusy"
+                                           OnClick="() => RecheckAsync(context.Item)">
+                                    Bei SumUp prüfen
+                                </MudButton>
+                            }
+                            @if (CanRetryOrder(context.Item))
+                            {
+                                <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Warning" Disabled="_isBusy"
+                                           OnClick="() => RetryOrderAsync(context.Item)">
+                                    Bestellung anlegen
+                                </MudButton>
+                            }
+                        </MudStack>
+                    </CellTemplate>
+                </TemplateColumn>
+            </Columns>
+        </MudDataGrid>
+    </PaperItem>
+    @if (Selected is { } selected)
+    {
+        <PaperItem Xs="12" Class="item-fit">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h6">Details</MudText>
+                <MudText>Anfrage-ID: @selected.Payment.RequestId</MudText>
+                <MudText>Aktualisiert: @selected.Payment.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</MudText>
+                <MudText>SumUp Client-Transaktions-ID: @(selected.Payment.ClientTransactionId ?? "-")</MudText>
+                <MudText>SumUp Checkout-ID: @(selected.Payment.CheckoutId ?? "-")</MudText>
+                <MudText>SumUp Nr.: @(selected.Payment.SumupTransactionCode ?? "-")</MudText>
+                <MudText>Händlercode / Reader: @selected.Payment.MerchantCode / @selected.Payment.ReaderId</MudText>
+                <MudText>Abbruchgrund: @(selected.Payment.TerminationReason?.ToString() ?? "-")</MudText>
+                <MudText>Pretix: @(selected.PretixStatus?.ToString() ?? "-") / Fiskaly: @(selected.FiskalyStatus?.ToString() ?? "-")</MudText>
+                <MudText>Interner Fehlergrund: @(selected.Payment.FailureReason ?? "-")</MudText>
+            </MudStack>
+        </PaperItem>
+    }
+</ManagementPage>

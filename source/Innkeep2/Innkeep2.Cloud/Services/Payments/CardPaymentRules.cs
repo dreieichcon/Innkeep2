@@ -11,6 +11,14 @@ public enum SumUpOutcome
     Unknown
 }
 
+public enum PaymentAttention
+{
+    None,
+    HangingPending,
+    PaidNotCompleted,
+    CompletedWithoutOrder
+}
+
 public static class CardPaymentRules
 {
     /// <summary>
@@ -71,6 +79,19 @@ public static class CardPaymentRules
         => request.Status == PaymentRequestStatus.Pending
            && request.TerminationReason is null
            && nowUtc - request.CreatedAt >= options.OverallTimeout;
+
+    /// <summary>
+    /// Tells whether a payment needs a person to look at it: pending for longer than the reader stays occupied,
+    /// paid but not completed, or completed without an order.
+    /// </summary>
+    public static PaymentAttention GetAttention(PaymentRequest request, bool hasOrder, DateTime nowUtc, CardPaymentOptions options)
+        => request.Status switch
+        {
+            PaymentRequestStatus.Pending when nowUtc - request.CreatedAt >= options.ReaderBusyWindow => PaymentAttention.HangingPending,
+            PaymentRequestStatus.Paid => PaymentAttention.PaidNotCompleted,
+            PaymentRequestStatus.Completed when !hasOrder => PaymentAttention.CompletedWithoutOrder,
+            _ => PaymentAttention.None
+        };
 
     /// <summary>
     /// Earliest creation time of a pending payment that still occupies the reader.

@@ -10,7 +10,8 @@ public static class NavigationSections
 		new("Bestellungen", Icons.Material.Outlined.AttachMoney,
 		[
 			new("Dashboard", "/Transactions/Dashboard"),
-			new("Übersicht", "/Transactions/Overview")
+			new("Übersicht", "/Transactions/Overview"),
+			new("Kartenzahlungen", "/Transactions/Payments")
 		]),
 		new("Veranstaltung", Icons.Material.Outlined.Business,
 		[

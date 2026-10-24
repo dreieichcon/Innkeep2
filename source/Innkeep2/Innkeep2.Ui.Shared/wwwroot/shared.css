@@ -61,3 +61,34 @@
 .management-layout .mud-table-dense .mud-table-cell {
     padding: 4px 12px;
 }
+
+/* A grid inside a fixed-height item: toolbar and pager keep their height, the table area takes the rest. */
+.table-fill.mud-table {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.table-fill > .mud-table-container {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto !important;
+    overflow: auto;
+}
+
+.table-fill > .mud-toolbar,
+.table-fill > .mud-table-toolbar,
+.table-fill > .mud-table-pagination {
+    flex: 0 0 auto;
+}
+
+.table-fill > .mud-table-pagination,
+.table-fill .mud-table-pagination-toolbar {
+    overflow: visible;
+}
+
+/* Fill item that needs less room around it than the default budget of paper-fill-item. */
+.paper-fill-item.paper-fill-item--roomy {
+    height: calc(100dvh - 2 * var(--app-bar-height) - 8rem);
+}

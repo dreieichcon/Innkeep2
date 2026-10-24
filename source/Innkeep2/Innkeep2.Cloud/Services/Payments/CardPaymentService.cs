@@ -87,6 +87,34 @@ public sealed class CardPaymentService(
     }
 
     /// <summary>
+    /// Asks SumUp for the outcome of a payment right now, without waiting for the usual delay or interval.
+    /// </summary>
+    public async Task<Result<PaymentStatusResponse>> RecheckAsync(Guid requestId, CancellationToken ct = default)
+    {
+        var payment = await UnderLockAsync(requestId, p => ReconcileAsync(p, true, ct), ct);
+
+        return payment is null
+            ? NotFound()
+            : Result<PaymentStatusResponse>.Success(await BuildResponseAsync(payment, null, ct));
+    }
+
+    /// <summary>
+    /// Creates the order of a payment that SumUp confirmed but that has no finished order. Safe to repeat.
+    /// </summary>
+    public async Task<Result<PaymentStatusResponse>> RetryOrderAsync(Guid requestId, CancellationToken ct = default)
+    {
+        Error? error = null;
+        var payment = await UnderLockAsync(requestId, async p => error = await RetryOrderLockedAsync(p, ct), ct);
+
+        if (payment is null)
+            return NotFound();
+
+        return error is not null
+            ? Result<PaymentStatusResponse>.Failure(error)
+            : Result<PaymentStatusResponse>.Success(await BuildResponseAsync(payment, null, ct));
+    }
+
+    /// <summary>
     /// Asks the reader to cancel a pending payment. The payment ends once SumUp confirms the outcome.
     /// </summary>
     public async Task<Result<PaymentStatusResponse>> CancelAsync(Guid requestId, CancellationToken ct = default)
@@ -231,6 +259,43 @@ public sealed class CardPaymentService(
 
         await TransitionAsync(payment, PaymentRequestStatus.Completed, null, ct);
     }
+
+    private async Task<Error?> RetryOrderLockedAsync(PaymentRequest payment, CancellationToken ct)
+    {
+        switch (payment.Status)
+        {
+            case PaymentRequestStatus.Paid:
+                await CompleteAsync(payment, ct);
+
+                return payment.Status == PaymentRequestStatus.Paid ? OrderFailed() : null;
+            case PaymentRequestStatus.Completed when await orders.GetReceiptAsync(payment.RequestId, ct) is null:
+                return await CreateMissingOrderAsync(payment, ct);
+            case PaymentRequestStatus.Completed:
+                return new Error("Payment.NothingToRetry", "Zu dieser Zahlung existiert bereits eine Bestellung");
+            default:
+                return new Error("Payment.NothingToRetry", "Nur bezahlte Zahlungen ohne Bestellung können erneut angelegt werden");
+        }
+    }
+
+    private async Task<Error?> CreateMissingOrderAsync(PaymentRequest payment, CancellationToken ct)
+    {
+        var order = DeserializeOrder(payment);
+
+        if (order is null)
+            return OrderFailed();
+
+        var created = await orders.CreateOrderAsync(order, ct, isRetry: true, payment.SumupTransactionCode);
+
+        if (created.IsSuccess)
+            return null;
+
+        Log.Error("Creating the missing order of payment {RequestId} failed: {Error}", payment.RequestId, created.Error!.Message);
+
+        return OrderFailed();
+    }
+
+    private static Error OrderFailed()
+        => new("Payment.OrderFailed", "Die Bestellung konnte nicht angelegt werden, bitte das Protokoll prüfen");
 
     private static OrderRequest? DeserializeOrder(PaymentRequest payment)
     {

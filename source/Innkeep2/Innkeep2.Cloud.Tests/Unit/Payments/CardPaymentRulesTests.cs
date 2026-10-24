@@ -192,4 +192,45 @@ public class CardPaymentRulesTests
 
         Assert.IsTrue(CardPaymentRules.ShouldTerminateForTimeout(BuildRequest(), now, options));
     }
+
+    [TestMethod]
+    public void GetAttention_APendingPaymentIsNormalWhileTheReaderIsStillOccupied()
+    {
+        var now = Created + Options.ReaderBusyWindow - TimeSpan.FromMilliseconds(1);
+
+        Assert.AreEqual(PaymentAttention.None, CardPaymentRules.GetAttention(BuildRequest(), false, now, Options));
+    }
+
+    [TestMethod]
+    public void GetAttention_APendingPaymentOlderThanTheBusyWindowIsHanging()
+    {
+        var now = Created + Options.ReaderBusyWindow;
+
+        Assert.AreEqual(PaymentAttention.HangingPending, CardPaymentRules.GetAttention(BuildRequest(), false, now, Options));
+    }
+
+    [DataRow(true)]
+    [DataRow(false)]
+    [TestMethod]
+    public void GetAttention_APaidPaymentNeedsAttentionWithOrWithoutAnOrder(bool hasOrder)
+        => Assert.AreEqual(PaymentAttention.PaidNotCompleted, CardPaymentRules.GetAttention(BuildRequest(PaymentRequestStatus.Paid), hasOrder, Created, Options));
+
+    [TestMethod]
+    public void GetAttention_ACompletedPaymentWithoutAnOrderNeedsAttention()
+        => Assert.AreEqual(PaymentAttention.CompletedWithoutOrder, CardPaymentRules.GetAttention(BuildRequest(PaymentRequestStatus.Completed), false, Created, Options));
+
+    [TestMethod]
+    public void GetAttention_ACompletedPaymentWithAnOrderIsFine()
+        => Assert.AreEqual(PaymentAttention.None, CardPaymentRules.GetAttention(BuildRequest(PaymentRequestStatus.Completed), true, Created, Options));
+
+    [DataRow(PaymentRequestStatus.Failed)]
+    [DataRow(PaymentRequestStatus.Cancelled)]
+    [DataRow(PaymentRequestStatus.Expired)]
+    [TestMethod]
+    public void GetAttention_EndedPaymentsAreFineEvenWithoutAnOrder(PaymentRequestStatus status)
+    {
+        var now = Created + TimeSpan.FromDays(3);
+
+        Assert.AreEqual(PaymentAttention.None, CardPaymentRules.GetAttention(BuildRequest(status), false, now, Options));
+    }
 }
