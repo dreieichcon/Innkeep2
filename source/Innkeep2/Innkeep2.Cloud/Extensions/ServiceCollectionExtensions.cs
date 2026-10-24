@@ -1,6 +1,7 @@
 using Innkeep2.Cloud.AppDb;
 using Innkeep2.Cloud.AppDb.Repositories;
 using Innkeep2.Cloud.Services;
+using Innkeep2.Cloud.Services.Payments;
 using Innkeep2.Cloud.TransactionDb;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Security.Transformers;
@@ -37,6 +38,8 @@ public static class ServiceCollectionExtensions
 
 		services.AddSingleton<ApiKeyValidationService>();
 		services.AddSingleton<CloudStartupService>();
+		services.AddSingleton(new SumUpPairingOptions());
+		services.AddTransient<SumUpReaderService>();
 		services.AddOrderServices();
 		services.AddSunServices();
 	}
