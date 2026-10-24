@@ -31,6 +31,8 @@ public static class ApiEndpoints
         app.MapPost("/data/salesitems/stock/refresh", async (ServerSalesItemProvider salesItemProvider, CancellationToken ct)
             => Results.Ok(await salesItemProvider.RefreshStockAsync(ct)));
 
+        app.MapPaymentEndpoints();
+
         app.MapPost("/orders/create", async (
             OrderRequest request,
             ServerTransactionService transactionService,

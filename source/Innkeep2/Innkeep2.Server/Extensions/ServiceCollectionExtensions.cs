@@ -34,6 +34,9 @@ public static class ServiceCollectionExtensions
         services.AddInnkeepApiClient<CloudAuthClient>(timeoutSeconds: 5);
         services.AddInnkeepApiClient<CloudDataClient>(timeoutSeconds: 5);
         services.AddInnkeepApiClient<CloudTransactionClient>(timeoutSeconds: 10);
+        services.AddInnkeepApiClient<CloudPaymentClient>(timeoutSeconds: 15);
+        services.AddTransient<ICloudPaymentClient>(sp => sp.GetRequiredService<CloudPaymentClient>());
+        services.AddSingleton<ServerPaymentService>();
     }
 
     private static void AddCloudCaches(this IServiceCollection services)
