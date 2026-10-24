@@ -231,4 +231,73 @@ public class PaymentRequestRepositoryTests
 
         Assert.IsFalse(result.Value);
     }
+
+    [TestMethod]
+    public async Task Create_StoresSumupTransactionCodeAndTerminationReason()
+    {
+        var requestId = Guid.NewGuid();
+        var request = BuildRequest(requestId);
+        request.SumupTransactionCode = "TEENSK4W2K";
+        request.TerminationReason = PaymentTerminationReason.UserCancelled;
+
+        await _repository.CreateAsync(request);
+        var loaded = await _repository.GetByRequestIdAsync(requestId);
+
+        Assert.AreEqual("TEENSK4W2K", loaded.Value!.SumupTransactionCode);
+        Assert.AreEqual(PaymentTerminationReason.UserCancelled, loaded.Value.TerminationReason);
+    }
+
+    [TestMethod]
+    public async Task Create_LeavesSumupTransactionCodeAndTerminationReasonEmptyByDefault()
+    {
+        var requestId = Guid.NewGuid();
+
+        await _repository.CreateAsync(BuildRequest(requestId));
+        var loaded = await _repository.GetByRequestIdAsync(requestId);
+
+        Assert.IsNull(loaded.Value!.SumupTransactionCode);
+        Assert.IsNull(loaded.Value.TerminationReason);
+    }
+
+    [TestMethod]
+    public async Task Transaction_StoresSumupTransactionCodeForCardPayments()
+    {
+        var transactions = new TransactionRepository(_factory);
+        var requestId = Guid.NewGuid();
+
+        await transactions.CreateAsync(BuildTransaction(requestId, PaymentType.NonCash, "TEENSK4W2K"));
+        var loaded = await transactions.GetCustomAsync(x => x.RequestId == requestId);
+
+        Assert.AreEqual("TEENSK4W2K", loaded.Value!.SumupTransactionCode);
+        Assert.AreEqual(PaymentType.NonCash, loaded.Value.PaymentType);
+    }
+
+    [TestMethod]
+    public async Task Transaction_AllowsCashPaymentsWithoutSumupTransactionCode()
+    {
+        var transactions = new TransactionRepository(_factory);
+        var requestId = Guid.NewGuid();
+
+        await transactions.CreateAsync(BuildTransaction(requestId, PaymentType.Cash, null));
+        var loaded = await transactions.GetCustomAsync(x => x.RequestId == requestId);
+
+        Assert.IsTrue(loaded.IsSuccess);
+        Assert.IsNull(loaded.Value!.SumupTransactionCode);
+    }
+
+    private static Transaction BuildTransaction(Guid requestId, PaymentType paymentType, string? sumupTransactionCode) => new()
+    {
+        RequestId = requestId,
+        Title = "Title",
+        Header = "Header",
+        TransactionType = TransactionType.Sale,
+        BookingTime = Now,
+        PaymentType = paymentType,
+        TotalAmount = 10m,
+        AmountGiven = 10m,
+        AmountBack = 0m,
+        Currency = "EUR",
+        RequestJson = "{}",
+        SumupTransactionCode = sumupTransactionCode
+    };
 }

@@ -35,4 +35,6 @@ public class Transaction : AbstractDbItem
     public TransactionStepStatus FiskalyStatus { get; set; } = TransactionStepStatus.Pending;
     
     public Guid? RefundRequestId { get; set; }
+
+    public string? SumupTransactionCode { get; set; }
 }

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Innkeep2.Requests.SumUp;
 
 public sealed class SumUpClient(HttpClient httpClient, [FromKeyedServices("sumup")] JsonSerializerOptions serializerOptions, ILogger<SumUpClient> logger)
-    : ApiClient(httpClient, serializerOptions, logger)
+    : ApiClient(httpClient, serializerOptions, logger), ISumUpClient
 {
     /// <summary>
     /// Starts a checkout on the reader. The reader must start the payment within 60 seconds.

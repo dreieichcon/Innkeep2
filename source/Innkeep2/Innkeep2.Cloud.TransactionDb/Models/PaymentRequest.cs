@@ -21,6 +21,10 @@ public class PaymentRequest : AbstractDbItem
 
     public string? FailureReason { get; set; }
 
+    public string? SumupTransactionCode { get; set; }
+
+    public PaymentTerminationReason? TerminationReason { get; set; }
+
     public required DateTime CreatedAt { get; set; }
 
     public required DateTime UpdatedAt { get; set; }

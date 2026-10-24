@@ -49,6 +49,12 @@ namespace Innkeep2.Cloud.TransactionDb.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("SumupTransactionCode")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("TerminationReason")
+                        .HasColumnType("INTEGER");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("TEXT");
 
@@ -111,6 +117,9 @@ namespace Innkeep2.Cloud.TransactionDb.Migrations
 
                     b.Property<string>("RequestJson")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("SumupTransactionCode")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")

@@ -24,6 +24,8 @@ public static class SumUpServiceCollectionExtensions
 			.AddApiClient<SumUpClient>(BaseUrl)
 			.AddMissingCredentialHandler(sp => GetCredential(sp) is not null)
 			.AddStaticAuth("Bearer", sp => GetCredential(sp)?.ApiKey ?? string.Empty);
+
+		services.AddTransient<ISumUpClient>(sp => sp.GetRequiredService<SumUpClient>());
 	}
 
 	private static SumUpCredential? GetCredential(IServiceProvider sp)

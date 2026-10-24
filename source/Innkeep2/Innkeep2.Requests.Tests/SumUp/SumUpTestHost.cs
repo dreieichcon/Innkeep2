@@ -32,6 +32,8 @@ public sealed class SumUpTestHost : IDisposable
 
 	public StubHttpMessageHandler Handler { get; } = new();
 
+	public ServiceProvider Provider => _provider;
+
 	public SumUpClient Client => _provider.GetRequiredService<SumUpClient>();
 
 	public ActiveCredentialProvider<SumUpCredential> Credentials => _provider.GetRequiredService<ActiveCredentialProvider<SumUpCredential>>();
