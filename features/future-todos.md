@@ -3,15 +3,14 @@
 ## Planned
 - Client: NonCash (card) payment.
 - Client: digital receipt link as QR code on the customer display.
-- Client: remove keypad; move buttons to the right for different functions (see force pull).
 - Stack: multiple POS clients; transactions carry a client id (format to be defined).
-- Force pull of sales items: Client or Server can trigger; invalidates all caches up to Cloud and reloads all items.
 - Sales items: order by category, then by position within the category.
 
 ## Bugs
 
 ## To decide
 - Cloud: how to fix transactions where the Pretix order or Fiskaly transaction failed (currently no way).
+- Client: items sometimes added twice on fast taps with touch emulation in the browser; not seen with a mouse. Check again on the real touch screen.
 
 ## Technical
 - Quality refactoring: analyze the code and make it more compact.

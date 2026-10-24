@@ -101,7 +101,7 @@
 }
 
 .sales-button-active>.description{
-    padding-left: 0.5rem;
+    padding: 0.5rem;
     height: 100% !important;
     width: calc(100% - var(--button-height));
     border-right: 1px solid var(--mud-palette-divider);
