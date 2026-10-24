@@ -1,0 +1,27 @@
+@using Innkeep2.Services.Client
+<MudPaper Class="pointer noselect" Elevation="0">
+    <MudButton
+        Variant="Variant.Outlined"
+        Color="Color.Error"
+        Class="h-100 w-100"
+        OnClick="@ResetAmount">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Outlined.ClearAll" Size="Size.Large"/>
+            <MudText Typo="Typo.h4">
+                LEEREN
+            </MudText>
+        </MudStack>
+    </MudButton>
+</MudPaper>
+
+@code {
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private void ResetAmount()
+    {
+        ClientTransactionService.SetAmountGiven(0, true);
+    }
+
+}

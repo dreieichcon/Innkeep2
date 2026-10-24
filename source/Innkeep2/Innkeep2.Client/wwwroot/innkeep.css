@@ -118,26 +118,6 @@
     opacity: 0.5;
 }
 
-/*.sales-button {*/
-/*    */
-/*    */
-
-/*    > div:first-child {*/
-/*        width: 75% !important;*/
-/*        min-width: 75% !important;*/
-/*        max-width: 75% !important;*/
-
-/*        > div: first-child {*/
-/*            width: 75% !important;*/
-/*            min-width: 75% !important;*/
-/*        }*/
-/*    }*/
-
-/*> div: last-child {*/
-/*    aspect-ratio: 1 / 1 !important;*/
-/*}*/
-/*}*/
-
 .keypad-main {
     width: 100% !important;
     height: 100% !important;

@@ -13,9 +13,12 @@
         Class="h-100 w-100" 
         @onclick="StartTransaction"
         Disabled="TransactionDisabled">
-        <MudText Typo="Typo.h4">
-            BESTELLUNG ABSCHICKEN
-        </MudText>
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Outlined.Check" Size="Size.Large"/>
+            <MudText Typo="Typo.h4">
+                BESTELLUNG ABSCHICKEN
+            </MudText>
+        </MudStack>
     </MudButton>
 </MudPaper>
 
