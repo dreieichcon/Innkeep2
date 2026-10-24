@@ -43,14 +43,19 @@
     public required SalesItem SalesItem { get; set; }
 
     [Inject]
-    public ClientCartService ClientCartService { get; set; } = null!;
+    public ClientCartAdditionService CartAdditionService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
 
     private decimal PriceWithoutTax => SalesItem.Price * (1 - SalesItem.TaxRate / 100);
 
-    private void AddToCart()
+    private async Task AddToCart()
     {
-        ClientCartService.AddItem(SalesItem, ClientCartService.NextItemCount);
-        ClientCartService.NextItemCount = 1;
+        var result = await CartAdditionService.AddAsync(SalesItem);
+
+        if (!result.Added)
+            Snackbar.Add(result.Message!, Severity.Error);
     }
 
     private double ItemPercentageLeft()

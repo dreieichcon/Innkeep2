@@ -21,6 +21,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ClientSalesItemProvider>();
         
         services.AddSingleton<ClientCartService>();
+        services.AddSingleton<ClientCartAdditionService>();
         services.AddSingleton<CustomerDisplayService>();
         services.AddSingleton<ClientTransactionService>();
         
