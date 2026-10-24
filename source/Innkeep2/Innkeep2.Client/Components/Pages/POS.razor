@@ -1,17 +1,22 @@
-﻿@page "/"
+@page "/"
 @using Innkeep2.Client.Components.Controls.POS
-@using Innkeep2.Client.Components.Controls.Shared
 @using Innkeep2.Services.Client
 
-<MudStack Class="p-1 h-100 w-100">
-    <MudStack Row="true" Class="item-thirds pos-top">
-        <CartDisplay/>
-        <SalesItemDisplay/>
-        <Keypad DefaultValue="1" @bind-Count="Count"/>
+<MudStack Row="true" Class="item-thirds p-1 h-100 w-100">
+    <MudStack Class="h-100">
+        <MudStack Class="pos-top">
+            <CartDisplay/>
+        </MudStack>
+        <MudStack Class="pos-bottom">
+            <TotalPriceDisplay/>
+        </MudStack>
     </MudStack>
-    <MudStack Row="true" Class="item-thirds pos-bottom">
-        <TotalPriceDisplay/>
-        <PayButton/>
+    <SalesItemDisplay/>
+    <MudStack Class="action-column h-100">
+        <ReloadButton/>
+        <ClearButton/>
+        <CashPaymentButton/>
+        <CardPaymentButton/>
         <ReprintButton/>
     </MudStack>
 </MudStack>
@@ -21,14 +26,9 @@
     [Inject]
     private ClientCartService CartService { get; set; } = null!;
 
-    public decimal Count
-    {
-        get => CartService.NextItemCount;
-        set => CartService.NextItemCount = (int)value;
-    }
-
     protected override async Task OnInitializedAsync()
     {
+        CartService.NextItemCount = 1;
         CartService.Changed += async(_, _) => await InvokeAsync(StateHasChanged);
     }
 

@@ -1,0 +1,22 @@
+@using Innkeep2.Models.Internal
+
+<div class="pointer noselect">
+    <MudPaper Class="border" Elevation="0">
+        <MudStack Row="true" Class="sales-button" Spacing="0">
+            <CascadingValue Value="SalesItem">
+                <SalesItemButtonActive/>
+            </CascadingValue>
+            <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Class="sales-button-scroll" Spacing="0">
+                <MudIcon Icon="@Icons.Material.Filled.Menu" Size="Size.Large"/>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+</div>
+
+
+@code {
+
+    [Parameter, EditorRequired]
+    public SalesItem SalesItem { get; set; }
+    
+}

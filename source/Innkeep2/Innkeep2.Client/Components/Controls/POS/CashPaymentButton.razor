@@ -1,14 +1,17 @@
 @using Innkeep2.Services.Client
 <MudPaper Class="pointer noselect" Elevation="0">
-    <MudButton 
-        Variant="Variant.Outlined" 
-        Color="Color.Success" 
-        Class="h-100 w-100" 
+    <MudButton
+        Variant="Variant.Outlined"
+        Color="Color.Success"
+        Class="h-100 w-100"
         @onclick="StartPayment"
         Disabled="@(!CartService.Items.Any())">
-        <MudText Typo="Typo.h4">
-            BEZAHLEN
-        </MudText>
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Outlined.Euro" Size="Size.Large"/>
+            <MudText Typo="Typo.h4">
+                BAR
+            </MudText>
+        </MudStack>
     </MudButton>
 </MudPaper>
 

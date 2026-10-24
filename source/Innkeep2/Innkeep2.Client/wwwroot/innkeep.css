@@ -6,7 +6,6 @@
 }
 
 
-
 .innkeep-status-bar {
     top: var(--app-bar-height) !important;
     color: var(--mud-palette-black) !important;
@@ -34,10 +33,27 @@
 }
 
 .item-thirds {
-    > div {
+    > div:first-child {
         max-width: 32% !important;
         width: 32% !important;
         min-width: 32% !important;
+    }
+
+    > div {
+        width: 40% !important;
+    }
+
+    > div:last-child {
+        max-width: 25% !important;
+        width: 25% !important;
+        min-width: 25% !important;
+    }
+}
+
+.action-column {
+    > .mud-paper {
+        flex: 1 1 0;
+        min-height: 0;
     }
 }
 
@@ -73,36 +89,69 @@
     gap: 2px !important;
 }
 
-.sales-button {
+.sales-button{
     height: var(--button-height);
     min-height: var(--button-height);
-
-    > div:first-child {
-        width: 75% !important;
-        min-width: 75% !important;
-    }
-
-    > div:last-child {
-        width: 25% !important;
-        max-width: 25% !important;
-        min-width: 25% !important;
-    }
+    width: 100%;
 }
 
-.keypad-main{
+.sales-button-active{
+    width: calc(100% - var(--button-height));
+    height: 100%;
+}
+
+.sales-button-active>.description{
+    padding-left: 0.5rem;
+    height: 100% !important;
+    width: calc(100% - var(--button-height));
+    border-right: 1px solid var(--mud-palette-divider);
+}
+
+.sales-button-active>.price{
+    aspect-ratio: 1/1 !important;
+    height: 100% !important;
+}
+
+.sales-button-scroll{
+    aspect-ratio: 1/1 !important;
+    border-left: 1px solid var(--mud-palette-divider);
+    opacity: 0.5;
+}
+
+/*.sales-button {*/
+/*    */
+/*    */
+
+/*    > div:first-child {*/
+/*        width: 75% !important;*/
+/*        min-width: 75% !important;*/
+/*        max-width: 75% !important;*/
+
+/*        > div: first-child {*/
+/*            width: 75% !important;*/
+/*            min-width: 75% !important;*/
+/*        }*/
+/*    }*/
+
+/*> div: last-child {*/
+/*    aspect-ratio: 1 / 1 !important;*/
+/*}*/
+/*}*/
+
+.keypad-main {
     width: 100% !important;
     height: 100% !important;
-    
-    > div{
+
+    > div {
         width: 100% !important;
-        
+
         > button {
             width: 30% !Important;
             aspect-ratio: 1/1;
             border: 1px solid var(--mud-palette-divider);
         }
-        
-        > button.wide{
+
+        > button.wide {
             width: 64% !important;
             aspect-ratio: 2.13333333/1;
             border: 1px solid var(--mud-palette-divider);
@@ -110,11 +159,11 @@
     }
 }
 
-button.w50{
+button.w50 {
     width: 48% !Important;
     aspect-ratio: 1.6/1;
 }
 
-.dialog-backdrop{
+.dialog-backdrop {
     backdrop-filter: blur(20px);
 }
