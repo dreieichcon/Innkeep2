@@ -126,7 +126,9 @@
 
         var confirmed = await DialogService.ShowMessageBoxAsync(
             "Bestellung stornieren",
-            "Dieser Schritt kann nicht rückgängig gemacht werden. Wirklich fortfahren?",
+            original.PaymentType == PaymentType.NonCash
+                ? "Der Betrag wird auf die Karte zurückerstattet. Dieser Schritt kann nicht rückgängig gemacht werden. Wirklich fortfahren?"
+                : "Dieser Schritt kann nicht rückgängig gemacht werden. Wirklich fortfahren?",
             yesText: "Ja",
             noText: "Nein"
         );

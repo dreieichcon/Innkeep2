@@ -53,15 +53,24 @@ public sealed class ServerTransactionService(
             return new SubmitOutcome(result.Value, false);
         }
 
-        if (result.Error!.Code == "Http.409")
+        var decision = RefundFailurePolicy.Decide(original.PaymentType, result.Error!);
+
+        if (decision.Action == RefundFailureAction.AlreadyRefunded)
         {
             if (queued is not null)
                 queue.Remove(queued.Id);
 
-            return new SubmitOutcome(null, false, "Bestellung wurde bereits storniert.");
+            return new SubmitOutcome(null, false, decision.Message);
         }
 
-        Log.Warning("Refund of {RequestId} failed, queueing: {Error}", original.OrderId, result.Error.Message);
+        if (decision.Action == RefundFailureAction.Reject)
+        {
+            Log.Warning("Card refund of {RequestId} failed and is not queued: {Error}", original.OrderId, result.Error!.Message);
+
+            return new SubmitOutcome(null, false, decision.Message);
+        }
+
+        Log.Warning("Refund of {RequestId} failed, queueing: {Error}", original.OrderId, result.Error!.Message);
 
         if (queued is null)
             Enqueue(original.OrderId, QueuedRequestType.Refund, new RefundPayload(original.OrderId, refundRequestId));

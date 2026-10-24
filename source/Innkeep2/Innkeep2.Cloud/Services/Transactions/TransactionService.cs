@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Text.Json;
 using Demolite.Core.Models;
+using Innkeep2.Cloud.Services.Payments;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Cloud.TransactionDb.Repositories;
 using Innkeep2.Models.Fiskaly.Transaction;
@@ -22,7 +23,8 @@ public sealed partial class TransactionService(
     FiskalyTransactionService fiskalyTransactionService,
     TransactionRepository transactionRepository,
     IActiveConfigurationService activeConfiguration,
-    CachedSalesItemProvider salesItemProvider
+    CachedSalesItemProvider salesItemProvider,
+    ICardRefundService cardRefundService
 ) : IOrderCreationService
 {
     public async Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default,

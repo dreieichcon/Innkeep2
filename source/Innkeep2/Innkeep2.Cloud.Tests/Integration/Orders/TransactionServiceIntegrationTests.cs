@@ -39,6 +39,7 @@ public class TransactionServiceIntegrationTests
        _activeConfiguration = new FakeActiveConfigurationService();
        services.AddSingleton<IActiveConfigurationService>(_activeConfiguration);
 
+       services.AddSingleton(NSubstitute.Substitute.For<Innkeep2.Cloud.Services.Payments.ICardRefundService>());
        services.AddSingleton<TransactionService>();
 
        _serviceProvider = services.BuildServiceProvider();

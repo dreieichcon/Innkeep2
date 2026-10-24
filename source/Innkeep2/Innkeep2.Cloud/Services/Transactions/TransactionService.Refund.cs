@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Demolite.Core.Models;
+using Innkeep2.Cloud.Services.Payments;
 using Innkeep2.Cloud.TransactionDb.Models;
 using Innkeep2.Models.Fiskaly.Transaction;
 using Innkeep2.Models.Internal;
@@ -49,6 +50,14 @@ public sealed partial class TransactionService
 
         var pretixOrder = JsonSerializer.Deserialize<PretixOrderResponse>(original.PretixOrderJson)!;
         var originalRequest = JsonSerializer.Deserialize<OrderRequest>(original.RequestJson!)!;
+
+        if (original.PaymentType == PaymentType.NonCash)
+        {
+            var cardRefund = await cardRefundService.RefundAsync(original.RequestId, ct);
+
+            if (!cardRefund.IsSuccess)
+                return Result<TransactionReceipt>.Failure(cardRefund.Error!);
+        }
 
         var refund = new Transaction
         {

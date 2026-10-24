@@ -136,9 +136,7 @@ public static class ApiEndpoints
                 if (result.IsSuccess)
                     return Results.Ok(result.Value);
 
-                return result.Error!.Code == "Refund.AlreadyRefunded"
-                    ? Results.Conflict(result.Error)
-                    : Results.BadRequest(result.Error);
+                return Results.Json(result.Error, statusCode: RefundErrorMapper.StatusCodeFor(result.Error!));
             });
 
         app.MapPost("/transactions/transfer",

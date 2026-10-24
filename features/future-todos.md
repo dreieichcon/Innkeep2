@@ -6,7 +6,6 @@
 - Cloud: re-check payment requests left hanging as Pending against SumUp, from the overview page.
 - Client: digital receipt link as QR code on the customer display.
 - Stack: multiple POS clients; transactions carry a client id (format to be defined).
-- Card payments: refunds of card payments only change Pretix, they do not refund on the card (SumUp refund not implemented).
 - Card payments: several readers, one per POS client (see multiple POS clients).
 
 ## Bugs
