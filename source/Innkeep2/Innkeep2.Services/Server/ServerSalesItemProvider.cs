@@ -14,6 +14,10 @@ public sealed class ServerSalesItemProvider(CloudDataClient client)
     private DateTimeOffset _nextRefreshAt = DateTimeOffset.MinValue;
     private int _refreshing;
 
+    public DateTimeOffset? LastFetchedAt => _lastFetchedAt == DateTimeOffset.MinValue ? null : _lastFetchedAt;
+
+    public bool? CloudAvailable { get; private set; }
+
     public async Task<Result<IReadOnlyList<SalesItem>>> GetCachedItemsAsync(CancellationToken ct = default)
     {
         if (_lastKnownGood is { } cached)
@@ -28,27 +32,53 @@ public sealed class ServerSalesItemProvider(CloudDataClient client)
 
         if (result.IsSuccess)
         {
-            _lastKnownGood = result.Value;
-            _lastFetchedAt = DateTimeOffset.UtcNow;
-            _nextRefreshAt = _lastFetchedAt + CacheDuration;
+            StoreFetchedItems(result.Value!);
             return result;
         }
+
+        CloudAvailable = false;
 
         return Result<IReadOnlyList<SalesItem>>.Failure(result.Error!);
     }
 
-    public async Task<Result<IReadOnlyList<SalesItem>>> ForceRefreshAsync(CancellationToken ct = default)
+    /// <summary>
+    /// Reloads items and stock from Pretix through Cloud. Returns the cached items when Cloud is unreachable.
+    /// </summary>
+    public Task<SalesItemsResult> ForceRefreshAsync(CancellationToken ct = default)
+        => RefreshFromCloudAsync(client.RefreshSalesItemsAsync, ct);
+
+    /// <summary>
+    /// Reloads only the stock from Pretix through Cloud. Returns the cached items when Cloud is unreachable.
+    /// </summary>
+    public Task<SalesItemsResult> RefreshStockAsync(CancellationToken ct = default)
+        => RefreshFromCloudAsync(client.RefreshSalesItemStockAsync, ct);
+
+    private async Task<SalesItemsResult> RefreshFromCloudAsync(
+        Func<CancellationToken, Task<Result<SalesItemsResult>>> refresh,
+        CancellationToken ct
+    )
     {
-        var result = await client.GetSalesItemsAsync(ct);
+        var result = await refresh(ct);
 
         if (result.IsSuccess)
         {
-            _lastKnownGood = result.Value;
-            _lastFetchedAt = DateTimeOffset.UtcNow;
-            _nextRefreshAt = _lastFetchedAt + CacheDuration;
+            StoreFetchedItems(result.Value!.Items);
+            return new SalesItemsResult(result.Value.Items, true);
         }
 
-        return result;
+        CloudAvailable = false;
+
+        Log.Warning("Sales item refresh through Cloud failed, serving cached data from {LastFetchedAt}: {Error}", _lastFetchedAt, result.Error!.Message);
+
+        return new SalesItemsResult(_lastKnownGood ?? [], false);
+    }
+
+    private void StoreFetchedItems(IReadOnlyList<SalesItem> items)
+    {
+        _lastKnownGood = items;
+        _lastFetchedAt = DateTimeOffset.UtcNow;
+        _nextRefreshAt = _lastFetchedAt + CacheDuration;
+        CloudAvailable = true;
     }
 
     private void StartBackgroundRefresh()
@@ -64,14 +94,13 @@ public sealed class ServerSalesItemProvider(CloudDataClient client)
 
                 if (result.IsSuccess)
                 {
-                    _lastKnownGood = result.Value;
-                    _lastFetchedAt = DateTimeOffset.UtcNow;
-                    _nextRefreshAt = _lastFetchedAt + CacheDuration;
+                    StoreFetchedItems(result.Value!);
                 }
                 else
                 {
                     Log.Warning("Sales item refresh failed, serving stale data from {LastFetchedAt}: {Error}", _lastFetchedAt, result.Error!.Message);
                     _nextRefreshAt = DateTimeOffset.UtcNow + CacheDuration;
+                    CloudAvailable = false;
                 }
             }
             catch (Exception ex)

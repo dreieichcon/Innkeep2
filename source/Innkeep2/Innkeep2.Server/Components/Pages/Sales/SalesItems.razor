@@ -8,11 +8,28 @@
 <MudStack Class="w-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
     <MudGrid Class="w-75" Justify="Justify.Center">
         <MudItem Xs="12">
-        <MudPaper Class="p-2">
-            <MudStack>
-                <MudText Typo="Typo.h4">Sales Items:</MudText>
-            </MudStack>
-        </MudPaper>
+            <MudToolBar Dense="true" Class="border">
+                <MudText Typo="Typo.body2" Class="mr-4">
+                    Letzter Abruf: @LastFetchedText
+                </MudText>
+                <MudChip T="string" Size="Size.Small" Color="@CloudColor" Variant="Variant.Outlined">
+                    @CloudText
+                </MudChip>
+                <MudSpacer/>
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Class="mr-2" Disabled="_isLoading" OnClick="@RefreshStockAsync">
+                    Nur Bestand laden
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Disabled="_isLoading" OnClick="@RefreshAllAsync">
+                    Komplett neu laden
+                </MudButton>
+            </MudToolBar>
+        </MudItem>
+        <MudItem Xs="12">
+            <MudPaper Class="p-2">
+                <MudStack>
+                    <MudText Typo="Typo.h4">Sales Items:</MudText>
+                </MudStack>
+            </MudPaper>
         </MudItem>
         <SalesItemRenderer SalesItems="Items"/>
     </MudGrid>
@@ -20,14 +37,61 @@
 
 @code {
 
+    private bool _isLoading;
+
     [Inject]
     public ServerSalesItemProvider SalesItemProvider { get; set; } = null!;
 
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
     private IReadOnlyList<SalesItem> Items { get; set; } = [];
+
+    private string LastFetchedText => SalesItemProvider.LastFetchedAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss") ?? "n.A.";
+
+    private string CloudText => SalesItemProvider.CloudAvailable switch
+    {
+        true => "Cloud erreichbar",
+        false => "Cloud nicht erreichbar",
+        _ => "Cloud unbekannt"
+    };
+
+    private Color CloudColor => SalesItemProvider.CloudAvailable switch
+    {
+        true => Color.Success,
+        false => Color.Error,
+        _ => Color.Default
+    };
 
     protected override async Task OnInitializedAsync()
     {
         Items = (await SalesItemProvider.GetCachedItemsAsync()).Value ?? [];
+    }
+
+    private Task RefreshAllAsync()
+        => RefreshAsync(SalesItemProvider.ForceRefreshAsync);
+
+    private Task RefreshStockAsync()
+        => RefreshAsync(SalesItemProvider.RefreshStockAsync);
+
+    private async Task RefreshAsync(Func<CancellationToken, Task<SalesItemsResult>> refresh)
+    {
+        _isLoading = true;
+
+        try
+        {
+            var result = await refresh(CancellationToken.None);
+            Items = result.Items;
+
+            if (result.FromCloud)
+                Snackbar.Add("Sales Items aktualisiert", Severity.Success);
+            else
+                Snackbar.Add("Cloud nicht erreichbar, zwischengespeicherte Daten werden angezeigt", Severity.Warning);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
     }
 
 }

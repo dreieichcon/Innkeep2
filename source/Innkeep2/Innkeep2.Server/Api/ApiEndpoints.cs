@@ -25,6 +25,12 @@ public static class ApiEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
         
+        app.MapPost("/data/salesitems/refresh", async (ServerSalesItemProvider salesItemProvider, CancellationToken ct)
+            => Results.Ok(await salesItemProvider.ForceRefreshAsync(ct)));
+
+        app.MapPost("/data/salesitems/stock/refresh", async (ServerSalesItemProvider salesItemProvider, CancellationToken ct)
+            => Results.Ok(await salesItemProvider.RefreshStockAsync(ct)));
+
         app.MapPost("/orders/create", async (
             OrderRequest request,
             ServerTransactionService transactionService,
