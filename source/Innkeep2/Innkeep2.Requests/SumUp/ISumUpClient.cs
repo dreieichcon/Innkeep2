@@ -10,4 +10,12 @@ public interface ISumUpClient
     Task<Result> TerminateAsync(string merchantCode, string readerId, CancellationToken ct = default);
 
     Task<Result<SumUpTransaction>> GetTransactionAsync(string merchantCode, string clientTransactionId, CancellationToken ct = default);
+
+    Task<Result<SumUpReader>> CreateReaderAsync(string merchantCode, SumUpCreateReaderRequest request, CancellationToken ct = default);
+
+    Task<Result<SumUpReader>> GetReaderAsync(string merchantCode, string readerId, CancellationToken ct = default);
+
+    Task<Result<SumUpReaderList>> ListReadersAsync(string merchantCode, CancellationToken ct = default);
+
+    Task<Result> DeleteReaderAsync(string merchantCode, string readerId, CancellationToken ct = default);
 }

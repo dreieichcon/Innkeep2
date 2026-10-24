@@ -49,3 +49,12 @@ public sealed record SumUpReaderList
     [JsonPropertyName("items")]
     public IReadOnlyList<SumUpReader> Items { get; init; } = [];
 }
+
+public sealed record SumUpCreateReaderRequest
+{
+    [JsonPropertyName("pairing_code")]
+    public required string PairingCode { get; init; }
+
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+}
