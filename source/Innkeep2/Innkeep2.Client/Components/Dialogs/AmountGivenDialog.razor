@@ -1,0 +1,38 @@
+@using Innkeep2.Client.Components.Controls.Shared
+@using Innkeep2.Services.Client
+
+<MudDialog Style="width: 36vh !important; min-width: 0 !important; max-width: 95vw !important">
+    <DialogContent>
+        <Keypad Title="Gegeben:" @bind-Count="@Count" OnOkClick="@Confirm" DefaultValue="0"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@Cancel">
+            <MudText Typo="Typo.h5">
+                Abbrechen
+            </MudText>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Inject]
+    public ClientTransactionService ClientTransactionService { get; set; } = null!;
+
+    private decimal Count { get; set; }
+
+    private void Confirm()
+    {
+        ClientTransactionService.SetAmountGiven(Count, true);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+}

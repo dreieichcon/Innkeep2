@@ -1,7 +1,7 @@
 <MudPaper Class="d-flex flex-column border" Style="height: 100%; overflow: hidden;" Elevation="0">
     <MudPaper Class="p-2 border" Elevation="0" Style="z-index: 1000 !important;">
         <MudStack Row="true">
-            <MudText Typo="Typo.h5">Menge:</MudText>
+            <MudText Typo="Typo.h5">@Title</MudText>
             <MudText Typo="Typo.h5" Color="@CommittedColor">@(CountText ?? Count.ToString())</MudText>
         </MudStack>
     </MudPaper>
@@ -49,6 +49,9 @@
 
     [Parameter]
     public string? ListTitle { get; set; }
+
+    [Parameter]
+    public string Title { get; set; } = "Menge:";
 
     [Parameter]
     public bool AllowFraction { get; set; } = true;

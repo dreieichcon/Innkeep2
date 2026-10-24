@@ -1,8 +1,10 @@
+@using Innkeep2.Client.Components.Dialogs
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton
         Variant="Variant.Outlined"
         Color="Color.Primary"
-        Class="h-100 w-100">
+        Class="h-100 w-100"
+        OnClick="@OpenDialogAsync">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
             <MudIcon Icon="@Icons.Material.Outlined.Dialpad" Size="Size.Large"/>
             <MudText Typo="Typo.h4">
@@ -11,3 +13,16 @@
         </MudStack>
     </MudButton>
 </MudPaper>
+
+@code {
+
+    [Inject]
+    public IDialogService DialogService { get; set; } = null!;
+
+    private async Task OpenDialogAsync()
+    {
+        var options = new DialogOptions { BackdropClick = true };
+        await DialogService.ShowAsync<AmountGivenDialog>(options: options);
+    }
+
+}
