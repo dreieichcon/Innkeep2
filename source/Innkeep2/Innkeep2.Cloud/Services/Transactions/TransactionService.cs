@@ -23,10 +23,10 @@ public sealed partial class TransactionService(
     TransactionRepository transactionRepository,
     IActiveConfigurationService activeConfiguration,
     CachedSalesItemProvider salesItemProvider
-)
+) : IOrderCreationService
 {
     public async Task<Result<TransactionReceipt>> CreateOrderAsync(OrderRequest request, CancellationToken ct = default,
-        bool isRetry = false)
+        bool isRetry = false, string? sumupTransactionCode = null)
     {
         if (isRetry && await FindExistingReceiptAsync(x => x.RequestId == request.RequestId, ct) is { } existing)
             return Result<TransactionReceipt>.Success(existing);
@@ -47,7 +47,8 @@ public sealed partial class TransactionService(
             AmountGiven = request.AmountGiven,
             AmountBack = request.AmountBack,
             Currency = request.Currency,
-            RequestJson = JsonSerializer.Serialize(request)
+            RequestJson = JsonSerializer.Serialize(request),
+            SumupTransactionCode = sumupTransactionCode
         };
 
         var createResult = await transactionRepository.CreateAsync(order, ct);
@@ -77,6 +78,12 @@ public sealed partial class TransactionService(
 
         return Result<TransactionReceipt>.Success(receipt);
     }
+
+    /// <summary>
+    /// Loads the receipt of an order that was already created for the request id.
+    /// </summary>
+    public Task<TransactionReceipt?> GetReceiptAsync(Guid requestId, CancellationToken ct = default)
+        => FindExistingReceiptAsync(x => x.RequestId == requestId, ct);
 
     private async Task<TransactionReceipt?> FindExistingReceiptAsync(
         Expression<Func<Transaction, bool>> predicate,

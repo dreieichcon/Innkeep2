@@ -13,6 +13,10 @@ public class PaymentRequest : AbstractDbItem
 
     public required string Currency { get; set; }
 
+    public required string MerchantCode { get; set; }
+
+    public required string ReaderId { get; set; }
+
     public PaymentRequestStatus Status { get; set; } = PaymentRequestStatus.Pending;
 
     public string? ClientTransactionId { get; set; }

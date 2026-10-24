@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
+using IOrderCreationService = Innkeep2.Cloud.Services.Transactions.IOrderCreationService;
 using TransactionService = Innkeep2.Cloud.Services.Transactions.TransactionService;
 
 namespace Innkeep2.Cloud.Extensions;
@@ -39,6 +40,9 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton<ApiKeyValidationService>();
 		services.AddSingleton<CloudStartupService>();
 		services.AddSingleton(new SumUpPairingOptions());
+		services.AddSingleton(new CardPaymentOptions());
+		services.AddSingleton(TimeProvider.System);
+		services.AddSingleton<CardPaymentService>();
 		services.AddTransient<SumUpReaderService>();
 		services.AddOrderServices();
 		services.AddSunServices();
@@ -115,6 +119,7 @@ public static class ServiceCollectionExtensions
 	{
 		services.AddSingleton<PretixOrderService>();
 		services.AddSingleton<TransactionService>();
+		services.AddSingleton<IOrderCreationService>(sp => sp.GetRequiredService<TransactionService>());
 		services.AddSingleton<TransactionDashboardService>();
 	}
 }

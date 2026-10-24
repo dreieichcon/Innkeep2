@@ -29,6 +29,8 @@ public class PaymentRequestRepositoryTests
         OrderRequestJson = """{"requestId":"x"}""",
         TotalAmount = 15.5m,
         Currency = "EUR",
+        MerchantCode = "MH4H92C7",
+        ReaderId = "rdr_1",
         Status = status,
         ClientTransactionId = clientTransactionId,
         CreatedAt = createdAt ?? Now,
@@ -53,6 +55,8 @@ public class PaymentRequestRepositoryTests
         Assert.AreEqual("""{"requestId":"x"}""", loaded.Value.OrderRequestJson);
         Assert.AreEqual(15.5m, loaded.Value.TotalAmount);
         Assert.AreEqual("EUR", loaded.Value.Currency);
+        Assert.AreEqual("MH4H92C7", loaded.Value.MerchantCode);
+        Assert.AreEqual("rdr_1", loaded.Value.ReaderId);
         Assert.AreEqual(PaymentRequestStatus.Pending, loaded.Value.Status);
         Assert.AreEqual("4e425463-3e1b-431d-83fa-1e51c2925e99", loaded.Value.ClientTransactionId);
         Assert.AreEqual("chk_1", loaded.Value.CheckoutId);
@@ -70,6 +74,8 @@ public class PaymentRequestRepositoryTests
             OrderRequestJson = "{}",
             TotalAmount = 1m,
             Currency = "EUR",
+            MerchantCode = "MH4H92C7",
+            ReaderId = "rdr_1",
             CreatedAt = Now,
             UpdatedAt = Now
         };

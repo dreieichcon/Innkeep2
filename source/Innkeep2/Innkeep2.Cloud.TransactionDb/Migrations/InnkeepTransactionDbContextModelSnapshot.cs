@@ -39,7 +39,15 @@ namespace Innkeep2.Cloud.TransactionDb.Migrations
                     b.Property<string>("FailureReason")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("MerchantCode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("OrderRequestJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ReaderId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -16,6 +16,8 @@ public class CardPaymentRulesTests
         OrderRequestJson = "{}",
         TotalAmount = 10m,
         Currency = "EUR",
+        MerchantCode = "MH4H92C7",
+        ReaderId = "rdr_1",
         Status = status,
         TerminationReason = reason,
         CreatedAt = Created,
