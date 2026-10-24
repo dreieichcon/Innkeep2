@@ -30,13 +30,44 @@ public static class ApiEndpoints
         app.MapGet("/data/salesitems", async (CachedSalesItemProvider salesItemProvider,
             IActiveConfigurationService activeConfig, CancellationToken ct) =>
         {
-            if (activeConfig.Organizer is not { } organizer || activeConfig.Event is not { } pretixEvent)
+            if (!TryGetSalesItemKey(activeConfig, out var key))
                 return Results.BadRequest("No organizer or event selected.");
 
-            var result =
-                await salesItemProvider.GetCachedItemsAsync(new SalesItemKey(organizer.Slug, pretixEvent.Slug), ct);
+            var result = await salesItemProvider.GetCachedItemsAsync(key, ct);
             return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(result.Error);
         });
+
+        app.MapPost("/data/salesitems/refresh", async (CachedSalesItemProvider salesItemProvider,
+            IActiveConfigurationService activeConfig, CancellationToken ct) =>
+        {
+            if (!TryGetSalesItemKey(activeConfig, out var key))
+                return Results.BadRequest("No organizer or event selected.");
+
+            var result = await salesItemProvider.RefreshAsync(key, ct);
+            return result.IsSuccess ? Results.Ok(new SalesItemsResult(result.Value!, true)) : Results.BadRequest(result.Error);
+        });
+
+        app.MapPost("/data/salesitems/stock/refresh", async (CachedSalesItemProvider salesItemProvider,
+            IActiveConfigurationService activeConfig, CancellationToken ct) =>
+        {
+            if (!TryGetSalesItemKey(activeConfig, out var key))
+                return Results.BadRequest("No organizer or event selected.");
+
+            var result = await salesItemProvider.RefreshStockAsync(key, ct);
+            return result.IsSuccess ? Results.Ok(new SalesItemsResult(result.Value!, true)) : Results.BadRequest(result.Error);
+        });
+    }
+
+    private static bool TryGetSalesItemKey(IActiveConfigurationService activeConfig, out SalesItemKey key)
+    {
+        if (activeConfig.Organizer is { } organizer && activeConfig.Event is { } pretixEvent)
+        {
+            key = new SalesItemKey(organizer.Slug, pretixEvent.Slug);
+            return true;
+        }
+
+        key = null!;
+        return false;
     }
 
     private static void MapTransactionEndpoints(this IEndpointRouteBuilder app)
