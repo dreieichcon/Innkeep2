@@ -9,7 +9,7 @@ namespace Innkeep2.Services.Client;
 public sealed class ClientTransactionService(
     ServerTransactionClient transactionClient,
     ClientCartService cartService,
-    ClientSalesItemProvider salesItemProvider)
+    ClientSalesItemProvider salesItemProvider) : ICompletedOrderRegistry
 {
     public decimal AmountGiven { get; private set; }
 
@@ -28,6 +28,16 @@ public sealed class ClientTransactionService(
 
         else
             AmountGiven += amount;
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Remembers the receipt of an order that was completed outside of this service, such as a card payment.
+    /// </summary>
+    public void RegisterCompletedOrder(TransactionReceipt receipt)
+    {
+        LastReceipt = receipt;
+        _ = salesItemProvider.ReloadAsync();
         Changed?.Invoke(this, EventArgs.Empty);
     }
 

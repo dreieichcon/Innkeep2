@@ -24,6 +24,11 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ClientCartAdditionService>();
         services.AddSingleton<CustomerDisplayService>();
         services.AddSingleton<ClientTransactionService>();
+        services.AddSingleton<ICompletedOrderRegistry>(sp => sp.GetRequiredService<ClientTransactionService>());
+        services.AddSingleton(new ClientCardPaymentOptions());
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<ClientCardPaymentService>();
+        services.AddScoped<PaymentCompletionService>();
         
         services.AddSunServices();
         
@@ -35,6 +40,8 @@ public static class ServiceCollectionExtensions
         services.AddInnkeepApiClient<ServerAuthClient>(timeoutSeconds: 5);
         services.AddInnkeepApiClient<ServerDataClient>(timeoutSeconds: 10);
         services.AddInnkeepApiClient<ServerTransactionClient>(timeoutSeconds: 30);
+        services.AddInnkeepApiClient<ServerPaymentClient>(timeoutSeconds: 15);
+        services.AddTransient<IServerPaymentClient>(sp => sp.GetRequiredService<ServerPaymentClient>());
     }
 
     private static void RegisterPrinterServices(this IServiceCollection services)

@@ -1,8 +1,6 @@
-@using Innkeep2.Client.Components.Dialogs
+@using Innkeep2.Client.Services
 @using Innkeep2.Models.Internal.Receipt
 @using Innkeep2.Models.Shared
-@using Innkeep2.Print.Formatter
-@using Innkeep2.Print.Printer
 @using Innkeep2.Services.Client
 @using Innkeep2.Services.Shared
 
@@ -24,28 +22,19 @@
 
 @code {
     [Inject]
-    public NavigationManager NavigationManager { get; set; } = null!;
-    
-    [Inject]
-    public IDialogService DialogService { get; set; } = null!;
-
-    [Inject]
     public ClientTransactionService TransactionService { get; set; } = null!;
-    
+
     [Inject]
     public ClientCartService ClientCartService { get; set; } = null!;
-    
-    [Inject]
-    public NetworkPrinterService NetworkPrinterService { get; set; } = null!;
-    
-    [Inject]
-    public ISnackbar Snackbar { get; set; } = null!;
-    
-    [Inject]
-    public LoadingService LoadingService { get; set; } = null!;
 
     [Inject]
-    public CustomerDisplayService CustomerDisplayService { get; set; } = null!;
+    public PaymentCompletionService PaymentCompletion { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    [Inject]
+    public LoadingService LoadingService { get; set; } = null!;
 
     private bool TransactionDisabled => ClientCartService.Items.Count == 0 || !TransactionService.EnoughGiven;
 
@@ -86,15 +75,7 @@
 
             receipt = submitted;
 
-            if (receipt.Vouchers.Any())
-            {
-                NetworkPrinterService.Print(ReceiptDocumentBuilder.Build(receipt));
-            }
-
-            if (receipt.PaymentType == PaymentType.Cash)
-            {
-                NetworkPrinterService.OpenDrawer();
-            }
+            PaymentCompletion.PrintVouchersAndOpenDrawer(receipt);
         }
         catch (Exception ex)
         {
@@ -107,30 +88,7 @@
             LoadingService.IsLoading = false;
         }
 
-        var parameters = new DialogParameters<PaymentCompleteDialog>()
-        {
-            { x => x.TransactionReceipt, receipt }
-        };
-
-        CustomerDisplayService.ShowPaymentComplete(receipt);
-
-        DialogResult? dialogResult;
-
-        try
-        {
-            var dialog = await DialogService.ShowAsync<PaymentCompleteDialog>(parameters);
-            dialogResult = await dialog.Result;
-        }
-        finally
-        {
-            CustomerDisplayService.ShowCart();
-        }
-
-        if (dialogResult!.Canceled)
-            return;
-
-        ClientCartService.Clear();
-        NavigationManager.NavigateTo("/");
+        await PaymentCompletion.ShowCompletionAsync(receipt);
     }
 
 }
