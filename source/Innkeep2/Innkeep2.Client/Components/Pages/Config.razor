@@ -2,46 +2,61 @@
 
 @using Innkeep2.Print.Printer
 @using Innkeep2.Print.Storage
-@using Innkeep2.Ui.Shared.Components.Core
 
-<ManagementPage Title="Drucker Einstellungen">
-    <PaperItem Xs="12" FullHeight="true">
-        <MudStack Spacing="3" Style="max-width: 400px;">
-            <MudTextField T="string" @bind-Value="_ipAddress" Label="IP-Adresse" Variant="Variant.Outlined"/>
-            <MudNumericField T="int" @bind-Value="_port" Label="Port" Variant="Variant.Outlined"/>
-
-            <MudStack Row="true" Spacing="2">
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">
-                    Speichern
-                </MudButton>
-                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="TestPrint">
-                    Testdruck
-                </MudButton>
-                <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="OpenDrawer">
-                    Kassenlade Öffnen
-                </MudButton>
-            </MudStack>
-        </MudStack>
-    </PaperItem>
-    <PaperItem Xs="12">
-        <MudStack Spacing="3" Style="max-width: 400px;">
-            <MudText Typo="Typo.h6">Kundendisplay</MudText>
-            <MudButton Color="Color.Secondary"
-                       Variant="Variant.Outlined"
-                       Href="/customer-display"
-                       Target="_blank"
-                       UserAttributes="_openDisplayAttributes">
-                Kundendisplay öffnen
-            </MudButton>
-        </MudStack>
-    </PaperItem>
-    <PaperItem Xs="12">
-        <MudStack Row="true">
-            <MudNavLink Href="/Config/Credentials">Zugangsdaten</MudNavLink>
-            <MudNavLink Href="/">Zurück</MudNavLink>
-        </MudStack>
-    </PaperItem>
-</ManagementPage>
+<MudStack Spacing="2" Class="p-1 h-100 w-100" Style="overflow: hidden;">
+    <MudToolBar Dense="true" Class="border">
+        <MudButton Color="Color.Primary" Variant="Variant.Outlined" Href="/Config/Credentials">
+            Zugangsdaten
+        </MudButton>
+        <MudSpacer/>
+        <MudButton Color="Color.Error" Variant="Variant.Outlined" Href="/">
+            Zurück
+        </MudButton>
+    </MudToolBar>
+    <MudGrid Spacing="2">
+        <MudItem xs="6">
+            <MudCard Outlined="true" Class="h-100 d-flex flex-column">
+                <MudCardHeader Class="pb-0">
+                    <MudText Typo="Typo.h6">Drucker</MudText>
+                </MudCardHeader>
+                <MudCardContent Class="py-2 flex-grow-1">
+                    <MudStack Row="true" Spacing="2">
+                        <MudTextField T="string" @bind-Value="_ipAddress" Label="IP-Adresse" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                        <MudNumericField T="int" @bind-Value="_port" Label="Port" Variant="Variant.Outlined" Margin="Margin.Dense"/>
+                    </MudStack>
+                </MudCardContent>
+                <MudCardActions Class="px-4 pb-3 pt-0 gap-2 mt-auto">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" Style="min-height: 56px;" OnClick="Save">
+                        Speichern
+                    </MudButton>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" Style="min-height: 56px;" OnClick="TestPrint">
+                        Testdruck
+                    </MudButton>
+                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined" Style="min-height: 56px;" OnClick="OpenDrawer">
+                        Kassenlade öffnen
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="6">
+            <MudCard Outlined="true" Class="h-100 d-flex flex-column">
+                <MudCardHeader Class="pb-0">
+                    <MudText Typo="Typo.h6">Kundendisplay</MudText>
+                </MudCardHeader>
+                <MudCardActions Class="px-4 pb-3 pt-0 mt-auto">
+                    <MudButton Color="Color.Secondary"
+                               Variant="Variant.Outlined"
+                               Style="min-height: 56px;"
+                               Href="/customer-display"
+                               Target="_blank"
+                               UserAttributes="_openDisplayAttributes">
+                        Kundendisplay öffnen
+                    </MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudStack>
 
 @code {
 
