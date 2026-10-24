@@ -95,4 +95,38 @@ public class SumUpClientGetTransactionTests
 		Assert.IsFalse(result.IsSuccess);
 		Assert.IsEmpty(host.Handler.Requests);
 	}
+
+	[TestMethod]
+	public async Task GetTransaction_ReturnsTheTransactionIdNeededForARefund()
+	{
+		using var host = await SumUpTestHost.CreateWithCredentialAsync();
+		host.Handler.Enqueue(HttpStatusCode.OK, """{"id":"4ffb8dfc-7f2b-413d-a497-2ad00766585e","status":"SUCCESSFUL","amount":10.1,"currency":"EUR","transaction_code":"TEENSK4W2K"}""");
+
+		var result = await host.Client.GetTransactionAsync(SumUpTestHost.MerchantCode, ClientTransactionId);
+
+		Assert.AreEqual("4ffb8dfc-7f2b-413d-a497-2ad00766585e", result.Value!.Id);
+	}
+
+	[TestMethod]
+	public async Task GetTransaction_ReturnsTheRefundedAmount()
+	{
+		using var host = await SumUpTestHost.CreateWithCredentialAsync();
+		host.Handler.Enqueue(HttpStatusCode.OK, """{"id":"abc","status":"SUCCESSFUL","amount":10.1,"refunded_amount":4.5}""");
+
+		var result = await host.Client.GetTransactionAsync(SumUpTestHost.MerchantCode, ClientTransactionId);
+
+		Assert.AreEqual(4.5m, result.Value!.RefundedAmount);
+	}
+
+	[TestMethod]
+	public async Task GetTransaction_HasNoRefundedAmountOrIdWhenSumUpOmitsThem()
+	{
+		using var host = await SumUpTestHost.CreateWithCredentialAsync();
+		host.Handler.Enqueue(HttpStatusCode.OK, """{"status":"SUCCESSFUL"}""");
+
+		var result = await host.Client.GetTransactionAsync(SumUpTestHost.MerchantCode, ClientTransactionId);
+
+		Assert.IsNull(result.Value!.Id);
+		Assert.IsNull(result.Value.RefundedAmount);
+	}
 }

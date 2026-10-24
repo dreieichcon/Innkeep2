@@ -18,4 +18,6 @@ public interface ISumUpClient
     Task<Result<SumUpReaderList>> ListReadersAsync(string merchantCode, CancellationToken ct = default);
 
     Task<Result> DeleteReaderAsync(string merchantCode, string readerId, CancellationToken ct = default);
+
+    Task<Result> RefundTransactionAsync(string merchantCode, string transactionId, decimal? amount = null, CancellationToken ct = default);
 }

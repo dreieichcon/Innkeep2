@@ -4,6 +4,9 @@ namespace Innkeep2.Models.SumUp;
 
 public sealed record SumUpTransaction
 {
+    [JsonPropertyName("id")]
+    public string? Id { get; init; }
+
     [JsonPropertyName("status")]
     public required string Status { get; init; }
 
@@ -12,6 +15,9 @@ public sealed record SumUpTransaction
 
     [JsonPropertyName("currency")]
     public string? Currency { get; init; }
+
+    [JsonPropertyName("refunded_amount")]
+    public decimal? RefundedAmount { get; init; }
 
     [JsonPropertyName("transaction_code")]
     public string? TransactionCode { get; init; }

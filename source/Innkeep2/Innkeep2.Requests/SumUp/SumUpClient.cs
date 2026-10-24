@@ -57,6 +57,12 @@ public sealed class SumUpClient(HttpClient httpClient, [FromKeyedServices("sumup
     public Task<Result> DeleteReaderAsync(string merchantCode, string readerId, CancellationToken ct = default)
         => DeleteAsync($"v0.1/merchants/{Escape(merchantCode)}/readers/{Escape(readerId)}", ct);
 
+    /// <summary>
+    /// Refunds a transaction by its SumUp transaction id. Without an amount the whole transaction is refunded.
+    /// </summary>
+    public Task<Result> RefundTransactionAsync(string merchantCode, string transactionId, decimal? amount = null, CancellationToken ct = default)
+        => PostAsync($"v1.0/merchants/{Escape(merchantCode)}/payments/{Escape(transactionId)}/refunds", new SumUpRefundRequest { Amount = amount }, ct);
+
     private static string Escape(string value)
         => Uri.EscapeDataString(value);
 }
