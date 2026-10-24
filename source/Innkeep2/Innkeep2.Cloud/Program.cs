@@ -44,6 +44,7 @@ builder.Services.AddSingleton<StatusBarService>();
 var app = builder.Build();
 
 await app.Services.LoadCredentialsAsync<CredentialPair>(AppSetup.ConfigureDiscord);
+await app.Services.GetRequiredService<ActiveCredentialProvider<SumUpCredential>>().ReloadAsync();
 
 var options = new ForwardedHeadersOptions
 {

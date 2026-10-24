@@ -7,6 +7,7 @@ using Innkeep2.Security.Transformers;
 using Innkeep2.CredentialsDb;
 using Innkeep2.Requests.Fiskaly;
 using Innkeep2.Requests.Pretix;
+using Innkeep2.Requests.SumUp;
 using Innkeep2.Services.Cloud.Cache;
 using Innkeep2.Services.Cloud.Fiskaly;
 using Innkeep2.Services.Cloud.Pretix;
@@ -28,6 +29,7 @@ public static class ServiceCollectionExtensions
 		services.AddCloudCredentialsDb();
 		services.AddPretixClients();
 		services.AddFiskalyClients();
+		services.AddSumUpClients();
 		services.AddMemoryCache();
 		
 		services.AddPretixCaches();
