@@ -17,6 +17,54 @@ namespace Innkeep2.Cloud.TransactionDb.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.10");
 
+            modelBuilder.Entity("Innkeep2.Cloud.TransactionDb.Models.PaymentRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CheckoutId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ClientTransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrderRequestJson")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("RequestId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientTransactionId");
+
+                    b.HasIndex("RequestId")
+                        .IsUnique();
+
+                    b.ToTable("PaymentRequests");
+                });
+
             modelBuilder.Entity("Innkeep2.Cloud.TransactionDb.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")

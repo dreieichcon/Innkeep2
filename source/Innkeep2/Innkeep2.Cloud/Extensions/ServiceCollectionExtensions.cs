@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
 
 		services.AddSingleton<IDbContextFactory<InnkeepTransactionDbContext>, InnkeepTransactionDbContextFactory>();
 		services.AddSingleton<TransactionRepository>();
+		services.AddSingleton<PaymentRequestRepository>();
 	}
 	
 	public static async Task MigrateDatabaseAsync(this IServiceProvider services)
