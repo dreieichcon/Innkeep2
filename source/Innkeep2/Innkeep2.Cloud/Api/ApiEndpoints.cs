@@ -21,6 +21,8 @@ public static class ApiEndpoints
 
         app.MapTransactionEndpoints();
 
+        app.MapCardPaymentEndpoints();
+
         app.MapGet("/data/event", async (IActiveConfigurationService activeConfiguration, CancellationToken ct) =>
         {
             var activeEvent = activeConfiguration.Event;

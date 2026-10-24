@@ -100,11 +100,17 @@ public sealed class CardPaymentService(
     }
 
     /// <summary>
+    /// Checks the secret token of the webhook URL against the active SumUp account.
+    /// </summary>
+    public bool IsWebhookTokenValid(string? token)
+        => accountCredentials.Active is { } account && TokenMatches(account.WebhookToken, token);
+
+    /// <summary>
     /// Handles a SumUp callback. The callback only triggers a check, the outcome is always read from SumUp.
     /// </summary>
     public async Task<SumUpWebhookResult> HandleWebhookAsync(string? token, SumUpWebhookEvent webhook, CancellationToken ct = default)
     {
-        if (accountCredentials.Active is not { } account || !TokenMatches(account.WebhookToken, token))
+        if (!IsWebhookTokenValid(token))
             return SumUpWebhookResult.Unauthorized;
 
         if (webhook.EventType != SumUpWebhookEvent.SoloTransactionUpdated)

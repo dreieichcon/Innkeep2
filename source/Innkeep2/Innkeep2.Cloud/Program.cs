@@ -107,6 +107,8 @@ app.MapGet("/debug/claims", (HttpContext ctx) =>
 
 # endif
 
+app.MapSumUpWebhook();
+
 app.MapGroup("/")
 	.AddEndpointFilter<ApiKeyFilter>()
 	.MapApiEndpoints();
