@@ -8,13 +8,14 @@ namespace Innkeep2.CredentialsDb;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers the credentials database for Cloud: credential pairs and Discord credentials.
+    /// Registers the credentials database for Cloud: credential pairs, SumUp and Discord credentials.
     /// </summary>
     public static void AddCloudCredentialsDb(this IServiceCollection services)
     {
         var databasePath = CredentialsDbLocation.EnsureCreated();
 
         services.AddActiveCredential(new CredentialPairRepository(databasePath));
+        services.AddActiveCredential(new SumUpCredentialRepository(databasePath));
         services.AddActiveCredential(new DiscordCredentialRepository(databasePath));
     }
 
