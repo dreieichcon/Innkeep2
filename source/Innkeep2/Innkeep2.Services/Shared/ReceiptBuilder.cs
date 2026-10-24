@@ -40,7 +40,8 @@ public static class ReceiptBuilder
         Vouchers = BuildVouchers(order, pretixOrder),
         PretixOrderCode = pretixOrder?.Code ?? OfflinePretixPlaceholder,
         FiskalyQrCode = fiskalyTransaction?.QrCodeData ?? OfflineFiskalyPlaceholder,
-        FiskalyTransactionNumber = fiskalyTransaction?.Number
+        FiskalyTransactionNumber = fiskalyTransaction?.Number,
+        SumupTransactionCode = context.SumupTransactionCode
     };
 
     public static TransactionReceipt BuildTransfer(

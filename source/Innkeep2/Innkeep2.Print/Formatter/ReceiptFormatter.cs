@@ -80,6 +80,9 @@ public static class ReceiptFormatter
 
         lines.Add(SpaceBetween("TSS Zähler:", receipt.FiskalyTransactionNumber?.ToString() ?? TssOffline));
 
+        if (!string.IsNullOrWhiteSpace(receipt.SumupTransactionCode))
+            lines.Add(SpaceBetween("SumUp Nr.:", receipt.SumupTransactionCode));
+
         if (receipt.RefundRequestId is { } referenceId)
             lines.Add(SpaceBetween("Ref:", referenceId.ToString()));
 

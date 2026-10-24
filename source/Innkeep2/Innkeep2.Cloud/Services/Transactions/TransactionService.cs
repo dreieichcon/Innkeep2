@@ -68,7 +68,7 @@ public sealed partial class TransactionService(
 
         var receipt = ReceiptBuilder.Build(
             new ReceiptContext(order.RequestId, TransactionType.Sale, order.BookingTime, pretixEvent.Name,
-                pretixEvent.Header ?? ""),
+                pretixEvent.Header ?? "", SumupTransactionCode: order.SumupTransactionCode),
             request,
             request.AmountGiven,
             request.AmountBack,

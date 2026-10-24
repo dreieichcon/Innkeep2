@@ -63,7 +63,8 @@ public sealed partial class TransactionService
             AmountGiven = 0,
             AmountBack = original.TotalAmount,
             Currency = original.Currency,
-            RequestJson = original.RequestJson
+            RequestJson = original.RequestJson,
+            SumupTransactionCode = original.SumupTransactionCode
         };
 
         var createResult = await transactionRepository.CreateAsync(refund, ct);
@@ -90,7 +91,8 @@ public sealed partial class TransactionService
                 refund.BookingTime,
                 pretixEvent.Name,
                 pretixEvent.Header ?? "",
-                original.RequestId
+                original.RequestId,
+                original.SumupTransactionCode
             ),
             originalRequest,
             refund.AmountGiven,

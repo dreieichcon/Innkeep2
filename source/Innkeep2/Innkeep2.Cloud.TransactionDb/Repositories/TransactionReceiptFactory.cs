@@ -59,7 +59,8 @@ public static class TransactionReceiptFactory
                 transaction.BookingTime,
                 transaction.Title,
                 transaction.Header,
-                transaction.RefundRequestId
+                transaction.RefundRequestId,
+                transaction.SumupTransactionCode
             ),
             request!,
             transaction.AmountGiven,

@@ -8,5 +8,6 @@ public sealed record ReceiptContext(
     DateTime BookingTime,
     string Title,
     string Header,
-    Guid? RefundRequestId = null
+    Guid? RefundRequestId = null,
+    string? SumupTransactionCode = null
 );

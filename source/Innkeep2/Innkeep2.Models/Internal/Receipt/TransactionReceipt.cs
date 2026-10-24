@@ -33,6 +33,8 @@ public sealed record TransactionReceipt
     public string? FiskalyQrCode { get; init; }
     
     public long? FiskalyTransactionNumber { get; init; }
+
+    public string? SumupTransactionCode { get; init; }
     
     public bool IsCopy { get; set; }
     
