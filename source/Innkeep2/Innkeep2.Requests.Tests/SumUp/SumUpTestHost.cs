@@ -26,6 +26,7 @@ public sealed class SumUpTestHost : IDisposable
 		services.AddSingleton<ActiveCredentialProvider<SumUpCredential>>();
 		services.AddSumUpClients();
 		services.AddHttpClient<SumUpClient>().ConfigurePrimaryHttpMessageHandler(() => Handler);
+		services.AddHttpClient<SumUpConnectionChecker>().ConfigurePrimaryHttpMessageHandler(() => Handler);
 
 		_provider = services.BuildServiceProvider();
 	}
@@ -33,6 +34,8 @@ public sealed class SumUpTestHost : IDisposable
 	public StubHttpMessageHandler Handler { get; } = new();
 
 	public ServiceProvider Provider => _provider;
+
+	public SumUpConnectionChecker Checker => _provider.GetRequiredService<SumUpConnectionChecker>();
 
 	public SumUpClient Client => _provider.GetRequiredService<SumUpClient>();
 
@@ -61,7 +64,6 @@ public sealed class SumUpTestHost : IDisposable
 		Active = true,
 		ApiKey = apiKey,
 		MerchantCode = MerchantCode,
-		ReaderId = ReaderId,
 		PublicBaseUrl = "https://cloud.example"
 	};
 

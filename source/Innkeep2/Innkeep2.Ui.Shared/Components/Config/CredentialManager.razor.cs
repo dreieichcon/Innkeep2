@@ -41,6 +41,9 @@ public partial class CredentialManager<T> where T : class, ICredentialDocument
     [Parameter]
     public RenderFragment? ExtraColumns { get; set; }
 
+    [Parameter]
+    public bool AllowCreate { get; set; } = true;
+
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
     private async Task LoadAsync()

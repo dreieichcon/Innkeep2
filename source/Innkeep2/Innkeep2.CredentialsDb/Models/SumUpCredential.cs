@@ -7,7 +7,6 @@ public sealed class SumUpCredential : ICredentialDocument
     public bool Active { get; set; }
     public required string ApiKey { get; set; }
     public required string MerchantCode { get; set; }
-    public required string ReaderId { get; set; }
     public required string PublicBaseUrl { get; set; }
     public string WebhookToken { get; init; } = Guid.NewGuid().ToString("N");
     public string? AffiliateAppId { get; set; }

@@ -45,6 +45,7 @@ var app = builder.Build();
 
 await app.Services.LoadCredentialsAsync<CredentialPair>(AppSetup.ConfigureDiscord);
 await app.Services.GetRequiredService<ActiveCredentialProvider<SumUpCredential>>().ReloadAsync();
+await app.Services.GetRequiredService<ActiveCredentialProvider<SumUpReaderCredential>>().ReloadAsync();
 
 var options = new ForwardedHeadersOptions
 {

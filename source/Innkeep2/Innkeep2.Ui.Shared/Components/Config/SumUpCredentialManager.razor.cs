@@ -9,7 +9,6 @@ public partial class SumUpCredentialManager
         Name = string.Empty,
         ApiKey = string.Empty,
         MerchantCode = string.Empty,
-        ReaderId = string.Empty,
         PublicBaseUrl = string.Empty
     };
 
@@ -20,7 +19,6 @@ public partial class SumUpCredentialManager
         Active = source.Active,
         ApiKey = source.ApiKey,
         MerchantCode = source.MerchantCode,
-        ReaderId = source.ReaderId,
         PublicBaseUrl = source.PublicBaseUrl,
         WebhookToken = source.WebhookToken,
         AffiliateAppId = source.AffiliateAppId,

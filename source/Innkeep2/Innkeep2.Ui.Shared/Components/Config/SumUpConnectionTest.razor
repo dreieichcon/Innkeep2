@@ -1,0 +1,51 @@
+@using Innkeep2.CredentialsDb.Models
+@using Innkeep2.Requests.SumUp
+@using MudBlazor
+
+<MudStack Spacing="2">
+    <MudButton Variant="Variant.Outlined"
+               Color="Color.Primary"
+               Disabled="_isChecking"
+               OnClick="CheckAsync">
+        Verbindung testen
+    </MudButton>
+    @if (_result is { } result)
+    {
+        <MudAlert Severity="@ResultSeverity(result)">@result.Message</MudAlert>
+    }
+</MudStack>
+
+@code {
+
+    private bool _isChecking;
+    private SumUpConnectionCheckResult? _result;
+
+    [Parameter, EditorRequired]
+    public required SumUpCredential Credential { get; set; }
+
+    [Inject]
+    public SumUpConnectionChecker Checker { get; set; } = null!;
+
+    private static Severity ResultSeverity(SumUpConnectionCheckResult result)
+        => result switch
+        {
+            { State: SumUpConnectionState.Connected } => Severity.Success,
+            { State: SumUpConnectionState.Incomplete } => Severity.Info,
+            _ => Severity.Error
+        };
+
+    private async Task CheckAsync()
+    {
+        _isChecking = true;
+
+        try
+        {
+            _result = await Checker.CheckAccountAsync(Credential.ApiKey, Credential.MerchantCode);
+        }
+        finally
+        {
+            _isChecking = false;
+        }
+    }
+
+}

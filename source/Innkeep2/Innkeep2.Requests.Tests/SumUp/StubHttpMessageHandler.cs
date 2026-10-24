@@ -7,7 +7,7 @@ public sealed record CapturedRequest(HttpMethod Method, Uri Uri, string? Authori
 
 public sealed class StubHttpMessageHandler : HttpMessageHandler
 {
-	private readonly Queue<HttpResponseMessage> _responses = [];
+	private readonly Queue<Func<HttpResponseMessage>> _responses = [];
 
 	public List<CapturedRequest> Requests { get; } = [];
 
@@ -18,8 +18,11 @@ public sealed class StubHttpMessageHandler : HttpMessageHandler
 		if (body is not null)
 			response.Content = new StringContent(body, Encoding.UTF8, mediaType);
 
-		_responses.Enqueue(response);
+		_responses.Enqueue(() => response);
 	}
+
+	public void EnqueueException(Exception exception)
+		=> _responses.Enqueue(() => throw exception);
 
 	protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
@@ -35,6 +38,6 @@ public sealed class StubHttpMessageHandler : HttpMessageHandler
 		if (_responses.Count == 0)
 			throw new InvalidOperationException("No response was queued for the request.");
 
-		return _responses.Dequeue();
+		return _responses.Dequeue()();
 	}
 }
