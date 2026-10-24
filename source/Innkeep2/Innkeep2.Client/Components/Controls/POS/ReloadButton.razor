@@ -1,8 +1,11 @@
+@using Innkeep2.Services.Client
+@using Innkeep2.Services.Shared
 <MudPaper Class="pointer noselect" Elevation="0">
     <MudButton
         Variant="Variant.Outlined"
         Color="Color.Warning"
-        Class="h-100 w-100">
+        Class="h-100 w-100"
+        @onclick="ReloadAsync">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
             <MudIcon Icon="@Icons.Material.Outlined.Refresh" Size="Size.Large"/>
             <MudText Typo="Typo.h4">
@@ -11,3 +14,37 @@
         </MudStack>
     </MudButton>
 </MudPaper>
+
+@code {
+
+    [Inject]
+    public ClientSalesItemProvider SalesItemProvider { get; set; } = null!;
+
+    [Inject]
+    public LoadingService LoadingService { get; set; } = null!;
+
+    [Inject]
+    public ISnackbar Snackbar { get; set; } = null!;
+
+    private async Task ReloadAsync()
+    {
+        LoadingService.IsLoading = true;
+
+        try
+        {
+            var result = await SalesItemProvider.ForceRefreshAsync();
+
+            if (!result.IsSuccess)
+                Snackbar.Add("Server nicht erreichbar", Severity.Error);
+            else if (!result.Value!.FromCloud)
+                Snackbar.Add("Cloud nicht erreichbar, Artikel und Bestand sind möglicherweise veraltet", Severity.Warning);
+            else
+                Snackbar.Add("Artikel aktualisiert", Severity.Success);
+        }
+        finally
+        {
+            LoadingService.IsLoading = false;
+        }
+    }
+
+}

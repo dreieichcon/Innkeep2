@@ -14,4 +14,10 @@ public sealed class ServerDataClient(HttpClient httpClient, ILogger<ServerDataCl
 
     public Task<Result<IReadOnlyList<SalesItem>>> GetSalesItemsAsync(CancellationToken ct = default)
         => GetAsync<IReadOnlyList<SalesItem>>("data/salesitems", ct);
+
+    public Task<Result<SalesItemsResult>> RefreshSalesItemsAsync(CancellationToken ct = default)
+        => PostAsync<SalesItemsResult>("data/salesitems/refresh", null, ct);
+
+    public Task<Result<SalesItemsResult>> RefreshSalesItemStockAsync(CancellationToken ct = default)
+        => PostAsync<SalesItemsResult>("data/salesitems/stock/refresh", null, ct);
 }

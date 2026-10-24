@@ -5,6 +5,7 @@
         <MudText Typo="Typo.body1">@EventName</MudText>
         <MudSpacer />
         <MudText Typo="Typo.body2">Last Poll: @(SalesItemProvider.LastUpdated?.ToLocalTime().ToString("HH:mm:ss"))</MudText>
+        <MudChip T="string" Size="Size.Small" Color="@StockColor" Variant="Variant.Filled">@StockText</MudChip>
         <MudNavLink Href="/config" Icon="@Icons.Material.Filled.Settings" Style="width: 5% !important;" IconColor="Color.Surface"/>
     </MudStack>
 </MudAppBar>
@@ -18,6 +19,20 @@
     public ClientSalesItemProvider SalesItemProvider { get; set; } = null!;
     
     private string? EventName { get; set; }
+
+    private string StockText => SalesItemProvider.IsStockFresh switch
+    {
+        true => "Bestand: Cloud",
+        false => "Bestand: veraltet",
+        _ => "Bestand: unbekannt"
+    };
+
+    private Color StockColor => SalesItemProvider.IsStockFresh switch
+    {
+        true => Color.Success,
+        false => Color.Error,
+        _ => Color.Default
+    };
 
     protected override async Task OnInitializedAsync()
     {

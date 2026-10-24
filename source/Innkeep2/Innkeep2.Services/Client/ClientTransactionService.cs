@@ -47,7 +47,7 @@ public sealed class ClientTransactionService(
         if (result.IsSuccess)
         {
             LastReceipt = result.Value;
-            _ = salesItemProvider.ForceRefreshAsync(ct);
+            _ = salesItemProvider.ReloadAsync(ct);
         }
 
         return result;
