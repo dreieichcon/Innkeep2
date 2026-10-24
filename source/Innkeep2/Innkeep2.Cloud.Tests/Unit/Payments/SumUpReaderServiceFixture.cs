@@ -17,7 +17,7 @@ internal sealed class SumUpReaderServiceFixture
     {
         Account = new ActiveCredentialProvider<SumUpCredential>(AccountRepository);
         Readers = new ActiveCredentialProvider<SumUpReaderCredential>(ReaderRepository);
-        Service = new SumUpReaderService(Client, Account, ReaderRepository, Readers, options);
+        Service = new SumUpReaderService(Client, Checker, Account, ReaderRepository, Readers, options);
 
         ReaderRepository.GetAllAsync().Returns(Result<IReadOnlyList<SumUpReaderCredential>>.Success([]));
         ReaderRepository.GetActiveAsync().Returns(Result<SumUpReaderCredential>.Failure(new Error("NotFound", "none")));
@@ -27,6 +27,8 @@ internal sealed class SumUpReaderServiceFixture
     }
 
     public ISumUpClient Client { get; } = Substitute.For<ISumUpClient>();
+
+    public ISumUpConnectionChecker Checker { get; } = Substitute.For<ISumUpConnectionChecker>();
 
     public ICredentialRepository<SumUpCredential> AccountRepository { get; } = Substitute.For<ICredentialRepository<SumUpCredential>>();
 

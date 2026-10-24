@@ -24,6 +24,10 @@ public static class NavigationSections
 			new("Zugangsdaten", "/Config/Credentials"),
 			new("API-Schlüssel", "/Config/Api")
 		]),
+		new("Kartenzahlung (SumUp)", Icons.Material.Outlined.CreditCard,
+		[
+			new("Reader", "/Config/SumUp/Reader")
+		]),
 		new("Kasse (Fiskaly)", Icons.Material.Outlined.Security,
 		[
 			new("TSS erzeugen", "/Config/Tss/Create"),

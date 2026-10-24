@@ -1,0 +1,146 @@
+@page "/Config/SumUp/Reader"
+@using Innkeep2.Cloud.Services.Payments
+@using Innkeep2.CredentialsDb.Models
+@using Innkeep2.Requests.SumUp
+@using Innkeep2.Ui.Shared.Components.Core
+
+<ManagementPage Title="SumUp Reader" SubTitle="@AccountText">
+    <MudItem xs="12">
+        @if (_isBusy || _isPairing)
+        {
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary"/>
+        }
+    </MudItem>
+    @if (!HasAccount)
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Warning">
+                Es sind keine aktiven SumUp-Zugangsdaten hinterlegt.
+                <MudLink Href="/Config/Credentials">Zugangsdaten anlegen</MudLink>
+            </MudAlert>
+        </MudItem>
+    }
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText Typo="Typo.h6">Gespeicherte Reader</MudText>
+                <MudDataGrid T="SumUpReaderCredential" Items="_readers">
+                    <NoRecordsContent>
+                        <MudText>Es ist noch kein Reader gespeichert.</MudText>
+                    </NoRecordsContent>
+                    <Columns>
+                        <PropertyColumn Property="x => x.Name" Title="Name"/>
+                        <PropertyColumn Property="x => x.DeviceModel" Title="Modell"/>
+                        <PropertyColumn Property="x => x.ReaderId" Title="Reader-ID"/>
+                        <PropertyColumn Property="x => x.MerchantCode" Title="Händlercode"/>
+                        <TemplateColumn Title="Aktiv">
+                            <CellTemplate>
+                                @if (context.Item.Active)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success"/>
+                                }
+                            </CellTemplate>
+                        </TemplateColumn>
+                        <TemplateColumn Title="Aktionen">
+                            <CellTemplate>
+                                <MudStack Row="true" Spacing="1">
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                                               Disabled="@(context.Item.Active || _isBusy)"
+                                               OnClick="() => ActivateAsync(context.Item)">
+                                        Aktivieren
+                                    </MudButton>
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                                               Disabled="_isBusy"
+                                               OnClick="() => CheckAsync(context.Item)">
+                                        Prüfen
+                                    </MudButton>
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error"
+                                               Disabled="_isBusy"
+                                               OnClick="() => UnpairAsync(context.Item)">
+                                        Entkoppeln
+                                    </MudButton>
+                                </MudStack>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+                @foreach (var reader in _readers.Where(x => _checks.ContainsKey(x.Id)))
+                {
+                    <MudAlert Severity="@CheckSeverity(_checks[reader.Id])">
+                        @reader.Name: @_checks[reader.Id].Message
+                    </MudAlert>
+                }
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText Typo="Typo.h6">Neuen Reader koppeln</MudText>
+                <MudText>
+                    1. Den Reader einschalten und sicherstellen, dass er abgemeldet ist.<br/>
+                    2. Am Reader im Menü unter Connections mit dem WLAN verbinden.<br/>
+                    3. Unter API auf Connect tippen. Der Kopplungscode erscheint und ist 5 Minuten gültig.<br/>
+                    4. Den Code und einen Namen hier eingeben und auf Koppeln klicken.<br/>
+                    5. Die Kopplung am Reader bestätigen, falls der Reader danach fragt.
+                </MudText>
+                <MudTextField T="string" @bind-Value="_pairingCode" Label="Kopplungscode" Variant="Variant.Outlined"
+                              Margin="Margin.Dense" MaxLength="9" Disabled="_isPairing"/>
+                <MudTextField T="string" @bind-Value="_readerName" Label="Name des Readers" Variant="Variant.Outlined"
+                              Margin="Margin.Dense" Disabled="_isPairing"/>
+                <MudStack Row="true">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled="@(!CanPair)" OnClick="PairAsync">
+                        Koppeln
+                    </MudButton>
+                    @if (_isPairing)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="CancelPairing">
+                            Abbrechen
+                        </MudButton>
+                    }
+                </MudStack>
+                @if (_isPairing)
+                {
+                    <MudText>Warte auf die Bestätigung am Reader ...</MudText>
+                }
+                @if (_pairingResult is { } pairingResult)
+                {
+                    <MudAlert Severity="@PairingSeverity(pairingResult)">@pairingResult.Message</MudAlert>
+                }
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12">
+        <MudPaper Class="p-2">
+            <MudStack>
+                <MudText Typo="Typo.h6">Vorhandene Reader bei SumUp</MudText>
+                <MudText>
+                    Zeigt Reader, die bei SumUp bereits gekoppelt sind und hier noch nicht gespeichert wurden.
+                </MudText>
+                <MudButton Variant="Variant.Outlined" Disabled="@(!HasAccount || _isBusy)" OnClick="LoadAdoptableAsync">
+                    Reader von SumUp laden
+                </MudButton>
+                @if (_adoptable is { } adoptable)
+                {
+                    @if (adoptable.Count == 0)
+                    {
+                        <MudText>Es gibt keine weiteren gekoppelten Reader.</MudText>
+                    }
+                    @foreach (var reader in adoptable)
+                    {
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudText>@reader.Name (@(reader.Device?.Model ?? "unbekannt"), @reader.Id)</MudText>
+                            <MudTextField T="string" Label="Name" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                          Value="@AdoptName(reader)"
+                                          ValueChanged="@(value => SetAdoptName(reader, value))"/>
+                            <MudButton Variant="Variant.Outlined" Color="Color.Success" Disabled="_isBusy"
+                                       OnClick="() => AdoptAsync(reader)">
+                                Übernehmen
+                            </MudButton>
+                        </MudStack>
+                    }
+                }
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</ManagementPage>

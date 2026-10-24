@@ -2,6 +2,7 @@ using Demolite.Core.Models;
 using Innkeep2.Cloud.Services.Payments;
 using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Models.SumUp;
+using Innkeep2.Requests.SumUp;
 using NSubstitute;
 
 namespace Innkeep2.Cloud.Tests.Unit.Payments;
@@ -265,6 +266,83 @@ public class SumUpReaderServiceReaderManagementTests
 
         Assert.IsFalse(result.IsSuccess);
         await fixture.ReaderRepository.DidNotReceive().GetActiveAsync();
+    }
+
+    #endregion
+
+    #region Saved readers, activation and check
+
+    [TestMethod]
+    public async Task GetSavedReaders_ReturnsTheSavedReaders()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        var saved = SumUpReaderServiceFixture.BuildSavedReader();
+        fixture.ReaderRepository.GetAllAsync().Returns(Result<IReadOnlyList<SumUpReaderCredential>>.Success([saved]));
+
+        var result = await fixture.Service.GetSavedReadersAsync();
+
+        Assert.AreSame(saved, result.Value!.Single());
+    }
+
+    [TestMethod]
+    public async Task SetActive_ActivatesTheReaderAndReloadsTheActiveCredential()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        var reader = SumUpReaderServiceFixture.BuildSavedReader();
+        fixture.ReaderRepository.SetActiveAsync(reader.Id).Returns(Result.Success());
+
+        var result = await fixture.Service.SetActiveAsync(reader);
+
+        Assert.IsTrue(result.IsSuccess);
+        await fixture.ReaderRepository.Received(1).SetActiveAsync(reader.Id);
+        await fixture.ReaderRepository.Received(1).GetActiveAsync();
+    }
+
+    [TestMethod]
+    public async Task SetActive_ReturnsFailureAndDoesNotReloadWhenActivationFails()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        fixture.ReaderRepository.SetActiveAsync(Arg.Any<Guid>()).Returns(Result.Failure(new Error("Db", "failed")));
+
+        var result = await fixture.Service.SetActiveAsync(SumUpReaderServiceFixture.BuildSavedReader());
+
+        Assert.IsFalse(result.IsSuccess);
+        await fixture.ReaderRepository.DidNotReceive().GetActiveAsync();
+    }
+
+    [TestMethod]
+    public async Task CheckReader_ChecksTheReaderWithTheKeyOfTheActiveAccount()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        var expected = new SumUpConnectionCheckResult(SumUpConnectionState.Connected, "ok");
+        fixture.Checker.CheckReaderAsync("key", SumUpReaderServiceFixture.MerchantCode, "rdr_1", Arg.Any<CancellationToken>()).Returns(expected);
+
+        var result = await fixture.Service.CheckReaderAsync(SumUpReaderServiceFixture.BuildSavedReader("rdr_1"));
+
+        Assert.AreSame(expected, result);
+    }
+
+    [TestMethod]
+    public async Task CheckReader_WithoutActiveAccount_DoesNotCallSumUp()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync(withAccount: false);
+
+        var result = await fixture.Service.CheckReaderAsync(SumUpReaderServiceFixture.BuildSavedReader());
+
+        Assert.AreEqual(SumUpConnectionState.Incomplete, result.State);
+        await fixture.Checker.DidNotReceiveWithAnyArgs().CheckReaderAsync(default, default, default, default);
+    }
+
+    [TestMethod]
+    public async Task CheckReader_ForAReaderOfAnotherMerchant_DoesNotCallSumUp()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        var reader = new SumUpReaderCredential { Name = "Other", ReaderId = "rdr_x", MerchantCode = "OTHER123" };
+
+        var result = await fixture.Service.CheckReaderAsync(reader);
+
+        Assert.AreEqual(SumUpConnectionState.ReaderNotFound, result.State);
+        await fixture.Checker.DidNotReceiveWithAnyArgs().CheckReaderAsync(default, default, default, default);
     }
 
     #endregion

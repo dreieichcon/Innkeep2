@@ -28,6 +28,7 @@ public sealed record SumUpConnectionCheckResult(
 );
 
 public sealed class SumUpConnectionChecker(HttpClient httpClient, [FromKeyedServices("sumup")] JsonSerializerOptions serializerOptions)
+    : ISumUpConnectionChecker
 {
     private const string PairedStatus = "paired";
     private const string OnlineStatus = "ONLINE";

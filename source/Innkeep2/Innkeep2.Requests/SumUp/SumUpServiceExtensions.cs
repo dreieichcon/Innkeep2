@@ -26,6 +26,7 @@ public static class SumUpServiceCollectionExtensions
 			.AddStaticAuth("Bearer", sp => GetCredential(sp)?.ApiKey ?? string.Empty);
 
 		services.AddTransient<ISumUpClient>(sp => sp.GetRequiredService<SumUpClient>());
+		services.AddTransient<ISumUpConnectionChecker>(sp => sp.GetRequiredService<SumUpConnectionChecker>());
 
 		services.AddHttpClient<SumUpConnectionChecker>(client =>
 		{

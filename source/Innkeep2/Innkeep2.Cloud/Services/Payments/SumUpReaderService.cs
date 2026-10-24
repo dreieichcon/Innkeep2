@@ -5,6 +5,7 @@ using Innkeep2.CredentialsDb.Interfaces;
 using Innkeep2.CredentialsDb.Models;
 using Innkeep2.Models.SumUp;
 using Innkeep2.Requests.SumUp;
+using Serilog;
 
 namespace Innkeep2.Cloud.Services.Payments;
 
@@ -29,6 +30,7 @@ public sealed record SumUpPairingResult(SumUpPairingState State, string Message,
 
 public sealed partial class SumUpReaderService(
     ISumUpClient client,
+    ISumUpConnectionChecker connectionChecker,
     ActiveCredentialProvider<SumUpCredential> accountCredentials,
     ICredentialRepository<SumUpReaderCredential> readerRepository,
     ActiveCredentialProvider<SumUpReaderCredential> readerCredentials,
@@ -40,6 +42,37 @@ public sealed partial class SumUpReaderService(
 
     [GeneratedRegex("^[A-Za-z0-9]{8,9}$")]
     private static partial Regex PairingCodePattern();
+
+    /// <summary>
+    /// Loads the saved readers.
+    /// </summary>
+    public Task<Result<IReadOnlyList<SumUpReaderCredential>>> GetSavedReadersAsync()
+        => readerRepository.GetAllAsync();
+
+    /// <summary>
+    /// Makes the reader the one used for card payments.
+    /// </summary>
+    public async Task<Result> SetActiveAsync(SumUpReaderCredential reader)
+    {
+        var activated = await readerRepository.SetActiveAsync(reader.Id);
+
+        if (activated.IsSuccess)
+            await readerCredentials.ReloadAsync();
+
+        return activated;
+    }
+
+    /// <summary>
+    /// Checks a saved reader at SumUp with the key of the active account.
+    /// </summary>
+    public async Task<SumUpConnectionCheckResult> CheckReaderAsync(SumUpReaderCredential reader, CancellationToken ct = default)
+        => accountCredentials.Active switch
+        {
+            null => new SumUpConnectionCheckResult(SumUpConnectionState.Incomplete, NoAccountMessage),
+            { } account when account.MerchantCode != reader.MerchantCode
+                => new SumUpConnectionCheckResult(SumUpConnectionState.ReaderNotFound, "Der Reader gehört zu einem anderen Händlercode als die aktiven SumUp-Zugangsdaten"),
+            { } account => await connectionChecker.CheckReaderAsync(account.ApiKey, reader.MerchantCode, reader.ReaderId, ct)
+        };
 
     /// <summary>
     /// Pairs a reader with the active SumUp account and waits until the device confirms the pairing.
@@ -158,6 +191,8 @@ public sealed partial class SumUpReaderService(
 
             var polled = await client.GetReaderAsync(merchantCode, reader.Id, ct);
 
+            Log.Debug("Pairing check {Poll} for reader {ReaderId}: {Result}", poll + 1, reader.Id, polled.Error?.Code ?? polled.Value!.Status);
+
             switch (polled.Error?.Code)
             {
                 case null:
@@ -166,9 +201,23 @@ public sealed partial class SumUpReaderService(
                 case "Http.401" or "Http.403":
                     return Fail(SumUpPairingState.InvalidKey, "API Key ungültig oder Berechtigung readers.read fehlt");
                 case "Http.404":
-                    return Fail(SumUpPairingState.Unreachable, "Der Reader ist bei SumUp nicht mehr vorhanden, bitte erneut versuchen");
+                    current = await FindInReaderListAsync(merchantCode, current, ct);
+                    break;
             }
         }
+    }
+
+    /// <summary>
+    /// Looks the reader up in the reader list, because a reader that is not paired yet may not be found by its id.
+    /// Keeps the given reader when the list does not contain it.
+    /// </summary>
+    private async Task<SumUpReader> FindInReaderListAsync(string merchantCode, SumUpReader current, CancellationToken ct)
+    {
+        var listed = await client.ListReadersAsync(merchantCode, ct);
+
+        return listed.IsSuccess
+            ? listed.Value!.Items.FirstOrDefault(x => x.Id == current.Id) ?? current
+            : current;
     }
 
     private async Task<SumUpPairingResult> SaveReaderAsync(string merchantCode, SumUpReader reader, string name)

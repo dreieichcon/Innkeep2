@@ -232,16 +232,79 @@ public class SumUpReaderServicePairTests
     }
 
     [TestMethod]
-    public async Task Pair_StopsPollingWhenTheReaderDisappears()
+    public async Task Pair_UsesTheReaderListWhenTheReaderIsNotFoundByIdYet()
     {
         var fixture = await SumUpReaderServiceFixture.CreateAsync();
         fixture.CreateReturns(SumUpReaderServiceFixture.BuildReader("processing"));
         fixture.GetReturns(SumUpReaderServiceFixture.Failed("Http.404"));
+        fixture.Client.ListReadersAsync(SumUpReaderServiceFixture.MerchantCode, Arg.Any<CancellationToken>()).Returns(
+            Result<SumUpReaderList>.Success(new SumUpReaderList { Items = [SumUpReaderServiceFixture.BuildReader("paired")] }));
 
         var result = await fixture.Service.PairAsync(Code, "Frontdesk");
 
-        Assert.AreEqual(SumUpPairingState.Unreachable, result.State);
-        await fixture.Client.Received(1).GetReaderAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+        Assert.AreEqual(SumUpPairingState.Paired, result.State);
+        await fixture.ReaderRepository.Received(1).CreateAsync(Arg.Is<SumUpReaderCredential>(x => x.ReaderId == "rdr_1"));
+    }
+
+    [TestMethod]
+    public async Task Pair_KeepsPollingWhenTheReaderIsNeitherFoundByIdNorInTheList()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync(maxPolls: 3);
+        fixture.CreateReturns(SumUpReaderServiceFixture.BuildReader("processing"));
+        fixture.GetReturns(SumUpReaderServiceFixture.Failed("Http.404"));
+        fixture.Client.ListReadersAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Result<SumUpReaderList>.Success(new SumUpReaderList { Items = [SumUpReaderServiceFixture.BuildReader("paired", "rdr_other")] }));
+
+        var result = await fixture.Service.PairAsync(Code, "Frontdesk");
+
+        Assert.AreEqual(SumUpPairingState.TimedOut, result.State);
+        await fixture.Client.Received(3).GetReaderAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<CancellationToken>());
+        await fixture.ReaderRepository.DidNotReceiveWithAnyArgs().CreateAsync(default!);
+    }
+
+    [TestMethod]
+    public async Task Pair_FindsTheReaderAfterSeveralNotFoundResponses()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync(maxPolls: 5);
+        fixture.CreateReturns(SumUpReaderServiceFixture.BuildReader("processing"));
+        fixture.GetReturns(
+            SumUpReaderServiceFixture.Failed("Http.404"),
+            SumUpReaderServiceFixture.Failed("Http.404"),
+            SumUpReaderServiceFixture.Ok("paired"));
+        fixture.Client.ListReadersAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Result<SumUpReaderList>.Success(new SumUpReaderList()));
+
+        var result = await fixture.Service.PairAsync(Code, "Frontdesk");
+
+        Assert.AreEqual(SumUpPairingState.Paired, result.State);
+    }
+
+    [TestMethod]
+    public async Task Pair_ExpiredStatusFromTheListEndsThePairing()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync();
+        fixture.CreateReturns(SumUpReaderServiceFixture.BuildReader("processing"));
+        fixture.GetReturns(SumUpReaderServiceFixture.Failed("Http.404"));
+        fixture.Client.ListReadersAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(
+            Result<SumUpReaderList>.Success(new SumUpReaderList { Items = [SumUpReaderServiceFixture.BuildReader("expired")] }));
+
+        var result = await fixture.Service.PairAsync(Code, "Frontdesk");
+
+        Assert.AreEqual(SumUpPairingState.Expired, result.State);
+    }
+
+    [TestMethod]
+    public async Task Pair_KeepsPollingWhenTheReaderListFailsToo()
+    {
+        var fixture = await SumUpReaderServiceFixture.CreateAsync(maxPolls: 3);
+        fixture.CreateReturns(SumUpReaderServiceFixture.BuildReader("processing"));
+        fixture.GetReturns(SumUpReaderServiceFixture.Failed("Http.404"));
+        fixture.Client.ListReadersAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+            .Returns(Result<SumUpReaderList>.Failure(new Error("Http.500", "failed")));
+
+        var result = await fixture.Service.PairAsync(Code, "Frontdesk");
+
+        Assert.AreEqual(SumUpPairingState.TimedOut, result.State);
     }
 
     [TestMethod]
