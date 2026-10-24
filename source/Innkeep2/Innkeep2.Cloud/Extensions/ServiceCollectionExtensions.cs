@@ -43,6 +43,7 @@ public static class ServiceCollectionExtensions
 		services.AddSingleton(new CardPaymentOptions());
 		services.AddSingleton(TimeProvider.System);
 		services.AddSingleton<CardPaymentService>();
+		services.AddSingleton<ICardRefundService, CardRefundService>();
 		services.AddTransient<SumUpReaderService>();
 		services.AddOrderServices();
 		services.AddSunServices();
